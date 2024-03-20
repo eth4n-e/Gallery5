@@ -1,0 +1,7 @@
+changelog:
+  categories:
+    - title: Changes of the week
+      labels:
+        - auto
+        - week1
+        - "*"
