@@ -184,20 +184,26 @@ app.get('/register', (req, res) => {
 // Note: we have const axios above already.
 app.get('/discover', async (req, res) => {
   try {
-    const apiKey = process.env.API_KEY;
+    const XAPP_TOKEN = process.env.token; 
     const keyword = 'music'; // Change this keyword as needed
 
+
+    // need to add two more requests for the discover page
+      // request to get artists
+      // request to get events
+      // want to randomly generate the id's used so that 
+      // each time the discover page is loaded, new items appear
     const response = await axios({
-      url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+      url: 'https://api.artsy.net/api/artworks/{id}',
       method: 'GET',
       dataType: 'json',
       headers: {
         'Accept-Encoding': 'application/json',
+        'X-XAPP-TOKEN': `${XAPP_TOKEN}` //token seems to be passed as a header
       },
       params: {
-        apikey: apiKey,
         keyword: keyword,
-        size: 10, // Size of events 
+        size: 6, // Size of events 
       },
     });
 
@@ -210,7 +216,7 @@ app.get('/discover', async (req, res) => {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Ticketmaster API.' });
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
 
