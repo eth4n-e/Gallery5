@@ -1,0 +1,31 @@
+{{> nav}}
+
+<!-- Plan: implement search bar in middle of screen with "artist" greyed out.
+        User can choose to search via the bar or via the two sections below-->
+
+<!-- section one: top artists-->
+
+<!-- section two: trending artists (sorted via cost of collections) -->
+
+<body>
+
+  <!-- Search Bar -->
+  <div class="container mt-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Artist">
+  </div>
+
+  <!-- Popular Artists Section -->
+  <div class="container mt-5">
+    <h2>Popular Artists</h2>
+    <div class="row" id="popularArtistsRow">
+      <!-- Popular Artists cards will be dynamically added here -->
+    </div>
+  </div>
+
+  <!-- Trending Artists Section -->
+  <div class="container mt-5">
+    <h2>Trending Artists</h2>
+    <div class="row" id="trendingArtistsRow">
+      <!-- Trending Artists cards will be dynamically added here -->
+    </div>
+  </div>

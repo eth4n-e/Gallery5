@@ -1,0 +1,20 @@
+{{> nav}}
+{{> message}}
+
+  <div class="container mt-5">
+    <h2 id="artistName">{{ artist.name }}</h2>
+    <div id="artistDetails">
+      <h5>{{ artist.birth_year ? artist.birth_year + ' - ' : '' }}{{ artist.death_year ? artist.death_year : 'Present' }}</h5>
+      <h5 class="text-muted">{{ artist.hometown ? artist.hometown : 'Unknown' }}</h5>
+    </div>
+    <div id="artistPhoto">
+      <!-- Artist photo or placeholder will be inserted here -->
+    </div>
+    <div id="artistBio">
+      <p>{{{ artist.biography }}}</p>
+    </div>
+    <h3>Top Works</h3>
+    <div id="topWorksContainer">
+      <!-- Top works will be inserted here -->
+    </div>
+  </div>
