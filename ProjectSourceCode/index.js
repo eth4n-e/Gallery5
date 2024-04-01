@@ -229,44 +229,193 @@ app.get('/discover', async (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-// Function to fetch artist information and top artworks
-function fetchArtistInfo(artistName, req, res) {
-  // TODO: Replace 'YOUR_ACCESS_TOKEN' with your actual Artsy access token
-  const accessToken = 'YOUR_ACCESS_TOKEN';
-  const apiUrl = `https://api.artsy.net/api/artists/${encodeURIComponent(artistName)}`;
+document.addEventListener("DOMContentLoaded", function() {
+  // Fetch popular and trending artists data from Artsy API
+  fetchArtists('popular', '#popularArtistsRow');
+  fetchArtists('trending', '#trendingArtistsRow');
+});
 
-  axios.get(apiUrl, {
+/*  The fetchArtists function takes two parameters: 
+ *     -category (either 'popular' or 'trending')
+ *     -targetElementId (the ID of the HTML element where the artist cards will be inserted).
+ *   Depending on the category, appropriate query parameters are defined for sorting and limiting the number of results.
+ *   The Artsy API is called using Axios with the appropriate query parameters and headers (including your Artsy API token).
+ *   For each artist retrieved from the API, an additional request is made to fetch the primary artwork associated with the artist.
+ *   The artist's name and primary artwork information are then used to construct HTML for the artist card, which is inserted into the specified target element in the HTML.
+*/
+
+function fetchArtists(category, targetElementId) {
+  // Define the query parameters based on the category (popular or trending)
+  const queryParameters = {
+    popular: { sort: '-partner_updated_at', size: 6 },
+    trending: { sort: '-trending', size: 6 }
+  };
+
+  // Fetch artists data from Artsy API
+  axios.get('https://api.artsy.net/api/artists', {
+    params: queryParameters[category],
     headers: {
-      'X-Xapp-Token': accessToken
+      'X-Xapp-Token': 'YOUR_ARTSY_API_TOKEN'
+    }
+  })
+  .then(response => {
+    // Check if the response is successful
+    if (response.status === 200) {
+      const artists = response.data._embedded.artists;
+
+      // Populate artists cards
+      const targetElement = document.querySelector(targetElementId);
+      artists.forEach(artist => {
+        // Get the primary artwork of the artist
+        const primaryArtwork = artist._links.artworks.href;
+        axios.get(primaryArtwork, {
+          headers: {
+            'X-Xapp-Token': 'YOUR_ARTSY_API_TOKEN'
+          }
+        })
+        .then(response => {
+          if (response.status === 200) {
+            const artwork = response.data._embedded.artworks[0];
+            // Construct HTML for artist card
+            const artistCard = `
+              <div class="col-md-4">
+                <div class="card mb-3">
+                  <img src="${artwork._links.thumbnail.href}" class="card-img-top" alt="${artist.name}">
+                  <div class="card-body">
+                    <h5 class="card-title">${artist.name}</h5>
+                    <p class="card-text">${artwork.title}</p>
+                    <!-- You can add more artist information here if needed -->
+                  </div>
+                </div>
+              </div>
+            `;
+            // Append artist card to the target element
+            targetElement.insertAdjacentHTML("beforeend", artistCard);
+          }
+        })
+        .catch(error => {
+          console.error('Error fetching artwork:', error);
+        });
+      });
+    } else {
+      console.error('Failed to fetch artists:', response.statusText);
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching artists:', error);
+  });
+}
+
+
+
+
+
+
+
+// index.js
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Fetch artist data from Artsy API
+  const artistId = 'YOUR_ARTIST_ID'; // Replace with the actual artist ID
+  fetchArtist(artistId);
+});
+
+
+
+function fetchArtist(artistId) {
+  // Fetch artist data from Artsy API
+  axios.get(`https://api.artsy.net/api/artists/${artistId}`, {
+    headers: {
+      'X-Xapp-Token': 'YOUR_ARTSY_API_TOKEN'
+    }
+  })
+  .then(response => {
+    // Check if the response is successful
+    if (response.status === 200) {
+      const artist = response.data;
+
+      // Populate artist details on the artist page
+      populateArtistDetails(artist);
+    } else {
+      console.error('Failed to fetch artist:', response.statusText);
+    }
+  })
+  .catch(error => {
+    console.error('Error fetching artist:', error);
+  });
+}
+
+function populateArtistDetails(artist) {
+  // Display artist name
+  const artistName = document.getElementById('artistName');
+  artistName.textContent = artist.name;
+
+  // Display artist dates and location of origin
+  const artistDetails = document.getElementById('artistDetails');
+  artistDetails.innerHTML = `
+    <h5>${artist.birth_year ? artist.birth_year + ' - ' : ''}${artist.death_year ? artist.death_year : 'Present'}</h5>
+    <h5 class="text-muted">${artist.hometown ? artist.hometown : 'Unknown'}</h5>
+  `;
+
+  // Display artist photo or placeholder
+  const artistPhoto = document.getElementById('artistPhoto');
+  if (artist._links.thumbnail) {
+    artistPhoto.innerHTML = `<img src="${artist._links.thumbnail.href}" class="img-fluid" alt="${artist.name}">`;
+  } else {
+    artistPhoto.innerHTML = `<div class="placeholder">No photo available</div>`;
+  }
+
+  // Display artist biography
+  const artistBio = document.getElementById('artistBio');
+  artistBio.textContent = artist.biography;
+
+  // Fetch artist's top works
+  fetchTopWorks(artist._links.artworks.href);
+}
+
+function fetchTopWorks(artworksUrl) {
+  axios.get(artworksUrl, {
+    headers: {
+      'X-Xapp-Token': 'YOUR_ARTSY_API_TOKEN'
     }
   })
   .then(response => {
     if (response.status === 200) {
-      const artistData = response.data;
-      // Confirm user is logged in
-      if (req.session.user) {
-        // Display artist information and top artworks if the user is logged in
-        res.render('pages/artist', { artistData });
-      } else {
-        // Redirect user to login page if not logged in
-        res.redirect('/login');
-      }
+      const artworks = response.data._embedded.artworks;
+
+      // Sort artworks by popularity (you may need to implement this logic)
+      // For demonstration purposes, let's assume artworks are already sorted by popularity
+
+      // Display artist's top works
+      const topWorksContainer = document.getElementById('topWorksContainer');
+      artworks.forEach(artwork => {
+        const artworkCard = `
+          <div class="card mb-3">
+            <div class="row g-0">
+              <div class="col-md-4">
+                <img src="${artwork._links.thumbnail.href}" class="img-fluid rounded-start" alt="${artwork.title}">
+              </div>
+              <div class="col-md-8">
+                <div class="card-body">
+                  <h5 class="card-title">${artwork.title}</h5>
+                  <p class="card-text">${artwork.medium}</p>
+                  <!-- You can add more artwork information here if needed -->
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        topWorksContainer.insertAdjacentHTML("beforeend", artworkCard);
+      });
     } else {
-      // Handle errors if the API call fails
-      res.render('pages/artist', { error: 'Error fetching artist information' });
+      console.error('Failed to fetch top works:', response.statusText);
     }
   })
   .catch(error => {
-    console.error(error);
-    // Handle errors if the API call fails
-    res.render('pages/artist', { error: 'Error fetching artist information' });
+    console.error('Error fetching top works:', error);
   });
 }
 
-app.get('/artist', (req, res) => {
-  const artistName = 'Austin'; // Replace 'Austin' with the actual artist name we want to fetch info for
-  fetchArtistInfo(artistName, req, res);
-});
 
 
 
