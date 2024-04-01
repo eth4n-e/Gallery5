@@ -220,12 +220,6 @@ app.get('/discover', async (req, res) => {
 // *****************************************************
 
 
-
-// *****************************************************
-// <!               Login                   >
-// *****************************************************
-
-
 // *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
@@ -234,6 +228,45 @@ app.get('/discover', async (req, res) => {
 // *****************************************************
 // <!       Artist / Collection -Austin                >
 // *****************************************************
+
+// Function to fetch artist information and top artworks
+function fetchArtistInfo(artistName, req, res) {
+  // TODO: Replace 'YOUR_ACCESS_TOKEN' with your actual Artsy access token
+  const accessToken = 'YOUR_ACCESS_TOKEN';
+  const apiUrl = `https://api.artsy.net/api/artists/${encodeURIComponent(artistName)}`;
+
+  axios.get(apiUrl, {
+    headers: {
+      'X-Xapp-Token': accessToken
+    }
+  })
+  .then(response => {
+    if (response.status === 200) {
+      const artistData = response.data;
+      // Confirm user is logged in
+      if (req.session.user) {
+        // Display artist information and top artworks if the user is logged in
+        res.render('pages/artist', { artistData });
+      } else {
+        // Redirect user to login page if not logged in
+        res.redirect('/login');
+      }
+    } else {
+      // Handle errors if the API call fails
+      res.render('pages/artist', { error: 'Error fetching artist information' });
+    }
+  })
+  .catch(error => {
+    console.error(error);
+    // Handle errors if the API call fails
+    res.render('pages/artist', { error: 'Error fetching artist information' });
+  });
+}
+
+app.get('/artist', (req, res) => {
+  const artistName = 'Austin'; // Replace 'Austin' with the actual artist name we want to fetch info for
+  fetchArtistInfo(artistName, req, res);
+});
 
 
 
