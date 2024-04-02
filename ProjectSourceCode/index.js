@@ -182,41 +182,94 @@ app.get('/register', (req, res) => {
 // *****************************************************
 
 // Note: we have const axios above already.
-app.get('/discover', async (req, res) => {
+
+// handle events api call
+async function getEvents() {
   try {
-    const XAPP_TOKEN = process.env.token; 
-    const keyword = 'music'; // Change this keyword as needed
-
-
-    // need to add two more requests for the discover page
-      // request to get artists
-      // request to get events
-      // want to randomly generate the id's used so that 
-      // each time the discover page is loaded, new items appear
-    const response = await axios({
-      url: 'https://api.artsy.net/api/artworks/{id}',
-      method: 'GET',
-      dataType: 'json',
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios.get({
+      url: 'https://api.artsy.net/fairs',
+      method: 'get',
       headers: {
-        'Accept-Encoding': 'application/json',
-        'X-XAPP-TOKEN': `${XAPP_TOKEN}` //token seems to be passed as a header
+        'accept': 'application/json',
+        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
       },
       params: {
-        keyword: keyword,
-        size: 6, // Size of events 
-      },
-    });
+        status: 'running_and_upcoming', 
+        size: 3
+      }
+    })
 
-    // What we want from API response
-    const results = response.data._embedded ? response.data._embedded.events : [];
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artworks api call
+async function getArtworks() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artworks',
+      method: 'get',
+      headers: {
+        'accept': 'application/json',
+        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
+      },
+      params: {
+        page: 1, 
+        size: 5
+      }
+    })
+
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artists api call
+async function getArtists() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artists',
+      method: 'get',
+      headers: {
+        'accept': 'application/json',
+        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
+      },
+      params: {
+        artworks: true, 
+        sort: '-trending',
+        size: 5,
+        page: 1
+      }
+    })
+
+    return response;
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+app.get('/discover', async (req, res) => {
+  try {
+    const keyword = 'music'; // Change this keyword as needed
+
+    // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+    const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
 
     // Give to discover.hbs
-    res.render('pages/discover', { results });
+    // ask about passing multiple fulfilled promises
+    res.render('pages/discover', { events, artworks, artists });
   } catch (error) {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
 
