@@ -165,6 +165,7 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   // Authentication Middleware
+<<<<<<< HEAD:ProjectSourceCode/index.js
   const auth = (req, res, next) => {
     if (!req.session.user) {
       // Default to login page if not authenticated
@@ -174,6 +175,17 @@ app.get('/register', (req, res) => {
   };
   
   app.use(auth);
+=======
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
+  
+  // app.use(auth);
+>>>>>>> main:ProjectSourceCode/src/index.js
 
 
   
@@ -182,6 +194,7 @@ app.get('/register', (req, res) => {
 // *****************************************************
 
 // Note: we have const axios above already.
+<<<<<<< HEAD:ProjectSourceCode/index.js
 
 // handle events api call
 async function getEvents() {
@@ -266,10 +279,40 @@ app.get('/discover', async (req, res) => {
     // Give to discover.hbs
     // ask about passing multiple fulfilled promises
     res.render('pages/discover', { events, artworks, artists });
+=======
+app.get('/discover', async (req, res) => {
+  try {
+    const apiKey = process.env.API_KEY;
+    const keyword = 'music'; // Change this keyword as needed
+
+    const response = await axios({
+      url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+      method: 'GET',
+      dataType: 'json',
+      headers: {
+        'Accept-Encoding': 'application/json',
+      },
+      params: {
+        apikey: apiKey,
+        keyword: keyword,
+        size: 10, // Size of events 
+      },
+    });
+
+    // What we want from API response
+    const results = response.data._embedded ? response.data._embedded.events : [];
+
+    // Give to discover.hbs
+    res.render('pages/discover', { results });
+>>>>>>> main:ProjectSourceCode/src/index.js
   } catch (error) {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
+<<<<<<< HEAD:ProjectSourceCode/index.js
+=======
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Ticketmaster API.' });
+>>>>>>> main:ProjectSourceCode/src/index.js
   }
 });
 
@@ -277,7 +320,13 @@ app.get('/discover', async (req, res) => {
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
+<<<<<<< HEAD:ProjectSourceCode/index.js
 
+=======
+app.get('/events', (req, res) => {
+  res.render('./pages/events');
+});
+>>>>>>> main:ProjectSourceCode/src/index.js
 
 
 // *****************************************************

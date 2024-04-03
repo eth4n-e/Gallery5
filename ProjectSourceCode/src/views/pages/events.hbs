@@ -1,0 +1,60 @@
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bootstrap Page</title>
+    <!-- Include Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <div class="container mt-5">
+        <!-- Carousel -->
+        <div id="myCarousel" class="carousel slide" data-ride="carousel">
+            <div class="carousel-inner">
+                <!-- Points of Interest -->
+                <div class="carousel-item active">
+                    <h2 class="text-center">Points of Interest</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <img src="poi1.jpg" class="card-img-top" alt="Point of Interest 1">
+                                <div class="card-body">
+                                    <h5 class="card-title">Point of Interest 1</h5>
+                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more cards for other points of interest -->
+                    </div>
+                </div>
+                <!-- Events -->
+                <div class="carousel-item">
+                    <h2 class="text-center">Events</h2>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <img src="event1.jpg" class="card-img-top" alt="Event 1">
+                                <div class="card-body">
+                                    <h5 class="card-title">Event 1</h5>
+                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Add more cards for other events -->
+                    </div>
+                </div>
+            </div>
+            <!-- Carousel controls -->
+            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
+                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
+                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                <span class="sr-only">Next</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Include Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
