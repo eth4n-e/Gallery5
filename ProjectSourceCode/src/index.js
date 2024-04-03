@@ -165,7 +165,6 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   // Authentication Middleware
-<<<<<<< HEAD:ProjectSourceCode/index.js
   const auth = (req, res, next) => {
     if (!req.session.user) {
       // Default to login page if not authenticated
@@ -175,17 +174,6 @@ app.get('/register', (req, res) => {
   };
   
   app.use(auth);
-=======
-  // const auth = (req, res, next) => {
-  //   if (!req.session.user) {
-  //     // Default to login page if not authenticated
-  //     return res.redirect('/login');
-  //   }
-  //   next(); // Allow access if authenticated
-  // };
-  
-  // app.use(auth);
->>>>>>> main:ProjectSourceCode/src/index.js
 
 
   
@@ -194,22 +182,19 @@ app.get('/register', (req, res) => {
 // *****************************************************
 
 // Note: we have const axios above already.
-<<<<<<< HEAD:ProjectSourceCode/index.js
 
 // handle events api call
 async function getEvents() {
   try {
     //axios.get(url, config *e.g headers and such*)
-    const response = await axios.get({
+    const response = await axios({
       url: 'https://api.artsy.net/fairs',
-      method: 'get',
+      method: 'GET',
       headers: {
-        'accept': 'application/json',
-        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
       },
       params: {
         status: 'running_and_upcoming', 
-        size: 3
       }
     })
 
@@ -226,14 +211,9 @@ async function getArtworks() {
     //axios.get(url, config *e.g headers and such*)
     const response = await axios({
       url: 'https://api.artsy.net/artworks',
-      method: 'get',
+      method: 'GET',
       headers: {
-        'accept': 'application/json',
-        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
-      },
-      params: {
-        page: 1, 
-        size: 5
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
       }
     })
 
@@ -250,16 +230,13 @@ async function getArtists() {
     //axios.get(url, config *e.g headers and such*)
     const response = await axios({
       url: 'https://api.artsy.net/artists',
-      method: 'get',
+      method: 'GET',
       headers: {
-        'accept': 'application/json',
-        'X-Access-Token': process.env.XAPP_TOKEN // might need to alter this line
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
       },
       params: {
         artworks: true, 
         sort: '-trending',
-        size: 5,
-        page: 1
       }
     })
 
@@ -271,48 +248,21 @@ async function getArtists() {
 
 app.get('/discover', async (req, res) => {
   try {
-    const keyword = 'music'; // Change this keyword as needed
-
     // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
     const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
 
+    const events_to_render = events._embedded.fairs;
+    const artworks_to_render = artworks._embedded.artworks;
+    const artists_to_render = artists._embedded.artists;
+
     // Give to discover.hbs
     // ask about passing multiple fulfilled promises
-    res.render('pages/discover', { events, artworks, artists });
-=======
-app.get('/discover', async (req, res) => {
-  try {
-    const apiKey = process.env.API_KEY;
-    const keyword = 'music'; // Change this keyword as needed
-
-    const response = await axios({
-      url: 'https://app.ticketmaster.com/discovery/v2/events.json',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'Accept-Encoding': 'application/json',
-      },
-      params: {
-        apikey: apiKey,
-        keyword: keyword,
-        size: 10, // Size of events 
-      },
-    });
-
-    // What we want from API response
-    const results = response.data._embedded ? response.data._embedded.events : [];
-
-    // Give to discover.hbs
-    res.render('pages/discover', { results });
->>>>>>> main:ProjectSourceCode/src/index.js
+    res.render('pages/discover', { events_to_render, artworks_to_render, artists_to_render });
   } catch (error) {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
-<<<<<<< HEAD:ProjectSourceCode/index.js
-=======
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Ticketmaster API.' });
->>>>>>> main:ProjectSourceCode/src/index.js
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
 
@@ -320,13 +270,9 @@ app.get('/discover', async (req, res) => {
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
-<<<<<<< HEAD:ProjectSourceCode/index.js
-
-=======
 app.get('/events', (req, res) => {
   res.render('./pages/events');
 });
->>>>>>> main:ProjectSourceCode/src/index.js
 
 
 // *****************************************************
