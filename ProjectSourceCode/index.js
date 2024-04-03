@@ -165,15 +165,15 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   // Authentication Middleware
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page if not authenticated
-      return res.redirect('/login');
-    }
-    next(); // Allow access if authenticated
-  };
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
   
-  app.use(auth);
+  // app.use(auth);
 
 
   
@@ -218,7 +218,9 @@ app.get('/discover', async (req, res) => {
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
-
+app.get('/events', (req, res) => {
+  res.render('./pages/events');
+});
 
 
 // *****************************************************
