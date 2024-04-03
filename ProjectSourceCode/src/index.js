@@ -264,3 +264,32 @@ console.log('Server is listening on port 3000');
   app.get('/welcome', (req, res) => {
     res.json({status: 'success', message: 'Welcome!'});
   });
+
+  app.get('/register', (req, res) => {
+    res.render('pages/register'); // Render the register page
+  });
+  // store user stuff in db
+  app.post('/register', async (req, res) => {
+    try {
+        // Hash the password using bcrypt library
+        const hash = await bcrypt.hash(req.body.password, 10);
+  
+        // Check if the username already exists in the 'users' table
+        const checkQuery = 'SELECT COUNT(*) FROM users WHERE username = $1';
+        const userCount = await db.one(checkQuery, [req.body.username]);
+  
+        if (userCount.count > 0) { //if user exists
+            
+            res.render('./pages/register', { usernameExists: true }); // Pass the variable to the template, which will display error
+        } else {
+            // Insert username and hashed password into the 'users' table
+            const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
+            await db.none(insertQuery, [req.body.username, hash]);
+            res.redirect('/login');
+        }
+    } catch (error) {
+        // Redirect to GET /register route if the insert fails
+        console.error('Error while registering user:', error);
+        res.redirect('/register');
+    }
+  });
