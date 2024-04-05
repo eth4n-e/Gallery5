@@ -136,7 +136,7 @@ app.get('/register', (req, res) => {
   });
   
   app.post('/register', async (req, res) => {
-    console.log("test");
+   // console.log("test");
     try {
       const usernameLocal = req.body.username;
       const hash = await bcrypt.hash(req.body.password, 10);
@@ -156,17 +156,27 @@ app.get('/register', (req, res) => {
   
       // Register the user with the provided data
       await db.none('INSERT INTO users(username, password) VALUES($1, $2)', [usernameLocal, hash]);
-  
-      // Redirect to login after successful registration with message
-      message = 'Success! Please login with new credentials: '
-      res.status(200).render('pages/login', {message});
+     
+      //at this point we need to redirect to  login, cause registration was successful. 
+      //In order to get unit tests to work, we need to send a redirect, not a render.
+      //the problem is, that redirect takes one paramater, so we cnanot send it the mssage.
+      //Maybe once we set the session we could do something like:
+
+       //res.session.message = 'Success! Please login with new credentials: '
+
+       //until then,
+      res.redirect('/login');  
+
+     // res.render('pages/login', { message: 'Success! Please login with new credentials: ' });
       } catch (error) {
-        console.log("bruh");
+
       console.error(error);
       // Handle errors gracefully (e.g., display error message)
-      //return res.render('pages/register', { message: 'Username already exists. Please choose a different username.' });
-      res.status(400).render('pages/register', { message: 'An error occurred during registration. Please try again.' }); //manually set status cause Express JS is mad dumb
-      //res.status(400).send('Error while registering user:');
+      //now alternatively, instead of testing for redirects, we could test for certain keywords in the HTML response.
+      //in this case, instead of redurecting to register, we can simply render the page, and in the test check that we rendered the page with <title>Register<title>.
+      res.status(400).render('pages/register', { message: 'An error occurred during registration. Please try again.' });
+      
+     
     }
   });
   
@@ -174,7 +184,7 @@ app.get('/register', (req, res) => {
 // *****************************************************
 // <!     Authentication Middleware                   >
 // *****************************************************
-  // Authentication Middleware
+  //Authentication Middleware
   // const auth = (req, res, next) => {
   //   if (!req.session.user) {
   //     // Default to login page if not authenticated
@@ -275,39 +285,3 @@ console.log('Server is listening on port 3000');
     res.json({status: 'success', message: 'Welcome!'});
   });
 
-  // app.get('/register', (req, res) => {
-  //   //console.log("test");
-  //   res.render('pages/register'); // Render the register page
-  // });
-  // // store user stuff in db
-  // app.post('/register', async (req, res) => {
-  //   //console.log("test");
-  //   console.log(req.body.username);
-  //   console.log(req.body.password);
-  //   console.log('Registering user:', req.body);
-  //   try {
-  //       // Hash the password using bcrypt library
-  //       const hash = await bcrypt.hash(req.body.password, 10);
-
-  //       // Check if the username already exists in the 'users' table
-  //       const checkQuery = 'SELECT COUNT(*) FROM users WHERE username = $1';
-  //       const userCount = await db.one(checkQuery, [req.body.username]);
-  
-  //       if (userCount.count > 0) { //if user exists
-            
-  //           res.render('./pages/register', { usernameExists: true }); // Pass the variable to the template, which will display error
-  //       } else {
-  //           // Insert username and hashed password into the 'users' table
-  //           const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
-  //           await db.none(insertQuery, [req.body.username, hash]);
-
-  //           res.redirect('/login');
-  //       }
-  //   } catch (error) {
-  //       // Redirect to GET /register route if the insert fails
-  //       console.error('Error while registering user:', error);
-  //       res.status(400);
-        
-  //       res.redirect('/register');
-  //   }
-  // });

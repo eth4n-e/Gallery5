@@ -37,9 +37,11 @@ describe('Testing Add User API', () => {
       .post('/register')
       .send({username: 'JohnDoe5', password: 'password1234'})
       .end((err, res) => {
-        console.log(res);
+        console.log("reheheh");
+        console.log(res.status);
         res.should.have.status(200); // Expecting a redirect status code
-        //res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/);
+        
+        res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/);
         done();
       });
   });
@@ -50,17 +52,29 @@ describe('Testing Add User API', () => {
       .post('/register')
       .send({username: '', password: 'password1234'})
       .end((err, res) => {
-        console.log("test2");
-        console.log(res.body.message);
-        //console.log(res.text);
-        //console
+        console.log(res.text);
         expect(res).to.have.status(400);
-         // Check for HTML tags or specific content
-        //expect(res.text).to.include('<html>');
-        //expect(res.text).to.include('Error while registering user:'); //based on the way we render, the body is empty, so we do
-        //expect(res.body.message).to.equals('Error while registering user:');
+        expect(res.text).to.include('<title>Register</title>'); //ensure we are rendering register page
+        //res.should.redirectTo(/^.*127\.0\.0\.1.*\/register$/);
+       
         done();
       });
   });
 });
 
+describe('Testing Login', () => {
+  // it('positive : /register', done => {
+  //   chai
+  //     .request(server)
+  //     .post('/register')
+  //     .send({username: 'JohnDoe5', password: 'password1234'})
+  //     .end((err, res) => {
+  //       console.log("reheheh");
+  //       console.log(res.status);
+  //       res.should.have.status(200); // Expecting a redirect status code
+        
+  //       res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/);
+  //       done();
+  //     });
+  // });
+});
