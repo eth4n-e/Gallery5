@@ -70,9 +70,22 @@ app.use(
   })
 );
 
+// Authentication Middleware.
+const auth = (req, res, next) => {
+  if (!req.session.user) {
+    // Default to login page.
+    return res.redirect('/login');
+  }
+  next();
+};
+
+// Authentication Required
+app.use(auth);
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
+
 
 // TODO - Include your API routes here
 
@@ -83,6 +96,7 @@ const user = {
     username: undefined,
     password: undefined,
   };
+  
 
   app.get('/login', (req, res) => {
     res.render('pages/login');
@@ -231,7 +245,19 @@ app.get('/events', (req, res) => {
 // *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
+app.get('/profile', (req, res) => {
+  res.render('pages/profile');
 
+  // display user's artwork
+  
+
+  // display user's favorite artwork
+
+
+  // display user's events
+
+
+});
 
 // *****************************************************
 // <!       Artist / Collection -Austin                >
