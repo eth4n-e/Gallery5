@@ -2,6 +2,7 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
+
 const express = require('express'); // To build an application server or API
 const app = express();
 const handlebars = require('express-handlebars');
@@ -135,16 +136,22 @@ app.get('/register', (req, res) => {
   });
   
   app.post('/register', async (req, res) => {
+    console.log("test");
     try {
       const usernameLocal = req.body.username;
       const hash = await bcrypt.hash(req.body.password, 10);
   
       // Check if the username already exists in the database
       const userExists = await db.oneOrNone('SELECT username FROM users WHERE username = $1', [usernameLocal]);
-  
+      if(!usernameLocal ||!req.body.password){ //if user empty or pass empty
+          throw new Error('Username or password is empty');
+
+      }
       if (userExists) {
         // Username already exists, redirect to register page with error message
-        return res.render('pages/register', { message: 'Username already exists. Please choose a different username.' });
+        throw new Error('Username already exists');
+        
+        
       }
   
       // Register the user with the provided data
@@ -154,8 +161,10 @@ app.get('/register', (req, res) => {
       message = 'Success! Please login with new credentials: '
       res.render('pages/login', {message});
       } catch (error) {
+        console.log("bruh");
       console.error(error);
       // Handle errors gracefully (e.g., display error message)
+      //return res.render('pages/register', { message: 'Username already exists. Please choose a different username.' });
       res.render('pages/register', { message: 'An error occurred during registration. Please try again.' });
     }
   });
@@ -265,31 +274,39 @@ console.log('Server is listening on port 3000');
     res.json({status: 'success', message: 'Welcome!'});
   });
 
-  app.get('/register', (req, res) => {
-    res.render('pages/register'); // Render the register page
-  });
-  // store user stuff in db
-  app.post('/register', async (req, res) => {
-    try {
-        // Hash the password using bcrypt library
-        const hash = await bcrypt.hash(req.body.password, 10);
+  // app.get('/register', (req, res) => {
+  //   //console.log("test");
+  //   res.render('pages/register'); // Render the register page
+  // });
+  // // store user stuff in db
+  // app.post('/register', async (req, res) => {
+  //   //console.log("test");
+  //   console.log(req.body.username);
+  //   console.log(req.body.password);
+  //   console.log('Registering user:', req.body);
+  //   try {
+  //       // Hash the password using bcrypt library
+  //       const hash = await bcrypt.hash(req.body.password, 10);
+
+  //       // Check if the username already exists in the 'users' table
+  //       const checkQuery = 'SELECT COUNT(*) FROM users WHERE username = $1';
+  //       const userCount = await db.one(checkQuery, [req.body.username]);
   
-        // Check if the username already exists in the 'users' table
-        const checkQuery = 'SELECT COUNT(*) FROM users WHERE username = $1';
-        const userCount = await db.one(checkQuery, [req.body.username]);
-  
-        if (userCount.count > 0) { //if user exists
+  //       if (userCount.count > 0) { //if user exists
             
-            res.render('./pages/register', { usernameExists: true }); // Pass the variable to the template, which will display error
-        } else {
-            // Insert username and hashed password into the 'users' table
-            const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
-            await db.none(insertQuery, [req.body.username, hash]);
-            res.redirect('/login');
-        }
-    } catch (error) {
-        // Redirect to GET /register route if the insert fails
-        console.error('Error while registering user:', error);
-        res.redirect('/register');
-    }
-  });
+  //           res.render('./pages/register', { usernameExists: true }); // Pass the variable to the template, which will display error
+  //       } else {
+  //           // Insert username and hashed password into the 'users' table
+  //           const insertQuery = 'INSERT INTO users (username, password) VALUES ($1, $2)';
+  //           await db.none(insertQuery, [req.body.username, hash]);
+
+  //           res.redirect('/login');
+  //       }
+  //   } catch (error) {
+  //       // Redirect to GET /register route if the insert fails
+  //       console.error('Error while registering user:', error);
+  //       res.status(400);
+        
+  //       res.redirect('/register');
+  //   }
+  // });

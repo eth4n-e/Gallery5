@@ -30,4 +30,30 @@ describe('Server!', () => {
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
 // ********************************************************************************
-//TEST
+describe('Testing Add User API', () => {
+  it('positive : /register', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({username: 'JohnDoe5', password: 'password1234'})
+      .end((err, res) => {
+        console.log(res);
+        res.should.have.status(200); // Expecting a redirect status code
+        //res.should.redirectTo(/^.*127\.0\.0\.1.*\/login$/);
+        done();
+      });
+  });
+
+  it('Negative : /register. Checking empty username', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({username: '', password: 'password1234'})
+      .end((err, res) => {
+        expect(res).to.have.status(400);
+        expect(res.body.message).to.equals('Error while registering user:');
+        done();
+      });
+  });
+});
+
