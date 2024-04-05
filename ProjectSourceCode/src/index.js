@@ -159,13 +159,14 @@ app.get('/register', (req, res) => {
   
       // Redirect to login after successful registration with message
       message = 'Success! Please login with new credentials: '
-      res.render('pages/login', {message});
+      res.status(200).render('pages/login', {message});
       } catch (error) {
         console.log("bruh");
       console.error(error);
       // Handle errors gracefully (e.g., display error message)
       //return res.render('pages/register', { message: 'Username already exists. Please choose a different username.' });
-      res.render('pages/register', { message: 'An error occurred during registration. Please try again.' });
+      res.status(400).render('pages/register', { message: 'An error occurred during registration. Please try again.' }); //manually set status cause Express JS is mad dumb
+      //res.status(400).send('Error while registering user:');
     }
   });
   
