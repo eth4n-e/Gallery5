@@ -178,7 +178,7 @@ app.get('/register', (req, res) => {
 
   
 // *****************************************************
-// <!          Home / Discover-Ethan                  >
+// <!          Artworks-Ethan                  >
 // *****************************************************
 
 // Note: we have const axios above already.
@@ -219,6 +219,93 @@ async function getArtworks() {
     }
     */
     res.render('pages/artworks', response._embedded.artworks);
+  } catch (error) {
+    console.error(error);
+
+    // If the API call fails, render pages/discover with an empty results array and the error message
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  }
+});
+
+// *****************************************************
+// <!          Home / Discover-Ethan                  >
+// *****************************************************
+
+// handle events api call
+async function getEvents() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/fairs',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+      },
+      params: {
+        status: 'running_and_upcoming', 
+      }
+    })
+
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artworks api call
+async function getArtworks() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artworks',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+      }
+    })
+
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artists api call
+async function getArtists() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artists',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+      },
+      params: {
+        artworks: true, 
+        sort: '-trending',
+      }
+    })
+
+    return response;
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+app.get('/discover', async (req, res) => {
+  try {
+    // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+    const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+
+    const events_to_render = events._embedded.fairs;
+    const artworks_to_render = artworks._embedded.artworks;
+    const artists_to_render = artists._embedded.artists;
+
+    // Give to discover.hbs
+    // ask about passing multiple fulfilled promises
+    res.render('pages/discover', { events_to_render, artworks_to_render, artists_to_render });
   } catch (error) {
     console.error(error);
 
