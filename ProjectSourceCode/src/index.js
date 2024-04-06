@@ -175,42 +175,124 @@ app.get('/register', (req, res) => {
   
   // app.use(auth);
 
+// *****************************************************
+// <!          Artworks-Ethan                  >
+// *****************************************************
 
-  
+// Note: we have const axios above already.
+
+app.get('/artworks', async (req, res) => {
+  try {
+    const response = await axios({
+      url: 'https://api.artsy.net/artworks',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.X-XAPP-Token
+      }
+    }) 
+
+    /* format of response 
+    {
+      _embedded {
+        artworks: [
+          list of artworks
+        ]
+    */
+    const artworks = response._embedded.artworks;
+
+    res.render('pages/artworks', artworks);
+
+  } catch(error) {
+    console.log(error);
+
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  }
+});
+
 // *****************************************************
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
 
-// Note: we have const axios above already.
-app.get('/discover', async (req, res) => {
+// handle events api call
+async function getEvents() {
   try {
-    const apiKey = process.env.API_KEY;
-    const keyword = 'music'; // Change this keyword as needed
-
+    //axios.get(url, config *e.g headers and such*)
     const response = await axios({
-      url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+      url: 'https://api.artsy.net/fairs',
       method: 'GET',
-      dataType: 'json',
       headers: {
-        'Accept-Encoding': 'application/json',
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
       },
       params: {
-        apikey: apiKey,
-        keyword: keyword,
-        size: 10, // Size of events 
-      },
-    });
+        status: 'running_and_upcoming', 
+      }
+    })
 
-    // What we want from API response
-    const results = response.data._embedded ? response.data._embedded.events : [];
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artworks api call
+async function getArtworks() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artworks',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+      }
+    })
+
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+// handle artists api call
+async function getArtists() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+    const response = await axios({
+      url: 'https://api.artsy.net/artists',
+      method: 'GET',
+      headers: {
+        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+      },
+      params: {
+        artworks: true, 
+        sort: '-trending',
+      }
+    })
+
+    return response;
+  } catch(error) {
+    console.log(error);
+  }
+}
+
+app.get('/discover', async (req, res) => {
+  try {
+    // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+    const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+
+    const events_to_render = events._embedded.fairs;
+    const artworks_to_render = artworks._embedded.artworks;
+    const artists_to_render = artists._embedded.artists;
 
     // Give to discover.hbs
-    res.render('pages/discover', { results });
+    // ask about passing multiple fulfilled promises
+    res.render('pages/discover', { events_to_render, artworks_to_render, artists_to_render });
   } catch (error) {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Ticketmaster API.' });
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
 
