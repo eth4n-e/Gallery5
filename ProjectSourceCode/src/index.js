@@ -186,7 +186,21 @@ app.get('/register', (req, res) => {
 app.get('/artworks', async (req, res) => {
   try {
 
+<<<<<<< Updated upstream
     // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+=======
+    return response;
+
+  } catch(error) {
+    console.log(error);
+  }
+});
+
+// handle artworks api call
+async function getArtworks() {
+  try {
+    //axios.get(url, config *e.g headers and such*)
+>>>>>>> Stashed changes
     const response = await axios({
       url: 'https://api.artsy.net/artworks',
       method: 'GET',
