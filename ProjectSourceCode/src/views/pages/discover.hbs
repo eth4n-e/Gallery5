@@ -11,15 +11,27 @@
         - 
     -->
     <div id="events">
-        <h4>Explore Events</h4>
-
+        <h4 class="text-center">Explore Events</h4>
+        <div class="container">
+            <div class="d-flex flex-row">
+                {{#each events_to_render}}
+                    <div class="card mb-3">
+                        <img src="..." class="card-img-top">
+                        <div class="card-body">
+                            <h6 class="card-title">Card Title</h6>
+                            <p class="card-text">example text</p>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
     </div>
     <div id="artworks">
-        <h4>Inspect Artworks</h4>
+        <h4 class="text-center">Inspect Artworks</h4>
 
     </div>
     <div id="artists">
-        <h4>Discover Artists</h4>
+        <h4 class="text-center">Discover Artists</h4>
         
     </div>
 </div>

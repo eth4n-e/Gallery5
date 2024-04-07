@@ -1,0 +1,27 @@
+<div>
+    <!--
+        Setup:
+        - discover route should make API calls to Artsy, retrieving Events, Artworks, Artists
+        - grid like structure
+            - hierarchy:
+                - Events
+                - Artworks
+                - Artists
+        - will display a sample of the ones retrieved by the API
+        - 
+    -->
+    <h4 class="text-center"></h4>
+    <div class="container">
+        <div class="d-flex flex-row">
+            {{#each artworks}}
+                <div class="card mb-3">
+                    <img src="..." class="card-img-top">
+                    <div class="card-body">
+                        <h6 class="card-title">Card Title</h6>
+                        <p class="card-text">example text</p>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</div>

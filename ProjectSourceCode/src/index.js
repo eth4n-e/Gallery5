@@ -187,7 +187,7 @@ app.get('/artworks', async (req, res) => {
       url: 'https://api.artsy.net/artworks',
       method: 'GET',
       headers: {
-        'X-XAPP-Token': process.env.X-XAPP-Token
+        'X-XAPP-Token': `${process.env.TOKEN}`
       }
     }) 
 
@@ -198,12 +198,12 @@ app.get('/artworks', async (req, res) => {
           list of artworks
         ]
     */
-    const artworks = response._embedded.artworks;
+    const artworks = response.data._embedded.artworks;
 
     res.render('pages/artworks', artworks);
 
   } catch(error) {
-    console.log(error);
+    //console.log(error);
 
     res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
@@ -214,85 +214,107 @@ app.get('/artworks', async (req, res) => {
 // *****************************************************
 
 // handle events api call
-async function getEvents() {
-  try {
-    //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/fairs',
-      method: 'GET',
-      headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
-      },
-      params: {
-        status: 'running_and_upcoming', 
-      }
-    })
+function getEvents() {
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    }, 
+    params: {
+      status: 'running_and_upcoming'
+    }
+  };
 
-    return response;
-
-  } catch(error) {
-    console.log(error);
-  }
+  return axios.get('https://api.artsy.net/fairs', config)
+  .catch(err => {
+    console.log('Error fetching events:', err);
+    throw err;
+  });
 }
 
 // handle artworks api call
-async function getArtworks() {
-  try {
-    //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/artworks',
-      method: 'GET',
-      headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
-      }
-    })
-
-    return response;
-
-  } catch(error) {
-    console.log(error);
+function getArtworks() {
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    }
   }
+
+  return axios.get('https://api.artsy.net/artworks', config)
+  .catch(err => {
+    console.log('Error fetching artworks:', err);
+    throw err;
+  });
 }
 
 // handle artists api call
-async function getArtists() {
-  try {
-    //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/artists',
-      method: 'GET',
-      headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
-      },
-      params: {
-        artworks: true, 
-        sort: '-trending',
-      }
-    })
+function getArtists() {
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    }, 
+    params: {
+      artworks:true,
+      sort: '-trending'
+    }
+  };
 
-    return response;
-  } catch(error) {
-    console.log(error);
-  }
+  return axios.get('https://api.artsy.net/artists', config)
+    .catch(err => {
+      console.log('Error fetching artists:', err);
+      throw err;
+    });
 }
 
 app.get('/discover', async (req, res) => {
+  // try {
+  //   // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+  //   const [eventsRes, artworksRes, artistsRes] = await Promise.all([
+  //     getEvents(), 
+  //     getArtworks(), 
+  //     getArtists()
+  //   ]); 
+
+  //   const eventsData = eventsRes._embedded.fairs;
+  //   const artworksData = artworksRes._embedded.artworks;
+  //   const artistsData = artistsRes._embedded.artists;
+
+  //   // Give to discover.hbs
+  //   // ask about passing multiple fulfilled promises
+  //   res.render('pages/discover', { eventsData, artworksData, artistsData });
+  // } catch (error) {
+  //   console.error(error);
+
+  //   // If the API call fails, render pages/discover with an empty results array and the error message
+  //   res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  // }
+
   try {
-    // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-    const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+    // const eventsRes = await getEvents();
+    // const artworksRes = await getArtworks();
+    // const artistsRes = await getArtists();
 
-    const events_to_render = events._embedded.fairs;
-    const artworks_to_render = artworks._embedded.artworks;
-    const artists_to_render = artists._embedded.artists;
+    // console.log(eventsRes);
 
-    // Give to discover.hbs
-    // ask about passing multiple fulfilled promises
-    res.render('pages/discover', { events_to_render, artworks_to_render, artists_to_render });
-  } catch (error) {
-    console.error(error);
+    // // const eventsData = eventsRes._embedded.fairs;
+    // // const artworksData = artworksRes._embedded.artworks;
+    // // const artistsData = artistsRes._embedded.artists;
 
-    // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+    // res.render('pages/discover', {
+    //   eventsData, 
+    //   artworksData, 
+    //   artistsData
+    // });
+    const artworksRes = await getArtworks();
+
+    return artworksRes;
+  } catch(err) {
+    console.log(err);
+
+    res.render('pages/discover', {
+      eventsData: [], 
+      artworksData: [], 
+      artistsData: [], 
+      message: 'An error occurred while fetching data from the Artsy API.'});
   }
 });
 
