@@ -266,9 +266,7 @@ app.get('/discover', async (req, res) => {
     const artworks = artworksRes.data._embedded.artworks;
     const artists = artistsRes.data._embedded.artists;
 
-    console.log(events);
-    console.log(artworks);
-    console.log(artists);
+
     // Give to discover.hbs
     // ask about passing multiple fulfilled promises
     res.render('pages/discover', { events, artworks, artists });
