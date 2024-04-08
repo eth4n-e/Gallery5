@@ -111,7 +111,7 @@ const user = {
             req.session.save();
     
             // Redirect to /discover route after setting the session
-            res.redirect('/discover');
+            res.redirect('./pages/events');
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
@@ -304,6 +304,54 @@ app.get('/events', (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
+const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMxMzg2MTksImlhdCI6MTcxMjUzMzgxOSwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTMzMTNiZTE5N2E1MDAwYzE3ZmJiOCJ9.8ASPLIdmWp5B4lvBkAlGbfwyw_qaHQhWMZ5DNULdPVw';
+
+// // Route handler for '/artists'
+// const fetchSimilarArtists = require('../resources/js/script.js');
+
+// app.get('/artists', async (req, res) => {
+//   // ... other code (e.g., retrieving artist ID)
+
+//   try {
+//     const similarArtists = await fetchSimilarArtists(artistId); // Assuming function takes artist ID as argument
+//     res.render('./pages/allArtists', { similarArtists }); // Pass similar artists data to the template
+//   } catch (error) {
+//     console.error('Error fetching similar artists:', error);
+//     // Handle errors (e.g., render page with error message)
+//     res.render('./pages/allArtists', { error: 'An error occurred while fetching similar artists.' });
+//   }
+// });
+
+
+app.get('/artists', async (req, res) => {
+  try {
+    const apiKey = process.env.API_KEY;
+    const keyword = '4d8b927b4eb68a1b2c000148'; // Change this keyword as needed
+
+    const response = await axios({
+      url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
+      method: 'GET',
+      dataType: 'json',
+      headers: {
+        'X-XApp-Token': xapptoken
+      },
+      params: {
+        similar_to_artist_id: keyword
+      },
+    });
+
+    // What we want from API response
+    const results = response.data._embedded ? response.data._embedded.artists : [];
+
+    // Give to discover.hbs
+    res.render('./pages/allArtists', { results });
+  } catch (error) {
+    console.error(error);
+
+    // If the API call fails, render pages/discover with an empty results array and the error message
+    res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  }
+});
 
 
 
