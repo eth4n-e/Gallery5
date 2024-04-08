@@ -60,7 +60,7 @@
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
 
-{{!-- <button onclick="getLocation()">Try It</button>
+<button onclick="getLocation()">Try It</button>
 
 <p id="demo"></p>
 
@@ -79,7 +79,7 @@ function showPosition(position) {
   x.innerHTML = "Latitude: " + position.coords.latitude + 
   "<br>Longitude: " + position.coords.longitude;
 }
-</script> --}}
+</script>
 
 <div class="container mt-5">
     <div class="row justify-content-center">
@@ -91,12 +91,30 @@ function showPosition(position) {
                 frameborder="0"
                 style="border:0"
                 referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key=AIzaSyBuNqZC4SWBOPjGiN3uN1u27sTR3caa3J8&q=art+near+Boulder"
+                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art+near+Boulder"
                 allowfullscreen>
             </iframe>
         </div>
     </div>
 </div>
+
+{{!-- <div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2 class="text-center">Art Near You</h2>
+            <iframe
+                width="100%"
+                height="400"
+                frameborder="0"
+                style="border:0"
+                referrerpolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center=40.0150,&zoom=13"
+                allowfullscreen>
+            </iframe>
+        </div>
+    </div>
+</div> --}}
+
 
 {{!-- <iframe
   width="450"

@@ -241,7 +241,8 @@ app.get('/discover', async (req, res) => {
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
-  res.render('./pages/events');
+  const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
+  res.render('./pages/events',{API_KEY});
 });
 
 
