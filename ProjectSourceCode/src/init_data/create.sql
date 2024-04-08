@@ -7,7 +7,7 @@ DROP TABLE IF EXISTS artists;
 CREATE TABLE IF NOT EXISTS users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(30) NOT NULL,
+    password VARCHAR(300) NOT NULL,
     email VARCHAR(255) NOT NULL,
     firstname VARCHAR(60),
     lastname VARCHAR(60),
