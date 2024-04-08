@@ -249,6 +249,75 @@ app.get('/artwork', async (req, res) => {
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
 
+function getEvents() {
+  //axios.get(url, config *e.g headers and such*)
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    },
+    params: {
+      status: 'running_and_upcoming'
+    }
+  };
+
+  return axios.get('https://api.artsy.net/api/fairs', config)
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+// handle artworks api call
+function getArtworks() {
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    }
+  }
+  //axios.get(url, config *e.g headers and such*)
+  return axios.get('https://api.artsy.net/api/artworks', config)
+    .catch(err => {
+      console.log(err);
+    });
+}
+
+// handle artists api call
+function getArtists() {
+  const config = {
+    headers: {
+      'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    },
+    params: {
+      artworks: true,
+      sort: '-trending'
+    }
+  };
+  //axios.get(url, config *e.g headers and such*)
+  return axios.get('https://api.artsy.net/api/artists', config)
+    .catch(err => {
+      console.log(err);
+    })
+}
+
+app.get('/discover', async (req, res) => {
+try {
+  // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+  const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+
+  const events = eventsRes.data._embedded.fairs;
+  const artworks = artworksRes.data._embedded.artworks;
+  const artists = artistsRes.data._embedded.artists;
+
+  // Give to discover.hbs
+  // ask about passing multiple fulfilled promises
+  res.render('pages/discover', { events, artworks, artists });
+} catch (error) {
+  console.error(error);
+
+  // If the API call fails, render pages/discover with an empty results array and the error message
+  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+}
+});
+
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
