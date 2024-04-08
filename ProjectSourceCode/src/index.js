@@ -246,44 +246,45 @@ app.get('/events', (req, res) => {
 // <!               Profile- Catherine                 >
 // *****************************************************
 app.get('/profile', async (req, res) => {
+  const usernameLocal = req.body.username;
 
   // display user's artwork
   try {
     // Assuming you have a table named 'artwork' where each row represents a piece of artwork associated with a user
-    const userArtwork = await db.any('SELECT * FROM artwork WHERE user_id = profile', [req.session.user.id]); // will be based on tables
+    const userArtwork = await db.any('SELECT * FROM artwork WHERE user_id = usernameLocal', [req.session.user.id]); // will be based on tables
     
     // Render the profile page and pass the user artwork data to it
     res.render('pages/profile', { userArtwork });
   } catch (error) {
     console.error(error);
 
-    res.status(500).send('An error occurred while fetching user artwork.');
+    res.status(500).send('An error occurred while fetching your artwork.');
   }
 
   // display user's favorite artwork
   try {
     // Assuming you have a table named 'artwork' where each row represents a piece of artwork associated with a user
-    const userArtwork = await db.any('SELECT * FROM artwork WHERE user_id = fav', [req.session.user.id]); // will be based on tables
+    const userArtwork = await db.any('SELECT * FROM artwork WHERE follow_id = $1', [req.session.user.id]); // will be based on tables
     
     // Render the profile page and pass the user artwork data to it
     res.render('pages/profile', { userArtwork });
   } catch (error) {
     console.error(error);
     
-    res.status(500).send('An error occurred while fetching user artwork.');
+    res.status(500).send('An error occurred while fetching your favorite artwork.');
   }
 
   // display user's events
   try {
     // Query to fetch events that the user plans to attend
-    const userEvents = await db.any('SELECT * FROM user_events WHERE user_id = profile', [req.session.user.id]); // will be based on tables
+    const userEvents = await db.any('SELECT * FROM user_events WHERE user_id = $1', [req.session.user.id]); // will be based on tables
     
     // Render the profile page and pass the user's events data to it
     res.render('pages/profile', { userEvents });
   } catch (error) {
     console.error(error);
 
-    res.status(500).send('An error occurred while fetching user events.');
+    res.status(500).send('An error occurred while fetching your events.');
   }
 
 });
