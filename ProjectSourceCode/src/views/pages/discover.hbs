@@ -11,15 +11,15 @@
         - 
     -->
     <div id="events">
-        <h4 class="text-center">Explore Events</h4>
-        <div class="container">
-            <div class="d-flex flex-row">
+        <h4 class="text-center mt-2">Explore Events</h4>
+        <div class="container-md mb-2">
+            <div class="row gx-4">
                 {{#each events}}
-                    <div class="card mb-3">
-                        <img src="..." class="card-img-top">
-                        <div class="card-body">
-                            <h6 class="card-title">{{name}}</h6>
-                            <p class="card-text">{{about}}</p>
+                    <div class="col">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">{{name}}</h6>
+                            </div>
                         </div>
                     </div>
                 {{/each}}
@@ -28,7 +28,25 @@
     </div>
     <div id="artworks">
         <h4 class="text-center">Inspect Artworks</h4>
-
+        <div class="container-md mb-2">
+            <div class="row gx-4">
+                {{#each artworks}}
+                    <div class="col">
+                        <div class="card h-100">
+                            <img src={{_links.thumbnail.href}} class="card-img-top">
+                            <div class="card-body">
+                                <h6 class="card-title">{{title}}</h6>
+                                <div class="card-text">
+                                    <p>{{add artist here}}</p>
+                                    <p>{{medium}}</p>
+                                    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
     </div>
     <div id="artists">
         <h4 class="text-center">Discover Artists</h4>
