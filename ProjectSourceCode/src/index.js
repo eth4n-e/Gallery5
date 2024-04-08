@@ -13,6 +13,9 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
+//ask about how to get .env variables when in different directory
+const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NWY1ZGExYmRmMTI4NzAwMGMwY2ZiM2QiLCJzYWx0X2hhc2giOiJlZDdhZjU5ZjMyZDZhNjE4NzcxNjVjMDdjYjVlYzk3YSIsInJvbGVzIjoidXNlciIsInBhcnRuZXJfaWRzIjpbXSwib3RwIjpmYWxzZSwiZXhwIjoxNzQzNTMyNTg3LCJpYXQiOjE3MTE5OTY1ODcsImF1ZCI6IjUzZmYxYmNjNzc2ZjcyNDBkOTAwMDAwMCIsImlzcyI6IkdyYXZpdHkiLCJqdGkiOiI2NjBhZmVhYjNiYTI4YTAwMGVjNjE0NGYifQ.5fi_I8bcrv2KL0xpuW2aX_fcC5e6Q9Jr9pc9yRVR4VM";
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -165,15 +168,15 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   // Authentication Middleware
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page if not authenticated
-      return res.redirect('/login');
-    }
-    next(); // Allow access if authenticated
-  };
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
   
-  app.use(auth);
+  // app.use(auth);
 
 
   
@@ -184,80 +187,70 @@ app.get('/register', (req, res) => {
 // Note: we have const axios above already.
 
 // handle events api call
-async function getEvents() {
-  try {
+function getEvents() {
     //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/fairs',
-      method: 'GET',
+    const config = {
       headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+        'X-XAPP-Token': token
       },
       params: {
-        status: 'running_and_upcoming', 
+        status: 'running_and_upcoming'
       }
-    })
+    };
 
-    return response;
-
-  } catch(error) {
-    console.log(error);
-  }
+    return axios.get('https://api.artsy.net/api/fairs', config)
+      .catch(err => {
+        console.log(err);
+      });
 }
 
 // handle artworks api call
-async function getArtworks() {
-  try {
-    //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/artworks',
-      method: 'GET',
+function getArtworks() {
+    const config = {
       headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+        'X-XAPP-Token': token
       }
-    })
-
-    return response;
-
-  } catch(error) {
-    console.log(error);
-  }
+    }
+    //axios.get(url, config *e.g headers and such*)
+    return axios.get('https://api.artsy.net/api/artworks', config)
+      .catch(err => {
+        console.log(err);
+      });
 }
 
 // handle artists api call
-async function getArtists() {
-  try {
-    //axios.get(url, config *e.g headers and such*)
-    const response = await axios({
-      url: 'https://api.artsy.net/artists',
-      method: 'GET',
+function getArtists() {
+    const config = {
       headers: {
-        'X-XAPP-Token': process.env.XAPP_TOKEN // might need to alter this line
+        'X-XAPP-Token': token
       },
       params: {
-        artworks: true, 
-        sort: '-trending',
+        artworks: true,
+        sort: '-trending'
       }
-    })
-
-    return response;
-  } catch(error) {
-    console.log(error);
-  }
+    };
+    //axios.get(url, config *e.g headers and such*)
+    return axios.get('https://api.artsy.net/api/artists', config)
+      .catch(err => {
+        console.log(err);
+      })
 }
 
 app.get('/discover', async (req, res) => {
   try {
     // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-    const [events, artworks, artists] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+    const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
 
-    const events_to_render = events._embedded.fairs;
-    const artworks_to_render = artworks._embedded.artworks;
-    const artists_to_render = artists._embedded.artists;
+    const events = eventsRes.data._embedded.fairs;
+    const artworks = artworksRes.data._embedded.artworks;
+    const artists = artistsRes.data._embedded.artists;
 
+    console.log(events);
+    console.log(artworks);
+    console.log(artists);
     // Give to discover.hbs
     // ask about passing multiple fulfilled promises
-    res.render('pages/discover', { events_to_render, artworks_to_render, artists_to_render });
+    res.render('pages/discover', { events, artworks, artists });
   } catch (error) {
     console.error(error);
 
