@@ -237,7 +237,7 @@ app.get('/artwork', async (req, res) => {
     res.redirect('/register');
 
   }
-}
+})
 
 
 
