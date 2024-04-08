@@ -237,29 +237,16 @@ app.get('/events', (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-const xaccesstoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMxMjI0NDcsImlhdCI6MTcxMjUxNzY0NywiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTJmMjBmNWUyMThiMDAwYjc5YjhjNSJ9.A6lDkBHBbQEjVZISEodcCDasnJgsmclvsQHK55V2Pqo';
+const xaccesstoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMxMzg2MTksImlhdCI6MTcxMjUzMzgxOSwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTMzMTNiZTE5N2E1MDAwYzE3ZmJiOCJ9.8ASPLIdmWp5B4lvBkAlGbfwyw_qaHQhWMZ5DNULdPVw';
 
+// Route handler for '/artists'
 app.get('/artists', async (req, res) => {
-  try {
-    const xaccesstoken = 'YOUR_ARTSY_API_ACCESS_TOKEN';
-
-    // Fetch data from Artsy API
-    const response = await axios.get('https://api.artsy.net/api/artists', {
-      headers: {
-        'X-Access-Token': xaccesstoken
-      }
-    });
-
-    // Extract artists from the response
-    const artists = response.data;
-
-    // Render the view with the fetched artists data
-    res.render(path.join(__dirname, 'views', 'pages', 'allArtists'), { artists });
-  } catch (error) {
-    console.error('Error fetching artists:', error);
-    res.status(500).send('Error fetching artists');
-  }
+  // Your logic to fetch artists data from Artsy API or database goes here
+  // Example:
+  const artistsData = await fetchArtistsFromArtsy();
+  res.json(artistsData); // Send JSON response containing artists data
 });
+
 
 
 // *****************************************************
