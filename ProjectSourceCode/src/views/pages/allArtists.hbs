@@ -1,25 +1,33 @@
-
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Display All Artists Page</title>
-<!-- Include Bootstrap CSS -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
-  <!-- Search Bar -->
+  
   <div class="container mt-3">
     <input type="text" id="searchInput" class="form-control" placeholder="Search Artists">
   </div>
-
- <!-- display artists --->
-<div class="container mt-5">
-    <h2>All Artists</h2>
-    <!-- Container for artist information -->
-      <div id="artistContainer">
-        <!-- Artist information will be dynamically inserted here -->
-      </div>
-
-      <!-- Include jQuery library -->
-      <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-      <!-- Include your script.js file -->
-      <script src="../../.././resources/js/script.js"></script>
+<div class = "container mt-5" id="artistContainer">
+{{#if results}}
+<h1>Similar Artists for {{ keyword }}</h1>
+<div class="artist-grid">
+  {{#each results}}
+    <div class="artist-card">
+      <a href="/artists/{{ this.id }}">
+        {{#if this._links.thumbnail}}
+          <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="artist-image">
+        {{/if}}
+        <div class="artist-info">
+          <h3>{{ this.name }}</h3>
+        </div>
+      </a>
+    </div>
+  {{/each}}
 </div>
+{{else}}
+  {{#if message}}
+    <p class="error-message">{{ message }}</p> {{else}}
+    <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
+  {{/if}}
+{{/if}}
+
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="../../../resources/js/script.js">

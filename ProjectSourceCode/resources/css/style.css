@@ -1,0 +1,44 @@
+.artist-card {
+    display: inline-block; /* Arrange cards side-by-side */
+    width: 300px; /* Adjust width as needed */
+    height: 450px; /* Adjust height as needed */
+    margin: 10px; /* Add spacing between cards */
+    background-color: #fff; /* White background */
+    border: 1px solid #ddd; /* Light gray border */
+    border-radius: 4px; /* Rounded corners */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    overflow: hidden; /* Clip content within card */
+    position: relative; /* Enable positioning for image overlay */
+  }
+  
+  .artist-image {
+    width: 100%; /* Fill entire card width */
+    height: 300px; /* Adjust image height */
+    object-fit: cover; /* Crop image to fit while maintaining aspect ratio */
+    transition: transform 0.3s ease-in-out; /* Smooth image hover effect */
+  }
+  
+  .artist-card:hover .artist-image {
+    transform: scale(1.1); /* Enlarge image slightly on hover */
+  }
+  
+  .artist-info {
+    position: absolute; /* Position info on top of image */
+    bottom: 0; /* Align to bottom of card */
+    width: 100%; /* Span entire card width */
+    padding: 10px; /* Add padding for content */
+    background-color: rgba(0, 0, 0, 0.7); /* Semi-transparent black background */
+    color: #fff; /* White text for readability */
+    text-align: center; /* Center text alignment */
+    transition: background-color 0.3s ease-in-out; /* Smooth background fade on hover */
+  }
+  
+  .artist-card:hover .artist-info {
+    background-color: rgba(0, 0, 0, 0.5); /* Darken background on hover */
+  }
+  
+  .artist-grid {
+    display: flex; /* Enable flexbox layout */
+    flex-wrap: wrap; /* Wrap cards onto multiple lines */
+  }
+  
