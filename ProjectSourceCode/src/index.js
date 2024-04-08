@@ -14,6 +14,8 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
+//ask about how to get .env variables when in different directory
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -204,35 +206,77 @@ app.get('/register', (req, res) => {
 // *****************************************************
 
 // Note: we have const axios above already.
-app.get('/discover', async (req, res) => {
-  try {
-    const apiKey = process.env.API_KEY;
-    const keyword = 'music'; // Change this keyword as needed
 
-    const response = await axios({
-      url: 'https://app.ticketmaster.com/discovery/v2/events.json',
-      method: 'GET',
-      dataType: 'json',
+// handle events api call
+function getEvents() {
+    //axios.get(url, config *e.g headers and such*)
+    const config = {
       headers: {
-        'Accept-Encoding': 'application/json',
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
       },
       params: {
-        apikey: apiKey,
-        keyword: keyword,
-        size: 10, // Size of events 
+        status: 'running_and_upcoming'
+      }
+    };
+
+    return axios.get('https://api.artsy.net/api/fairs', config)
+      .catch(err => {
+        console.log(err);
+      });
+}
+
+// handle artworks api call
+function getArtworks() {
+    const config = {
+      headers: {
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
+      }
+    }
+    //axios.get(url, config *e.g headers and such*)
+    return axios.get('https://api.artsy.net/api/artworks', config)
+      .catch(err => {
+        console.log(err);
+      });
+}
+
+// handle artists api call
+function getArtists() {
+    const config = {
+      headers: {
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
       },
-    });
+      params: {
+        artworks: true,
+        sort: '-trending'
+      }
+    };
+    //axios.get(url, config *e.g headers and such*)
+    return axios.get('https://api.artsy.net/api/artists', config)
+      .catch(err => {
+        console.log(err);
+      })
+}
 
-    // What we want from API response
-    const results = response.data._embedded ? response.data._embedded.events : [];
+app.get('/discover', async (req, res) => {
+  try {
+    // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
+    const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
 
+    const events = eventsRes.data._embedded.fairs;
+    const artworks = artworksRes.data._embedded.artworks;
+    const artists = artistsRes.data._embedded.artists;
+
+    console.log(events);
+    console.log(artworks);
+    console.log(artists);
     // Give to discover.hbs
-    res.render('pages/discover', { results });
+    // ask about passing multiple fulfilled promises
+    res.render('pages/discover', { events, artworks, artists });
   } catch (error) {
     console.error(error);
 
     // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Ticketmaster API.' });
+    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
 
