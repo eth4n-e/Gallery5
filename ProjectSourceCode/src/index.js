@@ -13,6 +13,8 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
+const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NWY1ZGExYmRmMTI4NzAwMGMwY2ZiM2QiLCJzYWx0X2hhc2giOiJlZDdhZjU5ZjMyZDZhNjE4NzcxNjVjMDdjYjVlYzk3YSIsInJvbGVzIjoidXNlciIsInBhcnRuZXJfaWRzIjpbXSwib3RwIjpmYWxzZSwiZXhwIjoxNzQzNTMyNTg3LCJpYXQiOjE3MTE5OTY1ODcsImF1ZCI6IjUzZmYxYmNjNzc2ZjcyNDBkOTAwMDAwMCIsImlzcyI6IkdyYXZpdHkiLCJqdGkiOiI2NjBhZmVhYjNiYTI4YTAwMGVjNjE0NGYifQ.5fi_I8bcrv2KL0xpuW2aX_fcC5e6Q9Jr9pc9yRVR4VM";
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -183,13 +185,13 @@ app.get('/register', (req, res) => {
 
 // Note: we have const axios above already.
 
-app.get('/artworks', async (req, res) => {
+app.get('/artwork', async (req, res) => {
   try {
     const response = await axios({
-      url: 'https://api.artsy.net/artworks',
+      url: 'https://api.artsy.net/api/artworks',
       method: 'GET',
       headers: {
-        'X-XAPP-Token': process.env.X-XAPP-Token
+        'X-XAPP-Token': token
       }
     }) 
 
@@ -200,14 +202,16 @@ app.get('/artworks', async (req, res) => {
           list of artworks
         ]
     */
-    const artworks = response._embedded.artworks;
+    console.log(response.data._embedded.artworks);
+
+    const artworks = response.data._embedded.artworks;
 
     res.render('pages/artworks', artworks);
 
   } catch(error) {
     console.log(error);
 
-    res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+    res.redirect('/register');
   }
 });
 
