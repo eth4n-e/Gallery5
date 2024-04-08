@@ -14,7 +14,7 @@ const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 
 //ask about how to get .env variables when in different directory
-const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NWY1ZGExYmRmMTI4NzAwMGMwY2ZiM2QiLCJzYWx0X2hhc2giOiJlZDdhZjU5ZjMyZDZhNjE4NzcxNjVjMDdjYjVlYzk3YSIsInJvbGVzIjoidXNlciIsInBhcnRuZXJfaWRzIjpbXSwib3RwIjpmYWxzZSwiZXhwIjoxNzQzNTMyNTg3LCJpYXQiOjE3MTE5OTY1ODcsImF1ZCI6IjUzZmYxYmNjNzc2ZjcyNDBkOTAwMDAwMCIsImlzcyI6IkdyYXZpdHkiLCJqdGkiOiI2NjBhZmVhYjNiYTI4YTAwMGVjNjE0NGYifQ.5fi_I8bcrv2KL0xpuW2aX_fcC5e6Q9Jr9pc9yRVR4VM";
+// const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiI2NWY1ZGExYmRmMTI4NzAwMGMwY2ZiM2QiLCJzYWx0X2hhc2giOiJlZDdhZjU5ZjMyZDZhNjE4NzcxNjVjMDdjYjVlYzk3YSIsInJvbGVzIjoidXNlciIsInBhcnRuZXJfaWRzIjpbXSwib3RwIjpmYWxzZSwiZXhwIjoxNzQzNTMyNTg3LCJpYXQiOjE3MTE5OTY1ODcsImF1ZCI6IjUzZmYxYmNjNzc2ZjcyNDBkOTAwMDAwMCIsImlzcyI6IkdyYXZpdHkiLCJqdGkiOiI2NjBhZmVhYjNiYTI4YTAwMGVjNjE0NGYifQ.5fi_I8bcrv2KL0xpuW2aX_fcC5e6Q9Jr9pc9yRVR4VM";
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -191,7 +191,7 @@ function getEvents() {
     //axios.get(url, config *e.g headers and such*)
     const config = {
       headers: {
-        'X-XAPP-Token': token
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
       },
       params: {
         status: 'running_and_upcoming'
@@ -208,7 +208,7 @@ function getEvents() {
 function getArtworks() {
     const config = {
       headers: {
-        'X-XAPP-Token': token
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
       }
     }
     //axios.get(url, config *e.g headers and such*)
@@ -222,7 +222,7 @@ function getArtworks() {
 function getArtists() {
     const config = {
       headers: {
-        'X-XAPP-Token': token
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
       },
       params: {
         artworks: true,
