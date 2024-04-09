@@ -16,7 +16,7 @@
             <div class="row gx-4">
                 {{#each events}}
                     <div class="col">
-                        <div class="card h-100">
+                        <div class="card h-100 shadow">
                             <div class="card-body">
                                 <h6 class="card-title">{{name}}</h6>
                             </div>
@@ -28,18 +28,16 @@
     </div>
     <div id="artworks">
         <h4 class="text-center">Inspect Artworks</h4>
-        <div class="container-md mb-2">
-            <div class="row gx-4">
+        <div class="container pb-0 mb-1 border border-black">
+            <div class="d-flex flex-nowrap row gx-4 overflow-x-scroll">
                 {{#each artworks}}
-                    <div class="col">
-                        <div class="card h-100">
-                            <img src={{_links.thumbnail.href}} class="card-img-top">
+                    <div class="col-4">
+                        <div class="card h-75 shadow">
+                            <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
                             <div class="card-body">
                                 <h6 class="card-title">{{title}}</h6>
                                 <div class="card-text">
-                                    <p>{{add artist here}}</p>
                                     <p>{{medium}}</p>
-                                    
                                 </div>
                             </div>
                         </div>
