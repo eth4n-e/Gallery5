@@ -322,8 +322,15 @@ try {
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
+  
+  res.render('./pages/events');
+});
+
+app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-  res.render('./pages/events',{API_KEY});
+  const lat= await req.body.latitude;
+  const long=await req.body.longitude;
+  res.render('./pages/events', {API_KEY}, {lat}, {long});
 });
 
 

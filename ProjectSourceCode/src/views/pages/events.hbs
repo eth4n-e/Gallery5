@@ -59,8 +59,37 @@
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
+<form action="/events" method="POST">
+    <button type="submit">Get Events</button>
+    <input type="hidden" id="latitude" name="latitude">
+    <input type="hidden" id="longitude" name="longitude">
+</form>
 
-<button onclick="getLocation()">Try It</button>
+<script>
+    const latitudeInput = document.getElementById("latitude");
+    const longitudeInput = document.getElementById("longitude");
+
+    function getLocation() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(showPosition);
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+    }
+
+    function showPosition(position) {
+        latitudeInput.value = position.coords.latitude;
+        longitudeInput.value = position.coords.longitude;
+
+        // Explicitly submit the form
+        const form = document.querySelector("form");
+        form.submit();
+    }
+</script>
+
+
+
+{{!-- <button onclick="getLocation()">Try It</button>
 
 <p id="demo"></p>
 
@@ -79,7 +108,7 @@ function showPosition(position) {
   x.innerHTML = "Latitude: " + position.coords.latitude + 
   "<br>Longitude: " + position.coords.longitude;
 }
-</script>
+</script> --}}
 
 {{!-- <div class="container mt-5">
     <div class="row justify-content-center">
@@ -108,7 +137,7 @@ function showPosition(position) {
                 frameborder="0"
                 style="border:0"
                 referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center=40.0150,-105.2705&zoom=13"
+                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center={{lat}},{{long}}&zoom=13"
                 allowfullscreen>
             </iframe>
         </div>

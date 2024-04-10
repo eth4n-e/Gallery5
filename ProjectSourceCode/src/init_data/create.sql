@@ -29,3 +29,15 @@ CREATE TABLE IF NOT EXISTS user_artists (
     artist_id VARCHAR(255) REFERENCES artists(artist_id),
     UNIQUE(user_id, artist_id)
 );
+
+--Create events table
+CREATE TABLE IF NOT EXISTS events (
+    event_id SERIAL PRIMARY KEY,
+    event_name VARCHAR(255) NOT NULL,
+    event_date DATE NOT NULL,
+    event_time TIME NOT NULL,
+    event_location VARCHAR(255) NOT NULL,
+    event_description TEXT,
+    event_image VARCHAR(255),
+    artist_id VARCHAR(255) REFERENCES artists(artist_id)
+);
