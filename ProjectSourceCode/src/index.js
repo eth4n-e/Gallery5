@@ -101,7 +101,7 @@ const user = {
         const user = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
         
         if (user) {
-          // Check if the entered password matches the stored hashed password
+          // Check if the entered password matches the stored hashed pord
           
           const passwordMatch = await bcrypt.compare(password, user.password);
     
@@ -111,7 +111,7 @@ const user = {
             req.session.save();
     
             // Redirect to /discover route after setting the session
-            res.redirect('/discover');
+            res.redirect('/events');
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
@@ -323,20 +323,21 @@ try {
 // *****************************************************
 app.get('/events', (req, res) => {
   
-  res.render('./pages/events');
+  res.render('pages/events');
 });
+
 
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
-  const lat= await req.body.latitude;
-  const long=await req.body.longitude;
-  res.render('./pages/events', {API_KEY}, {lat}, {long});
+  console.log(req.body)
+  const lat =await req.body.latitude;
+  const long = await req.body.longitude;
+  
+  res.render('pages/events', {API_KEY, lat, long});
+  
+  
 });
 
-
-// *****************************************************
-// <!               Login                   >
-// *****************************************************
 
 
 // *****************************************************
