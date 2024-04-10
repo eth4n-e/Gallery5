@@ -1,12 +1,19 @@
-{{>message}}
+
 
 <title>Display All Artists Page</title>
-
-<form action="/artists" method="get">
-  <label for="search">Search Artists:</label>
-  <input type="text" id="search" name="keyword">
-  <button type="submit">Search</button>
-</form>
+{{>message}}
+<div class="container mt-3 mb-3">
+  <div class="row justify-content-center">
+    <form action="/artists" method="get" class="col-md-6">
+      <div class="input-group">
+        <label for="search" class="visually-hidden">Search Artists:</label>
+        <input type="text" id="search" name="keyword" class="form-control" placeholder="Search Artists">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
+  </div>
+  <div class="row" id="search-results"></div>
+</div>
 
 
 <div class="container mt-5" id="artistContainer">
