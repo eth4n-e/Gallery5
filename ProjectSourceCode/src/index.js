@@ -111,7 +111,7 @@ const user = {
             req.session.save();
     
             // Redirect to /discover route after setting the session
-            res.redirect('/events');
+            res.redirect('/discover');
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
