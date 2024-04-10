@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout Page</title>
+    <!-- Include Handlebars from a CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+</head>
+<body>
+    <div class = "centered" id="logout-container">
+        <h1>Logout</h1>
+        <p>You are now logged out and your session is over.</p>
+        <button id="home-button">Return Home</button>
+        <button id="login-button">Log In Again</button>
+    </div>
+
+    <script>
+        // Compile the Handlebars template
+        const template = Handlebars.compile(`
+            <h1>Logout</h1>
+            <p>You are now logged out and your session is over.</p>
+            <button id="home-button">Return Home</button>
+            <button id="login-button">Log In Again</button>
+        `);
+
+        // Render the template and insert it into the DOM
+        document.getElementById('logout-container').innerHTML = template();
+
+        // Add event listeners for the buttons
+        document.getElementById('home-button').addEventListener('click', () => {
+            // Redirect to the home page (adjust the URL as needed)
+            window.location.href = '/home';
+        });
+
+        document.getElementById('login-button').addEventListener('click', () => {
+            // Redirect to the login page (adjust the URL as needed)
+            window.location.href = '/login';
+        });
+    </script>
+</body>
+</html>
