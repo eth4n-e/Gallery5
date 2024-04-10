@@ -189,15 +189,15 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   //Authentication Middleware
-  // const auth = (req, res, next) => {
-  //   if (!req.session.user) {
-  //     // Default to login page if not authenticated
-  //     return res.redirect('/login');
-  //   }
-  //   next(); // Allow access if authenticated
-  // };
+  const auth = (req, res, next) => {
+    if (!req.session.user) {
+      // Default to login page if not authenticated
+      return res.redirect('/login');
+    }
+    next(); // Allow access if authenticated
+  };
   
-  // app.use(auth);
+  app.use(auth);
 
 
   
@@ -372,7 +372,7 @@ app.get('/artists', async (req, res) => {
   try {
     const keyword = req.query.keyword; // Use query parameter for keyword
     if(!keyword){
-      keyword = '4d8b92b34eb68a1b2c0003f4'
+      keyword = 'Andy Warhol'
     }
     // 1. Search for Artist by Name (First API Call):
     const searchResponse = await axios({
@@ -387,11 +387,11 @@ app.get('/artists', async (req, res) => {
       }
     });
 
-    const artistResult = searchResponse.data._embedded.results[0];
+    const artistResult = searchResponse.data._embedded.results._links.[0];
 
     if (artistResult.type === 'artist') {
       // Display artist information (name, description, thumbnail, etc.) from artistResult
-      const artistURL = artistResult._links.self.href;
+      const artistURL = artistResult._links.self;
       const response = await axios({
         url: artistURL,
         method: 'GET',
@@ -403,7 +403,7 @@ app.get('/artists', async (req, res) => {
       if (!response.data || !response.data._embedded || !response.data._embedded.results || response.data._embedded.results[0].type !== 'artist') {
         return res.render('./pages/allArtists', { results: [], message: `No artist found with the name "${keyword}".` });
       }
-      res.render('allArtists'. {response});
+      res.render('allArtists', {response});
 
 
     } else {
@@ -413,8 +413,6 @@ app.get('/artists', async (req, res) => {
 
     res.render('./pages/allArtists', { results: [], message: 'An error occurred while processing search results.' }); // Update message
 
-    // Extract the first artist ID from the search results
-    const artistId = searchResponse.data._embedded.results[0].id;
 
     // 2. Fetch Similar Artists using Artist ID (Second API Call):
     const similarArtistsResponse = await axios({
@@ -428,6 +426,10 @@ app.get('/artists', async (req, res) => {
         similar_to_artist_id: artistId
       }
     });
+
+    
+    // Extract the first artist ID from the search results
+    const artistId = searchResponse.data._embedded.results[0].id;
   } catch (error) {
     console.error(error);
 
@@ -435,8 +437,6 @@ app.get('/artists', async (req, res) => {
     res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
   }
 });
-
-
 
 // *****************************************************
 // <!               Logout - Nate                   >
