@@ -11,11 +11,18 @@
         - 
     -->
     <div id="events">
-        <h4 class="text-center mt-2">Explore Events</h4>
+        <div class="container text-center">
+            <div class="row gx-2 mt-2 justify-content-center mb-1">
+                <h4 class="col-md-3">Featured Events</h4>
+                <div class="col-md-3">
+                    <a href="/events" class="btn btn-secondary p-1 shadow">Explore</a>
+                </div>
+            </div>
+        </div>
         <div class="container-md mb-2">
             <div class="row gx-4">
                 {{#each events}}
-                    <div class="col">
+                    <div class="col-3 mb-3">
                         <div class="card h-100 shadow">
                             <div class="card-body">
                                 <h6 class="card-title">{{name}}</h6>
@@ -27,12 +34,19 @@
         </div>
     </div>
     <div id="artworks">
-        <h4 class="text-center">Inspect Artworks</h4>
-        <div class="container pb-0 mb-1 border border-black">
-            <div class="d-flex flex-nowrap row gx-4 overflow-x-scroll">
+        <div class="container text-center">
+            <div class="row justify-content-center mt-2 mb-1">
+                <h4 class="col-md-3">Featured Artworks</h4>
+                <div class="col-md-3">
+                    <a href="/artworks" class="btn btn-secondary p-1 shadow">Explore</a>
+                </div>
+            </div>
+        </div>
+        <div class="container pb-0 mb-2">
+            <div class="row gx-4">
                 {{#each artworks}}
-                    <div class="col-4">
-                        <div class="card h-75 shadow">
+                    <div class="col-3 mb-3">
+                        <div class="card h-100 shadow">
                             <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
                             <div class="card-body">
                                 <h6 class="card-title">{{title}}</h6>
@@ -47,7 +61,27 @@
         </div>
     </div>
     <div id="artists">
-        <h4 class="text-center">Discover Artists</h4>
-        
+        <div class="container text-center">
+            <div class="row justify-content-center mt-2 mb-1">
+                <h4 class="col-md-3">Featured Artists</h4>
+                <div class="col-md-3">
+                    <a href="/artworks" class="btn btn-secondary p-1 shadow">Explore</a>
+                </div>
+            </div>
+        </div>
+        <div class="container mb-2">
+            <div class="row gx-4">
+                {{#each artists}}
+                    <div class="col-3 mb-3">
+                        <div class="card h-100 shadow">
+                            <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
+                            <div class="card-body">
+                                <h6 class="card-title">{{name}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
     </div>
 </div>

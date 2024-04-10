@@ -185,15 +185,27 @@ app.get('/register', (req, res) => {
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
 
+// generate an offset to be used in api calls for events, artworks, artists
+// using 100 b/c events, artworks, artists all have at least size 100
+function generateOffset() {
+  return Math.floor(Math.random() * 100)
+}
+
 // handle events api call
 function getEvents() {
   //axios.get(url, config *e.g headers and such*)
+
+  //creating offset to randomize events seen on each call
+  const offsetEvents = generateOffset();
+
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
     },
     params: {
-      status: 'running_and_upcoming'
+      status: 'running_and_upcoming',
+      offset: offsetEvents,
+      size: 5
     }
   };
 
@@ -205,9 +217,16 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
+  // setup for API call
+  const offsetArtworks = generateOffset();
+
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
+    },
+    params: {
+      offset: offsetArtworks,
+      size: 5
     }
   }
   //axios.get(url, config *e.g headers and such*)
@@ -219,13 +238,18 @@ function getArtworks() {
 
 // handle artists api call
 function getArtists() {
+
+    const offsetArtists = generateOffset();
+
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
     },
     params: {
       artworks: true,
-      sort: '-trending'
+      sort: '-trending',
+      offset: offsetArtists,
+      size: 5
     }
   };
   //axios.get(url, config *e.g headers and such*)
