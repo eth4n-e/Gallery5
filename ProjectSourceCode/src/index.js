@@ -189,15 +189,15 @@ app.get('/register', (req, res) => {
 // <!     Authentication Middleware                   >
 // *****************************************************
   //Authentication Middleware
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page if not authenticated
-      return res.redirect('/login');
-    }
-    next(); // Allow access if authenticated
-  };
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
   
-  app.use(auth);
+  // app.use(auth);
 
 
   
@@ -328,11 +328,6 @@ app.get('/events', (req, res) => {
 
 
 // *****************************************************
-// <!               Login                   >
-// *****************************************************
-
-
-// *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
 
@@ -341,31 +336,88 @@ app.get('/events', (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMxMzg2MTksImlhdCI6MTcxMjUzMzgxOSwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTMzMTNiZTE5N2E1MDAwYzE3ZmJiOCJ9.8ASPLIdmWp5B4lvBkAlGbfwyw_qaHQhWMZ5DNULdPVw';
 
-// // Route handler for '/artists'
-// const fetchSimilarArtists = require('../resources/js/script.js');
+/* Upon reaching the artists page, the page will display a list of all artists. If a search was used, the artist page will first
+    display the artist, followed by two subsections related artwork and related artists (using Artsy's similarity)
 
-// app.get('/artists', async (req, res) => {
-//   // ... other code (e.g., retrieving artist ID)
-
-//   try {
-//     const similarArtists = await fetchSimilarArtists(artistId); // Assuming function takes artist ID as argument
-//     res.render('./pages/allArtists', { similarArtists }); // Pass similar artists data to the template
-//   } catch (error) {
-//     console.error('Error fetching similar artists:', error);
-//     // Handle errors (e.g., render page with error message)
-//     res.render('./pages/allArtists', { error: 'An error occurred while fetching similar artists.' });
-//   }
-// });
-
+  FOOM:
+  1. Check for keyword
+    a) if NO Key word then display page of artists using artsy search
+    b) if keyword, query artsy for the keyword.
+  2. Upon receiving the keyword, begin querying for Artist information:
+      artist name, thumbnail, bio, birth-deathday, etc.
+  3. Example Output from Artsy:
+        "id": "4d8b92b34eb68a1b2c0003f4",
+        "slug": "andy-warhol",
+        "created_at": "2010-08-23T14:15:30+00:00",
+        "updated_at": "2024-04-10T16:42:54+00:00",
+        "name": "Andy Warhol",
+        "sortable_name": "Warhol Andy",
+        "gender": "male",
+        "biography": "An American painter, printmaker, sculptor, draughtsman, illustrator, filmmaker, writer and collector, who became one of the most famous artists of the 20th century. Warhol began his career as a successful commercial artist and illustrator for magazines and newspapers but by 1960 was determined to establish his name as a painter. He quickly became renowned for painting everyday advertisements or images from comic strips that looked eerily similar to the originals and contained no traditional marks of an artist. Warhol accentuated this look through the use of silkscreens and by painting in collaboration with a team of assistants in a studio he called \"The Factory.\" In the late sixties, Warhol turned his attention to making experimental films and multimedia events, and in the 1970s, to creating commissioned portraits. During the 1980s Warhol continued to exert an influence on the art world, collaborating with young artists such as Jean-Michel Basquiat and creating a series of paintings, which engaged with Renaissance masterworks.",
+        "birthday": "1928",
+        "deathday": "1987",
+        "hometown": "Pittsburgh, PA, USA",
+        "location": "New York, NY, USA",
+        "nationality": "American",
+        "target_supply": true,
+  4. Using the artist id, display their artwork
+  5. Using the artwork id, display similar pieces in a section below this
+  6. Using the artist id, display similar artists at the end
+*/
+// Austin's xapp expires: 4-17
+const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMzNzQzMTAsImlhdCI6MTcxMjc2OTUxMCwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTZjOWU2MDcyOTIwMDAwZDJkMGY3YyJ9.hUlWDCDi2LlPKnLQi4w6efJWMUtkPXh3nUvBNHxEtgo';
 
 app.get('/artists', async (req, res) => {
   try {
-    const apiKey = process.env.API_KEY;
-    const keyword = '4d8b927b4eb68a1b2c000148'; // Change this keyword as needed
+    const keyword = req.query.keyword; // Use query parameter for keyword
+    if(!keyword){
+      keyword = '4d8b92b34eb68a1b2c0003f4'
+    }
+    // 1. Search for Artist by Name (First API Call):
+    const searchResponse = await axios({
+      url: 'https://api.artsy.net/api/search?',
+      method: 'GET',
+      dataType: 'json',
+      headers: {
+        'X-XApp-Token': xapptoken
+      },
+      params: {
+        q: keyword // This is the search query 
+      }
+    });
 
-    const response = await axios({
+    const artistResult = searchResponse.data._embedded.results[0];
+
+    if (artistResult.type === 'artist') {
+      // Display artist information (name, description, thumbnail, etc.) from artistResult
+      const artistURL = artistResult._links.self.href;
+      const response = await axios({
+        url: artistURL,
+        method: 'GET',
+        dataType: 'json',
+        headers:{
+          'X-XApp-Token': xapptoken
+        }
+      })
+      if (!response.data || !response.data._embedded || !response.data._embedded.results || response.data._embedded.results[0].type !== 'artist') {
+        return res.render('./pages/allArtists', { results: [], message: `No artist found with the name "${keyword}".` });
+      }
+      res.render('allArtists'. {response});
+
+
+    } else {
+      // Handle unexpected result type
+      console.error(`Artsy Search Type-Error, Type Returned: ${artistResult.type}`);
+    }
+
+    res.render('./pages/allArtists', { results: [], message: 'An error occurred while processing search results.' }); // Update message
+
+    // Extract the first artist ID from the search results
+    const artistId = searchResponse.data._embedded.results[0].id;
+
+    // 2. Fetch Similar Artists using Artist ID (Second API Call):
+    const similarArtistsResponse = await axios({
       url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
       method: 'GET',
       dataType: 'json',
@@ -373,15 +425,9 @@ app.get('/artists', async (req, res) => {
         'X-XApp-Token': xapptoken
       },
       params: {
-        similar_to_artist_id: keyword
-      },
+        similar_to_artist_id: artistId
+      }
     });
-
-    // What we want from API response
-    const results = response.data._embedded ? response.data._embedded.artists : [];
-
-    // Give to discover.hbs
-    res.render('./pages/allArtists', { results });
   } catch (error) {
     console.error(error);
 

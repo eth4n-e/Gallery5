@@ -1,33 +1,40 @@
-<title>Display All Artists Page</title>
-  
-  <div class="container mt-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search Artists">
-  </div>
-<div class = "container mt-5" id="artistContainer">
-{{#if results}}
-<h1>Similar Artists for {{ keyword }}</h1>
-<div class="artist-grid">
-  {{#each results}}
-    <div class="artist-card">
-      <a href="/artists/{{ this.id }}">
-        {{#if this._links.thumbnail}}
-          <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="artist-image">
-        {{/if}}
-        <div class="artist-info">
-          <h3>{{ this.name }}</h3>
-        </div>
-      </a>
-    </div>
-  {{/each}}
-</div>
-{{else}}
-  {{#if message}}
-    <p class="error-message">{{ message }}</p> {{else}}
-    <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
-  {{/if}}
-{{/if}}
+{{>message}}
 
+<title>Display All Artists Page</title>
+
+<form action="/artists" method="get">
+  <label for="search">Search Artists:</label>
+  <input type="text" id="search" name="keyword">
+  <button type="submit">Search</button>
+</form>
+
+
+<div class="container mt-5" id="artistContainer">
+  {{#if results}}
+    <h3>Similar Artists for {{ results._embeded.name }}</h3>
+    <div class="row">  {{#each results}}
+        <div class="col-md-3 mb-3">
+          <div class="card" style="width: 20rem;">
+            {{#if this._links.thumbnail}}
+              <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="card-img-top img-fluid">
+            {{/if}}
+            <div class="card-body text-center mb-3" style = >
+              <h5 class="card-title">{{ this.name }}</h5>
+              </div>
+          </div>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    {{#if message}}
+      <p class="error-message">{{ message }}</p> {{else}}
+      <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
+    {{/if}}
+  {{/if}}
 </div>
+
+
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="../../../resources/js/script.js">
+
