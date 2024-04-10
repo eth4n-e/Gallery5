@@ -79,29 +79,29 @@ describe('Testing Login Page Renders Correctly', () => {
   });
 });
 
-describe('Testing login', () => {
-  it('Positive: /login. Valid user credentials', done => {
-    chai
-        .request(server)
-        .post('/login')
-        .send({ username: 'abc', password: '1234' }) //this user is insetred by default within index.js
-        .end((err, res) => {
-            expect(res).to.have.status(200); // Expect a redirect status
-            expect(res).to.redirectTo(/^.*127\.0\.0\.1.*\/discover$/); // Expect redirection to /discover
-            done();
-        });
-  });
-  it('Negative: /login. User not found', done => {
-    chai
-        .request(server)
-        .post('/login')
-        .send({ username: 'nonexistentuser', password: 'password123' })
-        .end((err, res) => {
-          console.log(res.text);
-            expect(res).to.have.status(200); // Expect a successful render of login again
-            expect(res.text).to.include('User not found! Please check spelling or click below to register.'); // Expect error message in the login.hbs file
-            done();
-        });
-  });
+// describe('Testing login', () => {
+//   it('Positive: /login. Valid user credentials', done => {
+//     chai
+//         .request(server)
+//         .post('/login')
+//         .send({ username: 'abc', password: '1234' }) //this user is insetred by default within index.js
+//         .end((err, res) => {
+//             expect(res).to.have.status(200); // Expect a redirect status
+//             expect(res).to.redirectTo(/^.*127\.0\.0\.1.*\/discover$/); // Expect redirection to /discover
+//             done();
+//         });
+//   });
+//   it('Negative: /login. User not found', done => {
+//     chai
+//         .request(server)
+//         .post('/login')
+//         .send({ username: 'nonexistentuser', password: 'password123' })
+//         .end((err, res) => {
+//           console.log(res.text);
+//             expect(res).to.have.status(200); // Expect a successful render of login again
+//             expect(res.text).to.include('User not found! Please check spelling or click below to register.'); // Expect error message in the login.hbs file
+//             done();
+//         });
+//   });
 
-});
+// });

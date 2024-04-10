@@ -1,9 +1,8 @@
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events</title>
+    {{!-- <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> --}}
+    {{!-- <title>Events</title> --}}
     <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
     {{!-- <div class="container mt-5">
         <!-- Carousel -->
@@ -55,31 +54,15 @@
     </div> --}}
 
     <!-- Include Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<form method="POST" action="/events">
+    <input id="latitude" name="latitude" type="hidden"></input>
+    <input id="longitude" name="longitude" type="hidden"></input>
+    <button type="button" onclick="getLocation()">Get Events</button>
+    <button type="submit" hidden>Get Events</button>
+</form>
 
 
-<button onclick="getLocation()">Try It</button>
-
-<p id="demo"></p>
-
-<script>
-const x = document.getElementById("demo");
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
-}
-
-function showPosition(position) {
-  x.innerHTML = "Latitude: " + position.coords.latitude + 
-  "<br>Longitude: " + position.coords.longitude;
-}
-</script>
 
 {{!-- <div class="container mt-5">
     <div class="row justify-content-center">
@@ -98,6 +81,12 @@ function showPosition(position) {
     </div>
 </div> --}}
 
+{{!-- <p>
+    {{API_KEY}}
+    {{lat}}
+    {{long}}
+</p> --}}
+
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -108,7 +97,7 @@ function showPosition(position) {
                 frameborder="0"
                 style="border:0"
                 referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center=40.0150,-105.2705&zoom=13"
+                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center={{lat}},{{long}}&zoom=13"
                 allowfullscreen>
             </iframe>
         </div>
