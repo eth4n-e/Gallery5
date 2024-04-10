@@ -400,7 +400,7 @@ app.get('/artists', async (req, res) => {
       }
     });
 
-    const artistResult = searchResponse.data._embedded.results._links.[0];
+    //const artistResult = searchResponse.data._embedded.results._links.[0];
 
     if (artistResult.type === 'artist') {
       // Display artist information (name, description, thumbnail, etc.) from artistResult
