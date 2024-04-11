@@ -13,6 +13,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const { start } = require('repl');
 
 //ask about how to get .env variables when in different directory
 
@@ -381,19 +382,95 @@ app.get('/events', (req, res) => {
   res.render('pages/events');
 });
 
-
+function Events(eventName, eventDescp, eventLink, eventDate, eventLocation) {
+  this.eventName = eventName;
+  this.eventDescp = eventDescp;
+  this.eventLink = eventLink;
+  this.eventDate = eventDate;
+  this.eventLocation = eventLocation;
+}
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
-  const lat =await req.body.latitude;
-  const long = await req.body.longitude;
+  const lat =await req.body.latitude; //get user lat
+  const long = await req.body.longitude; //get user long
+  const currentDate = new Date();
+  const currentISODate = currentDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-11T07:33:26
   
+  //const currentISODate = currentDate.toISOString(); // Format: 2024-04-11T07:33:26.162Z
+  const futureDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+  //const futureISODate = futureDate.toISOString(); // Format: 2024-04-18T07:33:26.162Z
+  const futureISODate = futureDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-18T07:33:26
+
+  console.log(currentISODate, futureISODate);
+  const results=await axios({ //get in the fine arts within one week of right now
+    url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+    method: 'GET',
+    params: {
+      apikey: process.env.TICKET_API_KEY,
+      startDateTime: currentISODate, //right now
+      endDateTime: futureISODate, //one week from now
+      classificationName: 'fine-art', //search in the fine arts
+      //size: 10, //get 10 events
+      sort: 'random' //sort 
+    }
+  });
+  
+  var eventsArr= []; //array to store events
+  //console.log(results.data._embedded.events);
+  for(var i=0; i<results.data._embedded.events.length; i++){
+    var checker=false;
+    var event = results.data._embedded.events[i];
+    var eventName = event.name;
+    var eventDescp = event.info;
+    var eventLink = event.url;
+    var eventDate = event.dates.start.localDate;
+    var eventLocation= event._embedded.venues?.[0]?.name ||"Location not available";
+   // console.log(i);
+    //console.log(event);
+    
+    
+    
+    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation);
+    for(var j=0; j<eventsArr.length; j++){ //check if event already in array
+      if(eventsArr[j].eventName === newEvent.eventName){ //if it is
+        //onsole.log("test");
+        if(eventsArr[j].eventDate <= newEvent.eventDate){ //check if the date of the event in the array is less than the new event
+          checker=true;
+          break; //if it is, then no need to updatem, leave as is, and break the loop
+        }
+        else{
+          eventsArr.splice(j, 1); //if the date of the event in the array is greater than the new event, remove the event in the array
+        }
+      }
+    }
+    if(checker) continue; //if the event is already in the array and the date is less than the new event, continue to the next event
+    //if(i==0) console.log(event._embedded.venues[0].name);
+    eventsArr.push(newEvent); //add the new event to the array
+  }
+  for(var i=0; i<eventsArr.length; i++){
+    console.log(eventsArr[i].eventName);
+    console.log(eventsArr[i].eventDate);
+  }
+  console.log("TEST");
   res.render('pages/events', {API_KEY, lat, long});
   
   
 });
 
-
+// function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+//   var R = 6371; // Radius of the earth in km
+//   var dLat = deg2rad(lat2-lat1);  // deg2rad below
+//   var dLon = deg2rad(lon2-lon1); 
+//   var a = 
+//     Math.sin(dLat/2) * Math.sin(dLat/2) +
+//     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+//     Math.sin(dLon/2) * Math.sin(dLon/2)
+//     ; 
+//   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+//   var d = R * c; // Distance in km
+//   return d;
+// }
 
 // *****************************************************
 // <!               Profile- Catherine                 >
