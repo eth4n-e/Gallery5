@@ -1,0 +1,25 @@
+Week 3 Meeting: 04/08/2024 1:00pm. Attendence 4/5 -- Amy class conflict.
+
+Decisions made:
+	N/A
+
+Alternative actions / options discussed:
+  Catherine: Implement upload for profile page?
+
+Follow up items:
+  Where are we storing API keys -> .env
+  Still reverting to /discover after login but we havent' implemented login
+	Display more than 5 artists -Austin
+
+*************************************************************************************************
+Specific Dialogue:
+
+Ethan/Khizar: fixing .gitignore and .env;
+  How are we storing API keys?
+Austin: Rough draft of Artist complete with API keys --> Thanks Ethan for the help getting API corrected
+Nate: Working through logout
+Amy (remote): Working on conditional nav bar
+Khizar: fixes login and register calls
+Catherine: Considering how to implement upload for profile page, changes to user tables, how to access profile page
+Khizar: Map works on Geo-Event page
+Ethan: Editing discover but has figured out Ticketmaster API and rough draft on his branch

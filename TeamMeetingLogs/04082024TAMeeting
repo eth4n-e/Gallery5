@@ -1,0 +1,21 @@
+TA Meeting 04/08/2024:
+
+All Team Members Attended
+
+
+Before this meeting:
+Implemented login/registration/events pages and routes
+
+Discussion during meeting:
+All location information with API; getting events
+Artsy API: Can’t sort or search by location; sorted by upcoming events instead
+Ticketmaster API: Not too many arts events
+Explore more with location-based portions of APIs
+Artwork on the Discover page: in progress
+Create page for artist information(?)
+
+Before next meeting 04/15/2024: 
+User profile, artists page, getting information from API, updating UI
+
+For the future:
+    Adding features: Collections, favorites, followings, searching, ratings, uploading, downloading, filtering, etc. Explore and see if we have additional features to add on Artsy

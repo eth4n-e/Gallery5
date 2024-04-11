@@ -1,7 +1,7 @@
-INSERT INTO users (user_id, username, password, email)
+INSERT INTO users (username, password, email)
 VALUES
-    ('001', 'admin', '1234', 'admin@cu.edu'),
-    ('002', 'tester', '1234', 'tester@cu.edu');
+    ('admin', '1234', 'admin@cu.edu'),
+    ('tester', '1234', 'tester@cu.edu');
 
 INSERT INTO artists (artist_id, artist_name)
 VALUES

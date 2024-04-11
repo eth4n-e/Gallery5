@@ -1,21 +1,21 @@
-<!DOCTYPE html>
 <title>Register</title>
+{{>message}}
   <main class="container">
       <div class="col-sm-8 py-5 mx-auto">
       <form method="post" action="/register">
           <h1 class="h3 mb-3 fw-normal" align="center">Register</h1>
 
           <div class="form-floating">
-          <input type="email" class="form-control" id="floatingInput" placeholder="Username" name="username">
-          <label for="floatingInput">Username</label>
+          <input type="text" class="form-control" id="username" placeholder="Username" name="username">
+          <label for="username">Username</label>
           </div>
           <div class="form-floating">
-          <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
-          <label for="floatingPassword">Password</label>
+          <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+          <label for="password">Password</label>
           </div>
           <div class="form-floating">
-          <input type="email" class="form-control" id="floatingInput" placeholder="name@example.com" name="email">
-          <label for="floatingInput">Email address</label>
+          <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email">
+          <label for="email">Email address</label>
           </div>
           <button class="btn btn-primary w-100 py-2" type="submit">Register</button>
           <div class="form-text">Already have an account? <a class="form-text" href="/login">Login</a></div>
@@ -23,5 +23,3 @@
       </div>
       <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </main>
-
-</html>

@@ -1,21 +1,32 @@
-<!DOCTYPE html>
 <title>Login</title>
+{{>message}}
   <main class="container">
       <div class="col-sm-8 py-5 mx-auto">
         <form method="post" action="/login"> 
             <h1 class="h3 mb-3 fw-normal" align="center">Login</h1>
 
             <div class="form-floating">
-            <input type="email" class="form-control" id="floatingInput" placeholder="Username" name="username">
-            <label for="floatingInput">Username</label>
-            </div>
+            <input type="text" class="form-control" id="username" placeholder="Username" name="username">
+            <label for="username">Username</label>
+            </div
             <div class="form-floating">
-            <input type="password" class="form-control" id="floatingPassword" placeholder="Password" name="password">
-            <label for="floatingPassword">Password</label>
+            <input type="password" class="form-control" id="password" placeholder="Password" name="password">
+            <label for="password">Password</label>
             </div>
             <button class="btn btn-primary w-100 py-2" type="submit">Log In</button>
+            <div class="form-text">Don't have an account? <a class="form-text" href="/register">Register</a></div>
         </form>
       </div>
       <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </main>
-</html>
+{{! Compare this snippet from ProjectSourceCode/src/views/partials/footer.hbs: }}
+{{! <footer class="footer mt-auto py-3 bg-light">
+ }}
+{{!   <div class="container">
+ }}
+{{!     <span class="text-muted">Place sticky footer content here.</span>
+ }}
+{{!   </div>
+ }}
+{{! </footer>
+ }}

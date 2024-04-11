@@ -1,0 +1,36 @@
+Week 2 Meeting: 03/18/2024 6:00pm with TA. Full attendence.
+
+Decisions made:
+	Reimplement Artsy API weekly as needed
+
+Alternative actions / options discussed:
+	28,000 credits for google maps api
+
+Follow up items:
+	Coding and UI
+	Set specific jobs with a few jobs for each person with both front end and back end.
+	Brainstorm new features we could implement
+	MinIO- object storage system review for blogs/pictures/
+    Favorites button
+
+	
+
+*************************************************************************************************
+Specific Dialogue:
+    Make sure everyone is a contributor in GitHub
+    Project board: acceptance criteria
+    User stories: Description and acceptance criteria
+    Past meeting: APIs // using Artsy and Google Maps. Reimplement API as needed (weekly)
+    Showed Varsha pages and index.js
+    Features to complete before next meeting: Front end, APIs working, Login, register, home page, integration of artsy (Google maps hopefully to be completed by next week)
+    Fix directory structure (ProjectSourceCode)
+    If docker is not working for everyone, we will check in with Varsha during recitation.
+    Make sure everything is pushed before Friday evening
+
+Meeting this week: Monday
+What did meeting cover: Debugging
+Redirect question: use random url to create api app.
+
+TA: Give everyone a chance to do both front and backend.
+
+Update GitHub prior to Saturday.
