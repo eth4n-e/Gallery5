@@ -369,74 +369,83 @@ app.get('/events', (req, res) => {
 const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMzNzQzMTAsImlhdCI6MTcxMjc2OTUxMCwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTZjOWU2MDcyOTIwMDAwZDJkMGY3YyJ9.hUlWDCDi2LlPKnLQi4w6efJWMUtkPXh3nUvBNHxEtgo';
 
 app.get('/artists', async (req, res) => {
-  try {
-    const keyword = req.query.keyword; // Use query parameter for keyword
-    if(!keyword){
-      keyword = 'Andy Warhol'
-    }
-    // 1. Search for Artist by Name (First API Call):
-    const searchResponse = await axios({
-      url: 'https://api.artsy.net/api/search?',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        q: keyword // This is the search query 
-      }
-    });
-
-    const artistResult = searchResponse.data._embedded.results._links.[0];
-
-    if (artistResult.type === 'artist') {
-      // Display artist information (name, description, thumbnail, etc.) from artistResult
-      const artistURL = artistResult._links.self;
-      const response = await axios({
-        url: artistURL,
+  keyArtistID = req.query.keyword;
+  //if there is no keyword: display all artists
+  if(!keyArtistID){
+    try {
+      keyArtistID = '4d8b92b34eb68a1b2c0003f4';
+      const similarArtistsResponse = await axios({
+        url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
         method: 'GET',
         dataType: 'json',
-        headers:{
+        headers: {
           'X-XApp-Token': xapptoken
+        },
+        params: {
+          'similar_to_artist_id' : keyArtistID
         }
-      })
-      if (!response.data || !response.data._embedded || !response.data._embedded.results || response.data._embedded.results[0].type !== 'artist') {
-        return res.render('./pages/allArtists', { results: [], message: `No artist found with the name "${keyword}".` });
+      });
+      
+      var response = similarArtistsResponse.data._embedded.artists;
+      if(!response){
+        res.render('/allArtists', {results: [], message: 'Error on backend. You suck, Austin.'});
       }
-      res.render('allArtists', {response});
+      
 
 
-    } else {
-      // Handle unexpected result type
-      console.error(`Artsy Search Type-Error, Type Returned: ${artistResult.type}`);
+    } catch (error) {
+      console.error(error);
+
+      // If the API call fails, render pages/discover with an empty results array and the error message
+      res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
     }
 
-    res.render('./pages/allArtists', { results: [], message: 'An error occurred while processing search results.' }); // Update message
-
-
-    // 2. Fetch Similar Artists using Artist ID (Second API Call):
-    const similarArtistsResponse = await axios({
-      url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        similar_to_artist_id: artistId
-      }
-    });
-
-    
-    // Extract the first artist ID from the search results
-    const artistId = searchResponse.data._embedded.results[0].id;
-  } catch (error) {
-    console.error(error);
-
-    // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  }
+  else{
+    redirect('/artist', {keyArtistID});
   }
 });
+
+
+// For displaying a single artist:
+app.get('/artist', async (req,res) =>{
+  const keyword = req.query.keyword;
+  if(!keyword){
+    res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
+  }
+
+  try{
+    const artistSearch = await axios({
+      url : 'https://api.artsy.net/api/artists/?',
+      method: 'GET',
+      datatype: 'json',
+      headers: { 'X-XApp-Token' : xapptoken},
+      params:{
+        'q' : keyword
+      }
+    });
+  } catch(error){
+    console.error(error);
+    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
+  }
+  
+  const artistURL = artistSearch.data._embedded.results[0]._links.self.href;
+  if(!artistData)  {
+    res.redirect('/artists', {message: 'Error finding artist data, beat dev team at 5:01pm'});
+  }
+try{
+  const response = await axios({
+    url: artistURL,
+    method: 'GET',
+    datatype: 'json',
+    headers: { 'X-XApp-Token': xapptoken}
+  })
+  } catch(error){
+    console.error(error);
+    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
+  }
+});
+
 
 // *****************************************************
 // <!               Logout - Nate                   >

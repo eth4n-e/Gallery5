@@ -1,20 +1,66 @@
-{{> nav}}
-{{> message}}
+<title>Display One Artist Page</title>
+{{> message }}
 
-  <div class="container mt-5">
-    <h2 id="artistName">{{ artist.name }}</h2>
-    <div id="artistDetails">
-      <h5>{{ artist.birth_year ? artist.birth_year + ' - ' : '' }}{{ artist.death_year ? artist.death_year : 'Present' }}</h5>
-      <h5 class="text-muted">{{ artist.hometown ? artist.hometown : 'Unknown' }}</h5>
+<div class="container mt-3" id="artistContainer">
+  {{# if results }}
+    <div class="row">
+      <div class="col-md-4">
+        {{# if this._links.thumbnail }}
+          <img
+            src="{{ this._links.thumbnail.href }}"
+            alt="{{ this.name }} Thumbnail"
+            class="img-fluid mb-3"
+          />
+        {{/if}}
+      </div>
+      <div class="col-md-8">
+        <h2>{{ this.name }}</h2>
+        <p>
+          {{# if this.birthday }}
+            Born: {{ this.birthday }}
+          {{/if}}
+          {{# if this.deathday }} - Died: {{ this.deathday }}{{ /if }}
+          <br />
+          {{# if this.location }}
+            Location: {{ this.location }}
+          {{/if}}
+        </p>
+        <p>{{ this.biography }}</p>
+      </div>
     </div>
-    <div id="artistPhoto">
-      <!-- Artist photo or placeholder will be inserted here -->
+
+    {{# if related_artwork }}
+      <div class="container mt-3">
+        <h3>Related Artwork</h3>
+        <div class="row">
+          {{# each related_artwork }}
+            <div class="col-md-3 mb-3">
+              <div class="card" style="width: 20rem;">
+                {{# if this._links.thumbnail }}
+                  <img
+                    src="{{ this._links.thumbnail.href }}"
+                    alt="{{ this.name }} Artwork"
+                    class="card-img-top img-fluid"
+                  />
+                {{/if}}
+                <div class="card-body text-center mb-3">
+                  <h5 class="card-title">{{ this.name }}</h5>
+                </div>
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/if}}
+
+    {{ else }}
+    <div>
+      <p>Error: BEAT THE DEV TEAM!</p>
     </div>
-    <div id="artistBio">
-      <p>{{{ artist.biography }}}</p>
-    </div>
-    <h3>Top Works</h3>
-    <div id="topWorksContainer">
-      <!-- Top works will be inserted here -->
-    </div>
-  </div>
+  {{/if}}
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
