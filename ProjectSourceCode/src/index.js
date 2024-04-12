@@ -382,12 +382,13 @@ app.get('/events', (req, res) => {
   res.render('pages/events');
 });
 
-function Events(eventName, eventDescp, eventLink, eventDate, eventLocation) {
+function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage) {
   this.eventName = eventName;
   this.eventDescp = eventDescp;
   this.eventLink = eventLink;
   this.eventDate = eventDate;
   this.eventLocation = eventLocation;
+  this.eventImage=eventImage;
 }
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
@@ -402,7 +403,9 @@ app.post('/events', async(req,res)=>{
   //const futureISODate = futureDate.toISOString(); // Format: 2024-04-18T07:33:26.162Z
   const futureISODate = futureDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-18T07:33:26
 
-  console.log(currentISODate, futureISODate);
+  //console.log(currentISODate, futureISODate);
+
+
   const results=await axios({ //get in the fine arts within one week of right now
     url: 'https://app.ticketmaster.com/discovery/v2/events.json',
     method: 'GET',
@@ -425,13 +428,14 @@ app.post('/events', async(req,res)=>{
     var eventDescp = event.info;
     var eventLink = event.url;
     var eventDate = event.dates.start.localDate;
+    var eventImage= event.images?.[0]?.url || "https://via.placeholder.com/150";
     var eventLocation= event._embedded.venues?.[0]?.name ||"Location not available";
    // console.log(i);
     //console.log(event);
     
     
     
-    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation);
+    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage);
     for(var j=0; j<eventsArr.length; j++){ //check if event already in array
       if(eventsArr[j].eventName === newEvent.eventName){ //if it is
         //onsole.log("test");
@@ -448,12 +452,24 @@ app.post('/events', async(req,res)=>{
     //if(i==0) console.log(event._embedded.venues[0].name);
     eventsArr.push(newEvent); //add the new event to the array
   }
+  // for(var i=0; i<eventsArr.length; i++){
+  //   console.log(eventsArr[i].eventName);
+  //   console.log(eventsArr[i].eventDate);
+  // }
+  //console.log("TEST");
+
+  //now we want to sort the array by date ascendng:
+  eventsArr.sort(function(a,b){
+    return new Date(a.eventDate) - new Date(b.eventDate);
+  });
+
   for(var i=0; i<eventsArr.length; i++){
     console.log(eventsArr[i].eventName);
     console.log(eventsArr[i].eventDate);
   }
-  console.log("TEST");
-  res.render('pages/events', {API_KEY, lat, long});
+
+  
+  res.render('pages/events', {API_KEY, lat, long, eventsArr});
   
   
 });
