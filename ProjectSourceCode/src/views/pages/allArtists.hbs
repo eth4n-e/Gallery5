@@ -1,81 +1,47 @@
-<title>Display All Artists Page</title>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> 
-
-  <div class="container mt-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search Artists">
 {{>message}}
-<div class="container mt-3 mb-3">
-  <div class="row justify-content-center">
-    <form action="/artists" method="get" class="col-md-6">
-      <div class="input-group">
-        <label for="search" class="visually-hidden">Search Artists:</label>
-        <input type="text" id="search" name="keyword" class="form-control" placeholder="Search Artists">
-        <button type="submit" class="btn btn-primary">Search</button>
-      </div>
-    </form>
-  </div>
-<div class = "container mt-5" id="artistContainer">
-{{#if results}}
-<h1>Similar Artists for {{ keyword }}</h1>
-<div class="artist-grid">
-  {{#each results}}
-    <div class="artist-card">
-      <a href="/artists/{{ this.id }}">
-        {{#if this._links.thumbnail}}
-          <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="artist-image">
-        {{/if}}
-        <div class="artist-info">
-          <h3>{{ this.name }}</h3>
-        </div>
-      </a>
+<body>
+    <div class="container mt-3 mb-3">
+        <!-- Iterate over each gene and display artists for each gene -->
+        {{#each genes}}
+            <div class="card mt-3">
+                <div class="card-header">
+                    <h2 class="card-title">{{this}}</h2> <!-- Display the name of the gene -->
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Iterate over artists and display their thumbnails -->
+                        {{#each artists}}
+                            <div class="col-md-3">
+                                <div class="card mb-3">
+                                    <img src="{{thumbnail}}" class="card-img-top" alt="{{name}} Thumbnail">
+                                    <div class="card-body">
+                                        <p class="card-text">{{name}}</p> <!-- Display the name of the artist -->
+                                    </div>
+                                </div>
+                            </div>
+                        {{/each}}
+                    </div>
+                </div>
+            </div>
+        {{/each}}
     </div>
-  {{/each}}
-</div>
-{{else}}
-  {{#if message}}
-    <p class="error-message">{{ message }}</p> {{else}}
-    <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
-  {{/if}}
-{{/if}}
 
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <!-- Include Handlebars runtime -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.7.7/handlebars.runtime.min.js"></script>
+    <!-- Include jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Include your script.js file -->
+    <script src="../../../resources/js/script.js"></script>
 
-<title>Display All Artists Page</title>
-{{>message}}
-<div class="container mt-3 mb-3">
-  <div class="row justify-content-center">
-    <form action="/artists" method="get" class="col-md-6">
-      <div class="input-group">
-        <label for="search" class="visually-hidden">Search Artists:</label>
-        <input type="text" id="search" name="keyword" class="form-control" placeholder="Search Artists">
-        <button type="submit" class="btn btn-primary">Search</button>
-      </div>
-    </form>
-  </div>
-  <div class="row" id="search-results"></div>
-</div>
-
-<div class="container mt-5" id="artistContainer">
-  {{#if results}}
-    <h3>Similar Artists for {{ results._embeded.name }}</h3>
-    <div class="row">  {{#each results}}
-        <div class="col-md-3 mb-3">
-          <div class="card" style="width: 20rem;">
-            {{#if this._links.thumbnail}}
-              <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="card-img-top img-fluid">
-            {{/if}}
-            <div class="card-body text-center mb-3" style = >
-              <h5 class="card-title">{{ this.name }}</h5>
-              </div>
-          </div>
-        </div>
-      {{/each}}
-    </div>
-  {{else}}
-    {{#if message}}
-      <p class="error-message">{{ message }}</p> {{else}}
-      <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
-    {{/if}}
-  {{/if}}
-</div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Script to fetch and display artists -->
+    <script>
+        // Example usage: Fetch artists of a certain gene when the page loads
+        $(document).ready(function() {
+            var geneNames = ['pop-art', 'renaissance']; // Replace with the desired gene names
+            fetchArtistsByGene(geneNames);
+        });
+    </script>
+</body>
+</html>

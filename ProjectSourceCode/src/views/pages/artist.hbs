@@ -2,65 +2,25 @@
 {{> message }}
 
 <div class="container mt-3" id="artistContainer">
-  {{# if results }}
-    <div class="row">
-      <div class="col-md-4">
-        {{# if this._links.thumbnail }}
-          <img
-            src="{{ this._links.thumbnail.href }}"
-            alt="{{ this.name }} Thumbnail"
-            class="img-fluid mb-3"
-          />
+  <div class="row">
+    <div class="col-md-4">
+      <img src="{{ artistInfo.thumbnailURL }}" alt="{{ artistInfo.name }} Thumbnail" class="img-fluid mb-3">
+    </div>
+    <div class="col-md-8">
+      <h2>{{ artistInfo.name }}</h2>
+      <p>
+        {{#if artistInfo.birthday}}
+          Born: {{ artistInfo.birthday }}
         {{/if}}
-      </div>
-      <div class="col-md-8">
-        <h2>{{ this.name }}</h2>
-        <p>
-          {{# if this.birthday }}
-            Born: {{ this.birthday }}
-          {{/if}}
-          {{# if this.deathday }} - Died: {{ this.deathday }}{{ /if }}
-          <br />
-          {{# if this.location }}
-            Location: {{ this.location }}
-          {{/if}}
-        </p>
-        <p>{{ this.biography }}</p>
-      </div>
+        {{#if artistInfo.deathday}} - Died: {{ artistInfo.deathday }}{{/if}}
+        <br>
+        {{#if artistInfo.location}}
+          Location: {{ artistInfo.location }}
+        {{/if}}
+      </p>
+      <p>{{ artistInfo.biography }}</p>
     </div>
-
-    {{# if related_artwork }}
-      <div class="container mt-3">
-        <h3>Related Artwork</h3>
-        <div class="row">
-          {{# each related_artwork }}
-            <div class="col-md-3 mb-3">
-              <div class="card" style="width: 20rem;">
-                {{# if this._links.thumbnail }}
-                  <img
-                    src="{{ this._links.thumbnail.href }}"
-                    alt="{{ this.name }} Artwork"
-                    class="card-img-top img-fluid"
-                  />
-                {{/if}}
-                <div class="card-body text-center mb-3">
-                  <h5 class="card-title">{{ this.name }}</h5>
-                </div>
-              </div>
-            </div>
-          {{/each}}
-        </div>
-      </div>
-    {{/if}}
-
-    {{ else }}
-    <div>
-      <p>Error: BEAT THE DEV TEAM!</p>
-    </div>
-  {{/if}}
+  </div>
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

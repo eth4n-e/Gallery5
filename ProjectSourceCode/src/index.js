@@ -188,16 +188,16 @@ app.get('/register', (req, res) => {
 // *****************************************************
 // <!     Authentication Middleware                   >
 // *****************************************************
-  //Authentication Middleware
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page if not authenticated
-      return res.redirect('/login');
-    }
-    next(); // Allow access if authenticated
-  };
+  // //Authentication Middleware
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
   
-  app.use(auth);
+  // app.use(auth);
 
 
   
@@ -372,79 +372,64 @@ app.get('/artists', async (req, res) => {
   keyArtistID = req.query.keyword;
   //if there is no keyword: display all artists
   if(!keyArtistID){
-    try {
-      keyArtistID = '4d8b92b34eb68a1b2c0003f4';
-      const similarArtistsResponse = await axios({
-        url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
-        method: 'GET',
-        dataType: 'json',
-        headers: {
-          'X-XApp-Token': xapptoken
-        },
-        params: {
-          'similar_to_artist_id' : keyArtistID
-        }
-      });
-      
-      var response = similarArtistsResponse.data._embedded.artists;
-      if(!response){
-        res.render('/allArtists', {results: [], message: 'Error on backend. You suck, Austin.'});
-      }
-      
-
-
-    } catch (error) {
-      console.error(error);
-
-      // If the API call fails, render pages/discover with an empty results array and the error message
-      res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
-    }
-
+    res.render('./pages/allArtists');
   }
   else{
-    redirect('/artist', {keyArtistID});
+    res.redirect('/artist', {keyArtistID});
   }
 });
+
 
 
 // For displaying a single artist:
-app.get('/artist', async (req,res) =>{
+app.get('/artist', async (req, res) => {
   const keyword = req.query.keyword;
-  if(!keyword){
-    res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
-  }
-
-  try{
+  // Check for keyword. If no keyword then send back to all-artist page
+  //if(!keyword){
+  //   res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
+  // }
+  try {
+    // Make a GET request to fetch detailed information about the artist
     const artistSearch = await axios({
-      url : 'https://api.artsy.net/api/artists/?',
+      url: 'https://api.artsy.net/api/artists/',
       method: 'GET',
-      datatype: 'json',
-      headers: { 'X-XApp-Token' : xapptoken},
-      params:{
-        'q' : keyword
-      }
+      dataType: 'json',
+      headers: { 'X-XApp-Token': xapptoken },
+      params: { 'q': keyword }
     });
-  } catch(error){
+
+    // Extract the URL of the first artist in the search results
+    const artistURL = artistSearch._embedded.results[0]._links.self.href;
+
+    // Make another GET request to fetch detailed information about the artist
+    const response = await axios({
+      url: artistURL,
+      method: 'GET',
+      dataType: 'json',
+      headers: { 'X-XApp-Token': xapptoken }
+    });
+
+    // Extract relevant information from the response
+    const artistInfo = {
+      name: response.data.name,
+      biography: response.data.biography,
+      birthday: response.data.birthday,
+      deathday: response.data.deathday,
+      hometown: response.data.hometown,
+      location: response.data.location,
+      nationality: response.data.nationality,
+      thumbnailURL: response.data._links.thumbnail.href
+    };
+
+    // Render the 'artist' Handlebars template with the extracted information
+    res.render('./pages/artist', { artistInfo: artistInfo });
+
+  } catch (error) {
     console.error(error);
-    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
-  }
-  
-  const artistURL = artistSearch.data._embedded.results[0]._links.self.href;
-  if(!artistData)  {
-    res.redirect('/artists', {message: 'Error finding artist data, beat dev team at 5:01pm'});
-  }
-try{
-  const response = await axios({
-    url: artistURL,
-    method: 'GET',
-    datatype: 'json',
-    headers: { 'X-XApp-Token': xapptoken}
-  })
-  } catch(error){
-    console.error(error);
-    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
+    res.render('./pages//artist', { message: 'Error generating web page. Commence beating developer responsible.' });
   }
 });
+
 
 
 // *****************************************************
