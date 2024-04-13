@@ -17,6 +17,8 @@ const { start } = require('repl');
 
 //ask about how to get .env variables when in different directory
 
+app.use('/resources', express.static('resources'));
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -58,6 +60,8 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+
+
 
 // initialize session variables
 app.use(
@@ -189,23 +193,19 @@ app.get('/register', (req, res) => {
 // *****************************************************
 // <!     Authentication Middleware                   >
 // *****************************************************
-  //Authentication Middleware
-  const auth = (req, res, next) => {
-    if (!req.session.user) {
-      // Default to login page if not authenticated
-      return res.redirect('/login');
-    }
-    next(); // Allow access if authenticated
-  };
+  // //Authentication Middleware
+  // const auth = (req, res, next) => {
+  //   if (!req.session.user) {
+  //     // Default to login page if not authenticated
+  //     return res.redirect('/login');
+  //   }
+  //   next(); // Allow access if authenticated
+  // };
   
-  app.use(auth);
+  // app.use(auth);
 
-// *****************************************************
-// <!          Artworks-Ethan                  >
-// *****************************************************
 
-// Note: we have const axios above already.
-
+  
 // *****************************************************
 // <!          Artworks-Ethan                  >
 // *****************************************************
@@ -527,122 +527,74 @@ app.post('/events', async(req,res)=>{
   6. Using the artist id, display similar artists at the end
 */
 // Austin's xapp expires: 4-17
-const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMzNzQzMTAsImlhdCI6MTcxMjc2OTUxMCwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTZjOWU2MDcyOTIwMDAwZDJkMGY3YyJ9.hUlWDCDi2LlPKnLQi4w6efJWMUtkPXh3nUvBNHxEtgo';
+const xapptoken = process.env.xapptokenENV
+
+
+//app.use(express.static(__dirname, '../resources/js/'));
+
 
 app.get('/artists', async (req, res) => {
-  try {
-    const keyword = req.query.keyword; // Use query parameter for keyword
-    if(!keyword){
-      keyword = 'Andy Warhol'
-    }
-    // 1. Search for Artist by Name (First API Call):
-    const searchResponse = await axios({
-      url: 'https://api.artsy.net/api/search?',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        q: keyword // This is the search query 
-      }
-    });
-
-    //const artistResult = searchResponse.data._embedded.results._links.[0];
-
-    if (artistResult.type === 'artist') {
-      // Display artist information (name, description, thumbnail, etc.) from artistResult
-      const artistURL = artistResult._links.self;
-      const response = await axios({
-        url: artistURL,
-        method: 'GET',
-        dataType: 'json',
-        headers:{
-          'X-XApp-Token': xapptoken
-        }
-      })
-      if (!response.data || !response.data._embedded || !response.data._embedded.results || response.data._embedded.results[0].type !== 'artist') {
-        return res.render('./pages/allArtists', { results: [], message: `No artist found with the name "${keyword}".` });
-      }
-      res.render('allArtists', {response});
-
-
-    } else {
-      // Handle unexpected result type
-      console.error(`Artsy Search Type-Error, Type Returned: ${artistResult.type}`);
-    }
-
-    res.render('./pages/allArtists', { results: [], message: 'An error occurred while processing search results.' }); // Update message
-
-
-    // 2. Fetch Similar Artists using Artist ID (Second API Call):
-    const similarArtistsResponse = await axios({
-      url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        similar_to_artist_id: artistId
-      }
-    });
-
-    
-    // Extract the first artist ID from the search results
-    const artistId = searchResponse.data._embedded.results[0].id;
-  } catch (error) {
-    console.error(error);
-
-      // If the API call fails, render pages/discover with an empty results array and the error message
-      res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
-    }
-
+  keyArtistID = req.query.keyword;
+  //if there is no keyword: display all artists
+  if(!keyArtistID){
+    res.render('./pages/allArtists', {xapptoken});
   }
   else{
-    redirect('/artist', {keyArtistID});
+    res.redirect('/artist', {keyArtistID});
   }
 });
+
 
 
 // For displaying a single artist:
-app.get('/artist', async (req,res) =>{
+app.get('/artist', async (req, res) => {
   const keyword = req.query.keyword;
-  if(!keyword){
-    res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
-  }
-
-  try{
+  // Check for keyword. If no keyword then send back to all-artist page
+  //if(!keyword){
+  //   res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
+  // }
+  try {
+    // Make a GET request to fetch detailed information about the artist
     const artistSearch = await axios({
-      url : 'https://api.artsy.net/api/artists/?',
+      url: 'https://api.artsy.net/api/artists/',
       method: 'GET',
-      datatype: 'json',
-      headers: { 'X-XApp-Token' : xapptoken},
-      params:{
-        'q' : keyword
-      }
+      dataType: 'json',
+      headers: { 'X-XApp-Token': xapptoken },
+      params: { 'q': keyword }
     });
-  } catch(error){
+
+    // Extract the URL of the first artist in the search results
+    const artistURL = artistSearch._embedded.results[0]._links.self.href;
+
+    // Make another GET request to fetch detailed information about the artist
+    const response = await axios({
+      url: artistURL,
+      method: 'GET',
+      dataType: 'json',
+      headers: { 'X-XApp-Token': xapptoken }
+    });
+
+    // Extract relevant information from the response
+    const artistInfo = {
+      name: response.data.name,
+      biography: response.data.biography,
+      birthday: response.data.birthday,
+      deathday: response.data.deathday,
+      hometown: response.data.hometown,
+      location: response.data.location,
+      nationality: response.data.nationality,
+      thumbnailURL: response.data._links.thumbnail.href
+    };
+
+    // Render the 'artist' Handlebars template with the extracted information
+    res.render('./pages/artist', { artistInfo: artistInfo });
+
+  } catch (error) {
     console.error(error);
-    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
-  }
-  
-  const artistURL = artistSearch.data._embedded.results[0]._links.self.href;
-  if(!artistData)  {
-    res.redirect('/artists', {message: 'Error finding artist data, beat dev team at 5:01pm'});
-  }
-try{
-  const response = await axios({
-    url: artistURL,
-    method: 'GET',
-    datatype: 'json',
-    headers: { 'X-XApp-Token': xapptoken}
-  })
-  } catch(error){
-    console.error(error);
-    res.render('/artist', {message: 'Error generating web page. Commence beating developer responsible.'});
+    res.render('./pages//artist', { message: 'Error generating web page. Commence beating developer responsible.' });
   }
 });
+
 
 
 // *****************************************************
