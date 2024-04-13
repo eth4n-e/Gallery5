@@ -16,6 +16,8 @@ const axios = require('axios'); // To make HTTP requests from our server. We'll 
 
 //ask about how to get .env variables when in different directory
 
+app.use('/resources', express.static('resources'));
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -57,6 +59,8 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
+
+
 
 // initialize session variables
 app.use(
@@ -366,13 +370,17 @@ app.get('/events', (req, res) => {
   6. Using the artist id, display similar artists at the end
 */
 // Austin's xapp expires: 4-17
-const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMzNzQzMTAsImlhdCI6MTcxMjc2OTUxMCwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTZjOWU2MDcyOTIwMDAwZDJkMGY3YyJ9.hUlWDCDi2LlPKnLQi4w6efJWMUtkPXh3nUvBNHxEtgo';
+const xapptoken = process.env.xapptokenENV
+
+
+//app.use(express.static(__dirname, '../resources/js/'));
+
 
 app.get('/artists', async (req, res) => {
   keyArtistID = req.query.keyword;
   //if there is no keyword: display all artists
   if(!keyArtistID){
-    res.render('./pages/allArtists');
+    res.render('./pages/allArtists', {xapptoken});
   }
   else{
     res.redirect('/artist', {keyArtistID});
