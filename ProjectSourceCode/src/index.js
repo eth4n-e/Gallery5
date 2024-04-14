@@ -210,19 +210,26 @@ app.get('/register', (req, res) => {
 // <!          Artworks-Ethan                  >
 // *****************************************************
 
-// Note: we have const axios above already.
-
-
-app.get('/artwork', async (req, res) => {
+// generate an offset to be used in api calls for events, artworks, artists
+// using 20000 artworks has size>20000
+function generateOffset() {
+  return Math.floor(Math.random() * 20000)
+}
+app.get('/artworks', async (req, res) => {
+  //Note: there is around 27000 artworks provided by artsy
+  //going to select a sample of around 100 to show
   try {
-    const response = await axios({
-      url: 'https://api.artsy.net/api/artworks',
-      method: 'GET',
+    const art_offset = generateOffset();
+    const config = {
       headers: {
         'X-XAPP-Token': process.env.X_XAPP_TOKEN
+      },
+      params: {
+        offset: art_offset,
+        size: 100
       }
-    }) 
-
+    }
+    const response = await axios.get('https://api.artsy.net/api/artworks', config);
     /* format of response 
     {
       _embedded {
@@ -230,35 +237,20 @@ app.get('/artwork', async (req, res) => {
           list of artworks
         ]
     */
-    
-
     const artworks = response.data._embedded.artworks;
-
-    res.render('pages/artworks', artworks);
+    res.render('pages/artworks', {artworks});
 
   } catch(error) {
     console.log(error);
 
     res.redirect('/register');
-
   }
 })
-
-
-
-
-
 
 
 // *****************************************************
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
-
-// generate an offset to be used in api calls for events, artworks, artists
-// using 100 b/c events, artworks, artists all have at least size 100
-// function generateOffset() {
-//   return Math.floor(Math.random() * 100)
-// }
 
 // handle events api call
 function getEvents() {
