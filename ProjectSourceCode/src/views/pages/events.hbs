@@ -78,7 +78,8 @@
                 <div class="card-back">
                     <div class="card-body">
                         <p class="card-text">{{this.eventDescp}}</p>
-                        <p class="card-text">{{this.eventLink}}</p>
+                        <p class="card-text"><a href="{{this.eventLink}}">{{this.eventLink}}</a></p>
+                        
                     </div>
                 </div>
             </div>
@@ -86,7 +87,7 @@
     </div>
 </div>
 {{/each}}
-{{!-- 
+
 <h2 class="text-center">Add Event</h2>
 
 <form method="POST" action="/addEvent">
@@ -107,6 +108,6 @@
         <textarea class="form-control" id="eventDescp" name="eventDescp" rows="3" required></textarea>
     </div>
     <button type="submit" class="btn btn-primary">Add Event</button>
-</form> --}}
+</form>
 
 

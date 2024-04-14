@@ -468,11 +468,30 @@ app.post('/events', async(req,res)=>{
     console.log(eventsArr[i].eventDate);
   }
 
-  
+  // const user_id_for_admin= await db.oneOrNone('SELECT user_id FROM users WHERE username = $1', ["admin"]);
+  // console.log(user_id_for_admin);
+
+  let useEventsTemp;
+  try {
+    useEventsTemp = await db.many('SELECT * FROM events');
+    // Handle useEventsTemp as needed
+  } catch (error) {
+    // Handle the error (e.g., log it or take appropriate action)
+    console.error(error);
+  }
+  useEventsTemp= await db.many('SELECT * FROM events');
+
+  console.log(useEventsTemp);
+
+  // for(var i=0; i<useEventsTemp.length; i++){
+  //   console.log(useEventsTemp[i].event_name);
+  // }
   res.render('pages/events', {API_KEY, lat, long, eventsArr});
   
   
 });
+
+
 
 // function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
 //   var R = 6371; // Radius of the earth in km
