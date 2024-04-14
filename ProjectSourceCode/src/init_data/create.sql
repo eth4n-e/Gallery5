@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS events (
     event_date DATE ,
     event_time TIME,
     event_location VARCHAR(255),
-    event_lattitude VARCHAR(255),
+    event_latitude VARCHAR(255),
     event_longitude VARCHAR(255),
     event_description TEXT,
     event_image VARCHAR(255),

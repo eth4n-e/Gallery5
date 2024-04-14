@@ -390,6 +390,30 @@ function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, even
   this.eventLocation = eventLocation;
   this.eventImage=eventImage;
 }
+
+Number.prototype.toRad = function() {
+  return this * Math.PI / 180;
+}
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  // console.log(lat1, lon1);
+  // console.log(lat2, lon2);
+  var R = 6371; // km 
+  //has a problem with the .toRad() method below.
+  var x1 = lat2-lat1;
+  var dLat = x1.toRad();  
+  var x2 = lon2-lon1;
+  var dLon = x2.toRad();  
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                  Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2);  
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  console.log(d);
+  return d;
+}
+
+
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
@@ -479,33 +503,37 @@ app.post('/events', async(req,res)=>{
     // Handle the error (e.g., log it or take appropriate action)
     console.error(error);
   }
-  useEventsTemp= await db.many('SELECT * FROM events');
+  useEventsTemp= await db.many('SELECT * FROM events ORDER BY event_date ASC');
 
-  console.log(useEventsTemp);
+/// console.log(useEventsTemp);
+ var userEvents=[];
 
-  // for(var i=0; i<useEventsTemp.length; i++){
-  //   console.log(useEventsTemp[i].event_name);
-  // }
-  res.render('pages/events', {API_KEY, lat, long, eventsArr});
+  for(var i=0; i<useEventsTemp.length; i++){ //loop through and check if lat and long is within 160 km (or about 100 mi) of user.
+    //console.log(parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude)+20.0);
+    //console.log(lat, long);
+    var distance = getDistanceFromLatLonInKm(parseFloat(lat), parseFloat(long), parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude));
+    
+    console.log(distance);
+    if(distance <= 160){
+ 
+      var newEvent = new Events(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image);
+      userEvents.push(newEvent);
+    }
+  }
+  //now we want to sort userEvents by date asc
+  // userEvents.sort(function(a,b){
+  //   return new Date(a.eventDate) - new Date(b.eventDate);
+  // });
+
+  console.log(userEvents);
+
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents});
   
   
 });
 
 
 
-// function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-//   var R = 6371; // Radius of the earth in km
-//   var dLat = deg2rad(lat2-lat1);  // deg2rad below
-//   var dLon = deg2rad(lon2-lon1); 
-//   var a = 
-//     Math.sin(dLat/2) * Math.sin(dLat/2) +
-//     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-//     Math.sin(dLon/2) * Math.sin(dLon/2)
-//     ; 
-//   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-//   var d = R * c; // Distance in km
-//   return d;
-// }
 
 // *****************************************************
 // <!               Profile- Catherine                 >
