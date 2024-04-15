@@ -652,6 +652,34 @@ app.post('/addEvent', async(req,res)=>{
 // *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
+app.get('/profile', async (req, res) => {
+  try {
+    const user_id = req.session.user.user_id;
+    
+    // Fetch user's followed artists
+    const followedArtists = await db.any(
+      `SELECT a.* 
+       FROM artists a
+       INNER JOIN user_artists ua ON a.artist_id = ua.artist_id
+       WHERE ua.user_id = $1`,
+      [user_id]
+    );
+
+    // Fetch user's events
+    const userEvents = await db.any(
+      `SELECT * 
+       FROM events 
+       WHERE user_id = $1`,
+      [user_id]
+    );
+
+    // Render the profile page and pass the followed artists and user's events data to it
+    res.render('pages/profile', { followedArtists, userEvents });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching profile data.');
+  }
+});
 
 
 // *****************************************************
