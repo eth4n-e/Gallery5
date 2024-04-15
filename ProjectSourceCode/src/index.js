@@ -335,6 +335,41 @@ app.get('/events', (req, res) => {
 // *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
+app.get('/profile', async (req, res) => {
+  try {
+    // Fetch user's followed artists
+    const user_id = req.session.user.user_id;
+    const followedArtists = await db.any(
+      `SELECT a.* 
+       FROM artists a
+       INNER JOIN user_artists ua ON a.artist_id = ua.artist_id
+       WHERE ua.user_id = ${user_id}`
+    );
+
+    // Render the profile page and pass the followed artists data to it
+    res.render('pages/profile', { followedArtists });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching profile data.');
+  }
+
+  // try {
+  //   // Fetch user's artwork
+  //   const userArtwork = await db.any('SELECT * FROM artwork WHERE user_id = usernameLocal', [req.session.user.id]);
+    
+  //   // Fetch user's favorite artwork
+  //   const favoriteArtwork = await db.any('SELECT * FROM artwork WHERE follow_id = $1', [req.session.user.id]);
+    
+  //   // Fetch user's events
+  //   const userEvents = await db.any('SELECT * FROM user_events WHERE user_id = $1', [req.session.user.id]);
+    
+  //   // Render the profile page and pass all the data to it
+  //   res.render('pages/profile', { userArtwork, favoriteArtwork, userEvents });
+  // } catch (error) {
+  //   console.error(error);
+  //   res.status(500).send('An error occurred while fetching profile data.');
+  }
+);
 
 
 // *****************************************************
