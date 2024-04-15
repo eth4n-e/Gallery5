@@ -14,6 +14,7 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const { start } = require('repl');
+const { get } = require('http');
 
 //ask about how to get .env variables when in different directory
 
@@ -28,6 +29,25 @@ const hbs = handlebars.create({
   partialsDir: __dirname + '/views/partials',
 });
 
+//string equality helper for handlebars ifelse
+hbs.handlebars.registerHelper('eq', function(a, b, opts) {
+  console.log(a, b);
+  if (a === b) {
+      return opts.fn(this);
+  } else {
+      return opts.inverse(this);
+  }
+});
+
+hbs.handlebars.registerHelper('arrayIndex', function (array, index) {
+  console.log(array, index);
+  var x=Number(index);
+  return array[x];
+});
+
+hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
+  options.data.root[varName] = varValue;
+});
 // database configuration
 const dbConfig = {
   host: 'db', // the database server
@@ -391,6 +411,56 @@ function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, even
   this.eventImage=eventImage;
 }
 
+function userEvents1(eventName, eventDescp, eventDate, eventLocation,eventImage,eventDateNoTime){
+  this.eventName=eventName;
+  this.eventDescp=eventDescp;
+  this.eventDate=eventDate;
+  this.eventLocation=eventLocation;
+  this.eventImage=eventImage;
+  this.eventDateNoTime=eventDateNoTime;
+
+}
+
+function getDaysOfWeek(){
+  const weekdays= new Map(); //this map maps weekday names to their index
+  weekdays.set(0,'Sunday');
+  weekdays.set(1,'Monday');
+  weekdays.set(2,'Tuesday');
+  weekdays.set(3,'Wednesday');
+  weekdays.set(4,'Thursday');
+  weekdays.set(5,'Friday');
+  weekdays.set(6,'Saturday');
+
+  const today =new Date(); 
+  const curr= today.getDay(); //get index of current day
+  var daysOfWeek=[];
+  for(var i=0; i<7;i++){
+    daysOfWeek.push(weekdays.get((curr+i)%7)); //get the day of the week for the next 7 days
+  }
+  return daysOfWeek;
+}
+
+function getDatesForWeek(){
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+  if(dd<10) {
+      dd='0'+dd
+  }
+  if(mm<10) {
+      mm='0'+mm
+  }
+  today = yyyy+'-'+mm+'-'+dd; //we now have the curent date
+  var datesForWeek=[];
+  for(var i=0; i<7; i++){
+    var newDate = new Date(today);
+    newDate.setDate(newDate.getDate()+i);
+    datesForWeek.push(newDate.toISOString().slice(0, 10)); //get the date for the next 7 days
+  }
+  return datesForWeek;
+}
+
 Number.prototype.toRad = function() {
   return this * Math.PI / 180;
 }
@@ -503,7 +573,7 @@ app.post('/events', async(req,res)=>{
     // Handle the error (e.g., log it or take appropriate action)
     console.error(error);
   }
-  useEventsTemp= await db.many('SELECT * FROM events ORDER BY event_date ASC');
+  useEventsTemp= await db.many('SELECT * FROM events ORDER BY event_date ASC'); //pre sort by date 
 
 /// console.log(useEventsTemp);
  var userEvents=[];
@@ -515,8 +585,8 @@ app.post('/events', async(req,res)=>{
     
     console.log(distance);
     if(distance <= 160){
- 
-      var newEvent = new Events(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image);
+      const dateNoTime= useEventsTemp[i].event_date.toISOString().slice(0, 10);
+      var newEvent = new userEvents1(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image,dateNoTime);
       userEvents.push(newEvent);
     }
   }
@@ -526,8 +596,30 @@ app.post('/events', async(req,res)=>{
   // });
 
   console.log(userEvents);
+  //console.log(userEvents[0].eventDateNoTime);
+  console.log(getDatesForWeek());
+  // console.log(getDaysOfWeek());
+  const daysOfWeek = getDaysOfWeek();
+  const datesForWeek = getDatesForWeek();
 
-  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents});
+  //now at this point one would hope we could just render the events page, by passing the following params:API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek
+  //API KEY for the map, lat and long for the map, eventsArr for the events, userEvents for the user events, daysOfWeek for the days of the week to put events (like Monday), and datesForWeek for the dates of the week (like 1/2/23)
+  //but Handlebars is absolutely dog water and we cant pass non literals as the second argment to a handelbars helper, so we have to do this in the backend for some god forsaken reason.
+
+  //we will literally pass 7 arrays back to the front end lmao. Each array will contain all events on that day.
+
+  const events1= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[0]]);
+  const events2= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[1]]);
+  const events3= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[2]]);
+  const events4= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[3]]);
+  const events5= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[4]]);
+  const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
+  const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
+
+  console.log(datesForWeek[5]);
+  console.log(events6);
+  
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
   
   
 });
