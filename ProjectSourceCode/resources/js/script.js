@@ -1,7 +1,5 @@
 const xAppToken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTM1Nzc0OTcsImlhdCI6MTcxMjk3MjY5NywiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTllMzk5ZmFlNWRkMDAwYjc1NzVhNyJ9.nv4SH0J6wRAOH1w5K8W3B-YmleyseJZQcIgLzcLm1TA';
 
-
-// Function to fetch artists by gene from Artsy API
 // Function to fetch artists by gene from Artsy API
 async function fetchArtistsByGene(geneNames) {
     try {
@@ -34,7 +32,6 @@ async function fetchArtistsByGene(geneNames) {
                     artistArray.push(artist);
                     console.log(artist);
                 }
-                // displayGeneInfo(response);
                 displayArtists(artistArray); // Display artists
             }
         }
@@ -42,25 +39,6 @@ async function fetchArtistsByGene(geneNames) {
         console.error('Error fetching X-App-Token or artists:', error);
     }
 }
-
-// function displayGeneInfo(response) {
-//     const template = Handlebars.compile(`
-//       <div class="row">
-//         <div class="col-md-12 mb-3">
-//           <div class="card bg-light">
-//             <div class="card-body">
-//               <h2 class="card-title">{{name}}</h2>
-//               <p class="card-text">{{description}}</p>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     `);
-  
-//     const html = template(response);
-//     $("#artistsContainer").before(html);
-//   }
-  
 
 function displayArtists(artistArray) {
     // Assuming there's a container with id "artistsContainer" in your HTML
@@ -72,21 +50,46 @@ function displayArtists(artistArray) {
     // Loop through each artist and create HTML elements to display them
     artistArray.forEach(function(artist, index) {
         // Create HTML element to display the artist
-        var artistCard = `
-            <div class="col-md-4">
-                <div class="card rounded mb-3">
+        var artistCard = $(`
+            <div class="col-md-3">
+                <div class="card rounded mb-3" style="cursor: pointer;">
                     <img src="${artist._links.thumbnail.href}" class="card-img-top" alt="${artist.name}">
-                    <div class="card-body">
+                    <div class="card-body" data-artist-id="${artist.id}">
                         <h5 class="card-title">${artist.name}</h5>
                         <p class="card-text">Birthday: ${artist.birthday} Death: ${artist.deathday}</p>
                         <p class="card-text">Hometown: ${artist.hometown}</p>
                         <p class="card-text">Nationality: ${artist.nationality}</p>
                         <p class="card-text">Location: ${artist.location}</p>
-                        <!-- Add more artist information here as needed -->
+                        
                     </div>
                 </div>
             </div>
-        `;
+        `);
+
+        // Add click event to the card
+        // script.js
+
+        artistCard.on('click', function() {
+            const artistId = $(this).find('.card-body').data('artist-id');
+        
+            // Send AJAX request to backend endpoint (e.g., /artist/details)
+            $.ajax({
+                url: '/artist/details', // Replace with your actual endpoint
+                type: 'GET', // Adjust method if needed (GET/POST)
+                data: { artistId: artistId }, // Send artist ID as data
+                success: function(response) {
+                    // Handle successful response from backend (e.g., redirect)
+                    console.log('Artist details retrieved:', response);
+                    // Replace with logic to redirect to artist details page
+                    window.location.href = `/artist/${artistId}`; // Example redirect
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error fetching artist details:', error);
+                }
+            });
+        });
+        
+
 
         // Append the artist card to the current row
         row.append(artistCard);
@@ -103,4 +106,3 @@ function displayArtists(artistArray) {
         artistsContainer.append(row);
     }
 }
-
