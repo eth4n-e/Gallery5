@@ -360,3 +360,40 @@
         </td>
     </tr>
 </table> 
+
+<button type="button" onclick="openForm()">Add Event</button>
+
+<div id="eventForm" class="form-popup">
+    <form action="/addEvent" method="POST" class="form-container">
+        <h2>Add Event</h2>
+
+        <label for="location"><b>Location</b></label>
+        <input type="text" placeholder="Street Address" name="streetAddress" required>
+        <input type="text" placeholder="Postal Code" name="postalCode" required>
+        <input type="text" placeholder="City" name="city" required>
+        <input type="text" placeholder="State" name="state" required>
+        <input type="text" placeholder="Country" name="country">
+
+        <label for="eventName"><b>Event Name</b></label>
+        <input type="text" placeholder="Enter Event Name" name="eventName" required>
+
+        <label for="description"><b>Description</b></label>
+        <textarea placeholder="Enter Event Description" name="description" required></textarea>
+
+        <label for="eventDate"><b>Event Date</b></label>
+        <input type="date" name="eventDate" required>
+
+        <button type="submit" class="btn">Submit</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+    </form>
+</div>
+
+<script>
+function openForm() {
+    document.getElementById("eventForm").style.display = "block";
+}
+
+function closeForm() {
+    document.getElementById("eventForm").style.display = "none";
+}
+</script>

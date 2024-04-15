@@ -616,15 +616,50 @@ app.post('/events', async(req,res)=>{
   const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
   const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
 
-  console.log(datesForWeek[5]);
-  console.log(events6);
+  // console.log(datesForWeek[5]);
+  // console.log(events6);
   
   res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
   
   
 });
 
+function parseSpaces(stringToParse){ //function to parse spaces in a string
+  var newString = stringToParse.replace(/\s/g, '%20');
+  return newString;
 
+
+}
+
+app.post('/addEvent', async(req,res)=>{
+  const eventName = req.body.eventName;
+  const eventDescp = req.body.description;
+  const eventDate = req.body.eventDate;
+  const streetAddy= req.body.streetAddress;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zip = req.body.postalCode;
+
+  const eventLocation = streetAddy + " " + city + " " + state + " " + zip;
+  const eventLocation2 = parseSpaces(eventLocation);
+  const location=await axios({ //get in the fine arts within one week of right now
+    url: 'https://maps.googleapis.com/maps/api/geocode/json',
+    method: 'GET',
+    params: {
+      key: process.env.GOOGLE_MAPS_API_KEY,
+      address: eventLocation2
+    }
+  });
+
+  console.log(location.data.results[0].geometry.location.lat);
+  console.log(location.data.results[0].geometry.location.lng);
+
+  //now we can add the data to the events db:
+  await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
+  res.redirect('/events');
+
+
+}); //add event to user events
 
 
 // *****************************************************
