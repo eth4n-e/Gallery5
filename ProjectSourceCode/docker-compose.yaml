@@ -8,6 +8,10 @@ services:
     volumes:
       - group-project:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
+  fix-permissions:
+    image: alpine
+    command: > 
+      sh -c "chown -R 1000:1000 /uploads"
   web:
     image: node:lts
     user: 'node'
@@ -21,6 +25,8 @@ services:
       - '3000:3000'
     volumes:
       - ./:/repository
+      - uploads:/uploads
     command: 'npm run start ' #TODO: change the command to `npm run testandrun` to run mocha
 volumes:
   group-project:
+  uploads:

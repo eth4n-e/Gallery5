@@ -729,6 +729,18 @@ app.get('/logout', (req, res) => {
     res.render('pages/logout', {message: 'Logged out Successfully!'});
 });
 
+app.get('/profile', (req, res) => {
+  req.session.destroy();
+  res.render('pages/profile');
+});
+///////////////////////////////////
+// Upload (multer)              //
+// images uploaded to artworks or profile //
+
+
+
+
+
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
