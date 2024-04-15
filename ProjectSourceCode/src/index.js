@@ -84,7 +84,10 @@ app.use(
 // *****************************************************
 const user = {
     username: undefined,
-    password: undefined,
+    email: undefined,
+    firstname: undefined,
+    lastname: undefined,
+    user_id: undefined
   };
 
   app.get('/login', (req, res) => {
@@ -98,20 +101,27 @@ const user = {
 
     try {
         // Find the user from the database
-        const user = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
+        const user_db = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
         
-        if (user) {
+        if (user_db) {
           // Check if the entered password matches the stored hashed pord
           
-          const passwordMatch = await bcrypt.compare(password, user.password);
-    
+          const passwordMatch = await bcrypt.compare(password, user_db.password);
+          console.log('_____________');
+          console.log(user_db.user_id);
           if (passwordMatch) {
             // Save the user in the session variable
+            user.user_id = user_db.user_id;
+            user.username = user_db.username;
+            // user.password = user_db.password;
+            user.email = user_db.email;
+            user.firstname = user_db.firstname;
+            user.lastname = user_db.lastname;
             req.session.user = user;
             req.session.save();
-    
+            console.log(user);
             // Redirect to /discover route after setting the session
-            res.redirect('/discover');
+            res.render('pages/discover', {username: req.session.user.username});
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
