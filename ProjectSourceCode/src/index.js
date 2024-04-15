@@ -14,6 +14,7 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const { start } = require('repl');
+const { get } = require('http');
 
 //ask about how to get .env variables when in different directory
 
@@ -30,6 +31,25 @@ const hbs = handlebars.create({
   partialsDir: __dirname + '/views/partials',
 });
 
+//string equality helper for handlebars ifelse
+hbs.handlebars.registerHelper('eq', function(a, b, opts) {
+  console.log(a, b);
+  if (a === b) {
+      return opts.fn(this);
+  } else {
+      return opts.inverse(this);
+  }
+});
+
+hbs.handlebars.registerHelper('arrayIndex', function (array, index) {
+  console.log(array, index);
+  var x=Number(index);
+  return array[x];
+});
+
+hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
+  options.data.root[varName] = varValue;
+});
 // database configuration
 const dbConfig = {
   host: 'db', // the database server
@@ -390,6 +410,80 @@ function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, even
   this.eventLocation = eventLocation;
   this.eventImage=eventImage;
 }
+
+function userEvents1(eventName, eventDescp, eventDate, eventLocation,eventImage,eventDateNoTime){
+  this.eventName=eventName;
+  this.eventDescp=eventDescp;
+  this.eventDate=eventDate;
+  this.eventLocation=eventLocation;
+  this.eventImage=eventImage;
+  this.eventDateNoTime=eventDateNoTime;
+
+}
+
+function getDaysOfWeek(){
+  const weekdays= new Map(); //this map maps weekday names to their index
+  weekdays.set(0,'Sunday');
+  weekdays.set(1,'Monday');
+  weekdays.set(2,'Tuesday');
+  weekdays.set(3,'Wednesday');
+  weekdays.set(4,'Thursday');
+  weekdays.set(5,'Friday');
+  weekdays.set(6,'Saturday');
+
+  const today =new Date(); 
+  const curr= today.getDay(); //get index of current day
+  var daysOfWeek=[];
+  for(var i=0; i<7;i++){
+    daysOfWeek.push(weekdays.get((curr+i)%7)); //get the day of the week for the next 7 days
+  }
+  return daysOfWeek;
+}
+
+function getDatesForWeek(){
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+  if(dd<10) {
+      dd='0'+dd
+  }
+  if(mm<10) {
+      mm='0'+mm
+  }
+  today = yyyy+'-'+mm+'-'+dd; //we now have the curent date
+  var datesForWeek=[];
+  for(var i=0; i<7; i++){
+    var newDate = new Date(today);
+    newDate.setDate(newDate.getDate()+i);
+    datesForWeek.push(newDate.toISOString().slice(0, 10)); //get the date for the next 7 days
+  }
+  return datesForWeek;
+}
+
+Number.prototype.toRad = function() {
+  return this * Math.PI / 180;
+}
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  // console.log(lat1, lon1);
+  // console.log(lat2, lon2);
+  var R = 6371; // km 
+  //has a problem with the .toRad() method below.
+  var x1 = lat2-lat1;
+  var dLat = x1.toRad();  
+  var x2 = lon2-lon1;
+  var dLon = x2.toRad();  
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                  Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2);  
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  console.log(d);
+  return d;
+}
+
+
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
@@ -468,25 +562,105 @@ app.post('/events', async(req,res)=>{
     console.log(eventsArr[i].eventDate);
   }
 
+  // const user_id_for_admin= await db.oneOrNone('SELECT user_id FROM users WHERE username = $1', ["admin"]);
+  // console.log(user_id_for_admin);
+
+  let useEventsTemp;
+  try {
+    useEventsTemp = await db.many('SELECT * FROM events');
+    // Handle useEventsTemp as needed
+  } catch (error) {
+    // Handle the error (e.g., log it or take appropriate action)
+    console.error(error);
+  }
+  useEventsTemp= await db.many('SELECT * FROM events ORDER BY event_date ASC'); //pre sort by date 
+
+/// console.log(useEventsTemp);
+ var userEvents=[];
+
+  for(var i=0; i<useEventsTemp.length; i++){ //loop through and check if lat and long is within 160 km (or about 100 mi) of user.
+    //console.log(parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude)+20.0);
+    //console.log(lat, long);
+    var distance = getDistanceFromLatLonInKm(parseFloat(lat), parseFloat(long), parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude));
+    
+    console.log(distance);
+    if(distance <= 160){
+      const dateNoTime= useEventsTemp[i].event_date.toISOString().slice(0, 10);
+      var newEvent = new userEvents1(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image,dateNoTime);
+      userEvents.push(newEvent);
+    }
+  }
+  //now we want to sort userEvents by date asc
+  // userEvents.sort(function(a,b){
+  //   return new Date(a.eventDate) - new Date(b.eventDate);
+  // });
+
+  console.log(userEvents);
+  //console.log(userEvents[0].eventDateNoTime);
+  console.log(getDatesForWeek());
+  // console.log(getDaysOfWeek());
+  const daysOfWeek = getDaysOfWeek();
+  const datesForWeek = getDatesForWeek();
+
+  //now at this point one would hope we could just render the events page, by passing the following params:API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek
+  //API KEY for the map, lat and long for the map, eventsArr for the events, userEvents for the user events, daysOfWeek for the days of the week to put events (like Monday), and datesForWeek for the dates of the week (like 1/2/23)
+  //but Handlebars is absolutely dog water and we cant pass non literals as the second argment to a handelbars helper, so we have to do this in the backend for some god forsaken reason.
+
+  //we will literally pass 7 arrays back to the front end lmao. Each array will contain all events on that day.
+
+  const events1= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[0]]);
+  const events2= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[1]]);
+  const events3= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[2]]);
+  const events4= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[3]]);
+  const events5= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[4]]);
+  const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
+  const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
+
+  // console.log(datesForWeek[5]);
+  // console.log(events6);
   
-  res.render('pages/events', {API_KEY, lat, long, eventsArr});
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
   
   
 });
 
-// function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-//   var R = 6371; // Radius of the earth in km
-//   var dLat = deg2rad(lat2-lat1);  // deg2rad below
-//   var dLon = deg2rad(lon2-lon1); 
-//   var a = 
-//     Math.sin(dLat/2) * Math.sin(dLat/2) +
-//     Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-//     Math.sin(dLon/2) * Math.sin(dLon/2)
-//     ; 
-//   var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
-//   var d = R * c; // Distance in km
-//   return d;
-// }
+function parseSpaces(stringToParse){ //function to parse spaces in a string
+  var newString = stringToParse.replace(/\s/g, '%20');
+  return newString;
+
+
+}
+
+app.post('/addEvent', async(req,res)=>{
+  const eventName = req.body.eventName;
+  const eventDescp = req.body.description;
+  const eventDate = req.body.eventDate;
+  const streetAddy= req.body.streetAddress;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zip = req.body.postalCode;
+
+  const eventLocation = streetAddy + " " + city + " " + state + " " + zip;
+  const eventLocation2 = parseSpaces(eventLocation);
+  const location=await axios({ //get in the fine arts within one week of right now
+    url: 'https://maps.googleapis.com/maps/api/geocode/json',
+    method: 'GET',
+    params: {
+      key: process.env.GOOGLE_MAPS_API_KEY,
+      address: eventLocation2
+    }
+  });
+
+  console.log(location.data.results[0].geometry.location.lat);
+  console.log(location.data.results[0].geometry.location.lng);
+
+  //now we can add the data to the events db:
+  await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
+  res.redirect('/events');
+
+
+}); //add event to user events
+
 
 // *****************************************************
 // <!               Profile- Catherine                 >
