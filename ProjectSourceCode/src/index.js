@@ -13,8 +13,12 @@ const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const { start } = require('repl');
+const { get } = require('http');
 
 //ask about how to get .env variables when in different directory
+
+app.use('/resources', express.static('resources'));
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -27,6 +31,25 @@ const hbs = handlebars.create({
   partialsDir: __dirname + '/views/partials',
 });
 
+//string equality helper for handlebars ifelse
+hbs.handlebars.registerHelper('eq', function(a, b, opts) {
+  console.log(a, b);
+  if (a === b) {
+      return opts.fn(this);
+  } else {
+      return opts.inverse(this);
+  }
+});
+
+hbs.handlebars.registerHelper('arrayIndex', function (array, index) {
+  console.log(array, index);
+  var x=Number(index);
+  return array[x];
+});
+
+hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
+  options.data.root[varName] = varValue;
+});
 // database configuration
 const dbConfig = {
   host: 'db', // the database server
@@ -58,6 +81,8 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
 
+
+
 // initialize session variables
 app.use(
   session({
@@ -73,11 +98,6 @@ app.use(
   })
 );
 
-// *****************************************************
-// <!-- Section 4 : API Routes -->
-// *****************************************************
-
-// TODO - Include your API routes here
 
 // *****************************************************
 // <!               Login - Amy                   >
@@ -89,6 +109,10 @@ const user = {
     lastname: undefined,
     user_id: undefined
   };
+
+  app.get('/',(req,res)=>{
+    res.redirect('/discover');
+  });
 
   app.get('/login', (req, res) => {
     res.render('pages/login');
@@ -209,29 +233,62 @@ app.get('/register', (req, res) => {
   
   app.use(auth);
 
+
+  
 // *****************************************************
 // <!          Artworks-Ethan                  >
 // *****************************************************
 
-// Note: we have const axios above already.
+// generate an offset to be used in api calls for artworks
+// using 20000 artworks has size>20000
+function generateOffsetArtworks() {
+  return Math.floor(Math.random() * 20000);
+}
 
-// *****************************************************
-// <!          Artworks-Ethan                  >
-// *****************************************************
+// generate an offset to be used in api calls for artworks
+// using 200000 ~ 261000 artists available
+function generateOffsetArtists() {
+  return Math.floor(Math.random() * 200000);
+}
 
-// Note: we have const axios above already.
+// Handlebars.registerHelper('getArtistNameByArtworkId', async function(id) {
+//   try { 
+//     const config = {
+//       headers: {
+//         'X-XAPP-Token': process.env.X_XAPP_TOKEN
+//       },
+//       params: {
+//         artwork_id: id
+//       }
+//     };
 
+//     const artist_obj = await axios.get('https://api.artsy.net/api/artists', config);
+    
+//     artist = artist_obj.data._embedded.artists
 
-app.get('/artwork', async (req, res) => {
+//     return artist;
+//   } catch(err) {
+//     console.log(err);
+//   }
+// });
+
+Handlebars.unregisterHelper('getArtistNameByArtworkId');
+
+app.get('/artworks', async (req, res) => {
+  //Note: there is around 27000 artworks provided by artsy
+  //going to select a sample of around 100 to show
   try {
-    const response = await axios({
-      url: 'https://api.artsy.net/api/artworks',
-      method: 'GET',
+    const art_offset = generateOffsetArtworks();
+    const config = {
       headers: {
         'X-XAPP-Token': process.env.X_XAPP_TOKEN
+      },
+      params: {
+        offset: art_offset,
+        size: 36
       }
-    }) 
-
+    }
+    const response = await axios.get('https://api.artsy.net/api/artworks', config);
     /* format of response 
     {
       _embedded {
@@ -239,35 +296,20 @@ app.get('/artwork', async (req, res) => {
           list of artworks
         ]
     */
-    
-
     const artworks = response.data._embedded.artworks;
-
-    res.render('pages/artworks', artworks);
+    res.render('pages/artworks', {artworks});
 
   } catch(error) {
     console.log(error);
 
-    res.redirect('/register');
-
+    res.redirect('/discover');
   }
 })
-
-
-
-
-
 
 
 // *****************************************************
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
-
-// generate an offset to be used in api calls for events, artworks, artists
-// using 100 b/c events, artworks, artists all have at least size 100
-// function generateOffset() {
-//   return Math.floor(Math.random() * 100)
-// }
 
 // handle events api call
 function getEvents() {
@@ -291,13 +333,15 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
+  const artworks_offset = generateOffsetArtworks();
   // setup for API call
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
     },
     params: {
-      size: 4
+      size: 4,
+      offset: artworks_offset
     }
 }
   //axios.get(url, config *e.g headers and such*)
@@ -309,14 +353,16 @@ function getArtworks() {
 
 // handle artists api call
 function getArtists() {
+  const artist_offset = generateOffsetArtists();
+
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
     },
     params: {
-      artworks: true,
+      size: 4,
       sort: '-trending',
-      size: 4
+      offset: artist_offset
     }
   };
   //axios.get(url, config *e.g headers and such*)
@@ -334,6 +380,7 @@ try {
   const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data._embedded.artworks;
   const artists = artistsRes.data._embedded.artists;
+  console.log(artists);
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { events, artworks, artists });
@@ -344,45 +391,6 @@ try {
   res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
 }
 });
-
-// handle artists api call
-function getArtists() {
-  const config = {
-    headers: {
-      'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    },
-    params: {
-      artworks: true,
-      sort: '-trending'
-    }
-  };
-  //axios.get(url, config *e.g headers and such*)
-  return axios.get('https://api.artsy.net/api/artists', config)
-    .catch(err => {
-      console.log(err);
-    })
-}
-
-app.get('/discover', async (req, res) => {
-try {
-  // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-  const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
-
-  const events = eventsRes.data._embedded.fairs;
-  const artworks = artworksRes.data._embedded.artworks;
-  const artists = artistsRes.data._embedded.artists;
-
-  // Give to discover.hbs
-  // ask about passing multiple fulfilled promises
-  res.render('pages/discover', { events, artworks, artists });
-} catch (error) {
-  console.error(error);
-
-  // If the API call fails, render pages/discover with an empty results array and the error message
-  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
-}
-});
-
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
@@ -391,18 +399,264 @@ app.get('/events', (req, res) => {
   res.render('pages/events');
 });
 
+function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage) {
+  this.eventName = eventName;
+  this.eventDescp = eventDescp;
+  this.eventLink = eventLink;
+  this.eventDate = eventDate;
+  this.eventLocation = eventLocation;
+  this.eventImage=eventImage;
+}
+
+function userEvents1(eventName, eventDescp, eventDate, eventLocation,eventImage,eventDateNoTime){
+  this.eventName=eventName;
+  this.eventDescp=eventDescp;
+  this.eventDate=eventDate;
+  this.eventLocation=eventLocation;
+  this.eventImage=eventImage;
+  this.eventDateNoTime=eventDateNoTime;
+
+}
+
+function getDaysOfWeek(){
+  const weekdays= new Map(); //this map maps weekday names to their index
+  weekdays.set(0,'Sunday');
+  weekdays.set(1,'Monday');
+  weekdays.set(2,'Tuesday');
+  weekdays.set(3,'Wednesday');
+  weekdays.set(4,'Thursday');
+  weekdays.set(5,'Friday');
+  weekdays.set(6,'Saturday');
+
+  const today =new Date(); 
+  const curr= today.getDay(); //get index of current day
+  var daysOfWeek=[];
+  for(var i=0; i<7;i++){
+    daysOfWeek.push(weekdays.get((curr+i)%7)); //get the day of the week for the next 7 days
+  }
+  return daysOfWeek;
+}
+
+function getDatesForWeek(){
+  var today = new Date();
+  var dd = today.getDate();
+  var mm = today.getMonth()+1; //January is 0!
+  var yyyy = today.getFullYear();
+  if(dd<10) {
+      dd='0'+dd
+  }
+  if(mm<10) {
+      mm='0'+mm
+  }
+  today = yyyy+'-'+mm+'-'+dd; //we now have the curent date
+  var datesForWeek=[];
+  for(var i=0; i<7; i++){
+    var newDate = new Date(today);
+    newDate.setDate(newDate.getDate()+i);
+    datesForWeek.push(newDate.toISOString().slice(0, 10)); //get the date for the next 7 days
+  }
+  return datesForWeek;
+}
+
+Number.prototype.toRad = function() {
+  return this * Math.PI / 180;
+}
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  // console.log(lat1, lon1);
+  // console.log(lat2, lon2);
+  var R = 6371; // km 
+  //has a problem with the .toRad() method below.
+  var x1 = lat2-lat1;
+  var dLat = x1.toRad();  
+  var x2 = lon2-lon1;
+  var dLon = x2.toRad();  
+  var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                  Math.cos(lat1.toRad()) * Math.cos(lat2.toRad()) * 
+                  Math.sin(dLon/2) * Math.sin(dLon/2);  
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+  var d = R * c; 
+  console.log(d);
+  return d;
+}
+
 
 app.post('/events', async(req,res)=>{
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
-  const lat =await req.body.latitude;
-  const long = await req.body.longitude;
+  const lat =await req.body.latitude; //get user lat
+  const long = await req.body.longitude; //get user long
+  const currentDate = new Date();
+  const currentISODate = currentDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-11T07:33:26
   
-  res.render('pages/events', {API_KEY, lat, long});
+  //const currentISODate = currentDate.toISOString(); // Format: 2024-04-11T07:33:26.162Z
+  const futureDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+  //const futureISODate = futureDate.toISOString(); // Format: 2024-04-18T07:33:26.162Z
+  const futureISODate = futureDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-18T07:33:26
+
+  //console.log(currentISODate, futureISODate);
+
+
+  const results=await axios({ //get in the fine arts within one week of right now
+    url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+    method: 'GET',
+    params: {
+      apikey: process.env.TICKET_API_KEY,
+      startDateTime: currentISODate, //right now
+      endDateTime: futureISODate, //one week from now
+      classificationName: 'fine-art', //search in the fine arts
+      //size: 10, //get 10 events
+      sort: 'random' //sort 
+    }
+  });
+  
+  var eventsArr= []; //array to store events
+  //console.log(results.data._embedded.events);
+  for(var i=0; i<results.data._embedded.events.length; i++){
+    var checker=false;
+    var event = results.data._embedded.events[i];
+    var eventName = event.name;
+    var eventDescp = event.info;
+    var eventLink = event.url;
+    var eventDate = event.dates.start.localDate;
+    var eventImage= event.images?.[0]?.url || "https://via.placeholder.com/150";
+    var eventLocation= event._embedded.venues?.[0]?.name ||"Location not available";
+   // console.log(i);
+    //console.log(event);
+    
+    
+    
+    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage);
+    for(var j=0; j<eventsArr.length; j++){ //check if event already in array
+      if(eventsArr[j].eventName === newEvent.eventName){ //if it is
+        //onsole.log("test");
+        if(eventsArr[j].eventDate <= newEvent.eventDate){ //check if the date of the event in the array is less than the new event
+          checker=true;
+          break; //if it is, then no need to updatem, leave as is, and break the loop
+        }
+        else{
+          eventsArr.splice(j, 1); //if the date of the event in the array is greater than the new event, remove the event in the array
+        }
+      }
+    }
+    if(checker) continue; //if the event is already in the array and the date is less than the new event, continue to the next event
+    //if(i==0) console.log(event._embedded.venues[0].name);
+    eventsArr.push(newEvent); //add the new event to the array
+  }
+  // for(var i=0; i<eventsArr.length; i++){
+  //   console.log(eventsArr[i].eventName);
+  //   console.log(eventsArr[i].eventDate);
+  // }
+  //console.log("TEST");
+
+  //now we want to sort the array by date ascendng:
+  eventsArr.sort(function(a,b){
+    return new Date(a.eventDate) - new Date(b.eventDate);
+  });
+
+  for(var i=0; i<eventsArr.length; i++){
+    console.log(eventsArr[i].eventName);
+    console.log(eventsArr[i].eventDate);
+  }
+
+  // const user_id_for_admin= await db.oneOrNone('SELECT user_id FROM users WHERE username = $1', ["admin"]);
+  // console.log(user_id_for_admin);
+
+  let useEventsTemp;
+  try {
+    useEventsTemp = await db.many('SELECT * FROM events');
+    // Handle useEventsTemp as needed
+  } catch (error) {
+    // Handle the error (e.g., log it or take appropriate action)
+    console.error(error);
+  }
+  useEventsTemp= await db.many('SELECT * FROM events ORDER BY event_date ASC'); //pre sort by date 
+
+/// console.log(useEventsTemp);
+ var userEvents=[];
+
+  for(var i=0; i<useEventsTemp.length; i++){ //loop through and check if lat and long is within 160 km (or about 100 mi) of user.
+    //console.log(parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude)+20.0);
+    //console.log(lat, long);
+    var distance = getDistanceFromLatLonInKm(parseFloat(lat), parseFloat(long), parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude));
+    
+    console.log(distance);
+    if(distance <= 160){
+      const dateNoTime= useEventsTemp[i].event_date.toISOString().slice(0, 10);
+      var newEvent = new userEvents1(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image,dateNoTime);
+      userEvents.push(newEvent);
+    }
+  }
+  //now we want to sort userEvents by date asc
+  // userEvents.sort(function(a,b){
+  //   return new Date(a.eventDate) - new Date(b.eventDate);
+  // });
+
+  console.log(userEvents);
+  //console.log(userEvents[0].eventDateNoTime);
+  console.log(getDatesForWeek());
+  // console.log(getDaysOfWeek());
+  const daysOfWeek = getDaysOfWeek();
+  const datesForWeek = getDatesForWeek();
+
+  //now at this point one would hope we could just render the events page, by passing the following params:API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek
+  //API KEY for the map, lat and long for the map, eventsArr for the events, userEvents for the user events, daysOfWeek for the days of the week to put events (like Monday), and datesForWeek for the dates of the week (like 1/2/23)
+  //but Handlebars is absolutely dog water and we cant pass non literals as the second argment to a handelbars helper, so we have to do this in the backend for some god forsaken reason.
+
+  //we will literally pass 7 arrays back to the front end lmao. Each array will contain all events on that day.
+
+  const events1= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[0]]);
+  const events2= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[1]]);
+  const events3= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[2]]);
+  const events4= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[3]]);
+  const events5= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[4]]);
+  const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
+  const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
+
+  // console.log(datesForWeek[5]);
+  // console.log(events6);
+  
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
   
   
 });
 
+function parseSpaces(stringToParse){ //function to parse spaces in a string
+  var newString = stringToParse.replace(/\s/g, '%20');
+  return newString;
+
+
+}
+
+app.post('/addEvent', async(req,res)=>{
+  const eventName = req.body.eventName;
+  const eventDescp = req.body.description;
+  const eventDate = req.body.eventDate;
+  const streetAddy= req.body.streetAddress;
+  const city = req.body.city;
+  const state = req.body.state;
+  const zip = req.body.postalCode;
+
+  const eventLocation = streetAddy + " " + city + " " + state + " " + zip;
+  const eventLocation2 = parseSpaces(eventLocation);
+  const location=await axios({ //get in the fine arts within one week of right now
+    url: 'https://maps.googleapis.com/maps/api/geocode/json',
+    method: 'GET',
+    params: {
+      key: process.env.GOOGLE_MAPS_API_KEY,
+      address: eventLocation2
+    }
+  });
+
+  console.log(location.data.results[0].geometry.location.lat);
+  console.log(location.data.results[0].geometry.location.lng);
+
+  //now we can add the data to the events db:
+  await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
+  res.redirect('/events');
+
+
+}); //add event to user events
 
 
 // *****************************************************
@@ -414,107 +668,54 @@ app.post('/events', async(req,res)=>{
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-
-/* Upon reaching the artists page, the page will display a list of all artists. If a search was used, the artist page will first
-    display the artist, followed by two subsections related artwork and related artists (using Artsy's similarity)
-
-  FOOM:
-  1. Check for keyword
-    a) if NO Key word then display page of artists using artsy search
-    b) if keyword, query artsy for the keyword.
-  2. Upon receiving the keyword, begin querying for Artist information:
-      artist name, thumbnail, bio, birth-deathday, etc.
-  3. Example Output from Artsy:
-        "id": "4d8b92b34eb68a1b2c0003f4",
-        "slug": "andy-warhol",
-        "created_at": "2010-08-23T14:15:30+00:00",
-        "updated_at": "2024-04-10T16:42:54+00:00",
-        "name": "Andy Warhol",
-        "sortable_name": "Warhol Andy",
-        "gender": "male",
-        "biography": "An American painter, printmaker, sculptor, draughtsman, illustrator, filmmaker, writer and collector, who became one of the most famous artists of the 20th century. Warhol began his career as a successful commercial artist and illustrator for magazines and newspapers but by 1960 was determined to establish his name as a painter. He quickly became renowned for painting everyday advertisements or images from comic strips that looked eerily similar to the originals and contained no traditional marks of an artist. Warhol accentuated this look through the use of silkscreens and by painting in collaboration with a team of assistants in a studio he called \"The Factory.\" In the late sixties, Warhol turned his attention to making experimental films and multimedia events, and in the 1970s, to creating commissioned portraits. During the 1980s Warhol continued to exert an influence on the art world, collaborating with young artists such as Jean-Michel Basquiat and creating a series of paintings, which engaged with Renaissance masterworks.",
-        "birthday": "1928",
-        "deathday": "1987",
-        "hometown": "Pittsburgh, PA, USA",
-        "location": "New York, NY, USA",
-        "nationality": "American",
-        "target_supply": true,
-  4. Using the artist id, display their artwork
-  5. Using the artwork id, display similar pieces in a section below this
-  6. Using the artist id, display similar artists at the end
-*/
 // Austin's xapp expires: 4-17
-const xapptoken = 'eyJhbGciOiJIUzI1NiJ9.eyJyb2xlcyI6IiIsInN1YmplY3RfYXBwbGljYXRpb24iOiIyZGRmN2VkOC1mZTAyLTQxN2YtYTM2Ni03NGE2NTg4NWNlODgiLCJleHAiOjE3MTMzNzQzMTAsImlhdCI6MTcxMjc2OTUxMCwiYXVkIjoiMmRkZjdlZDgtZmUwMi00MTdmLWEzNjYtNzRhNjU4ODVjZTg4IiwiaXNzIjoiR3Jhdml0eSIsImp0aSI6IjY2MTZjOWU2MDcyOTIwMDAwZDJkMGY3YyJ9.hUlWDCDi2LlPKnLQi4w6efJWMUtkPXh3nUvBNHxEtgo';
+const xapptoken = process.env.xapptokenENV;
 
+// Display all artists or redirect to a specific artist page based on keyword
 app.get('/artists', async (req, res) => {
-  try {
-    const keyword = req.query.keyword; // Use query parameter for keyword
-    if(!keyword){
-      keyword = 'Andy Warhol'
-    }
-    // 1. Search for Artist by Name (First API Call):
-    const searchResponse = await axios({
-      url: 'https://api.artsy.net/api/search?',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        q: keyword // This is the search query 
-      }
-    });
-
-    //const artistResult = searchResponse.data._embedded.results._links.[0];
-
-    if (artistResult.type === 'artist') {
-      // Display artist information (name, description, thumbnail, etc.) from artistResult
-      const artistURL = artistResult._links.self;
-      const response = await axios({
-        url: artistURL,
-        method: 'GET',
-        dataType: 'json',
-        headers:{
-          'X-XApp-Token': xapptoken
-        }
-      })
-      if (!response.data || !response.data._embedded || !response.data._embedded.results || response.data._embedded.results[0].type !== 'artist') {
-        return res.render('./pages/allArtists', { results: [], message: `No artist found with the name "${keyword}".` });
-      }
-      res.render('allArtists', {response});
-
-
-    } else {
-      // Handle unexpected result type
-      console.error(`Artsy Search Type-Error, Type Returned: ${artistResult.type}`);
-    }
-
-    res.render('./pages/allArtists', { results: [], message: 'An error occurred while processing search results.' }); // Update message
-
-
-    // 2. Fetch Similar Artists using Artist ID (Second API Call):
-    const similarArtistsResponse = await axios({
-      url: 'https://api.artsy.net/api/artists/?similar_to_artist_id=',
-      method: 'GET',
-      dataType: 'json',
-      headers: {
-        'X-XApp-Token': xapptoken
-      },
-      params: {
-        similar_to_artist_id: artistId
-      }
-    });
-
-    
-    // Extract the first artist ID from the search results
-    const artistId = searchResponse.data._embedded.results[0].id;
-  } catch (error) {
-    console.error(error);
-
-    // If the API call fails, render pages/discover with an empty results array and the error message
-    res.render('./pages/allArtists', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    // Display all artists
+    res.render('./pages/allArtists', { xapptoken });
+  } else {
+    // Redirect to the artist page based on the keyword
+    res.redirect(`/artist/${keyword}`);
   }
 });
+
+// Display a specific artist's page based on artistId
+app.get('/artist/:artistId', async (req, res) => {
+  const artistId = req.params.artistId;
+  const artistURL = 'https://api.artsy.net/api/artists/' + artistId;
+  try {
+    const artistData = await axios({
+      url: artistURL,
+      method: 'GET',
+      headers: { 'X-XApp-Token': xapptoken }
+    });
+
+    const artistInfo = {
+      name: artistData.data.name,
+      biography: artistData.data.biography,
+      birthday: artistData.data.birthday,
+      deathday: artistData.data.deathday,
+      hometown: artistData.data.hometown,
+      location: artistData.data.location,
+      nationality: artistData.data.nationality,
+      thumbnailURL: artistData.data._links.thumbnail.href,
+      similarartists: artistData.data._links.similar_artists.href,
+      artworksLink: artistData.data._links.artworks.href
+    };
+
+    res.render('./pages/artist', { artistInfo: artistInfo });
+    
+  } catch (error) {
+    console.error(error);
+    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' });
+  }
+});
+
+module.exports = app;
 
 // *****************************************************
 // <!               Logout - Nate                   >
@@ -531,8 +732,6 @@ app.get('/logout', (req, res) => {
 // starting the server and keeping the connection open to listen for more requests
 module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
-
-
 
 // *****************************************************
 // <!-- Section 11 : Lab 11-->
