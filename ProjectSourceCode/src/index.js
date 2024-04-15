@@ -215,6 +215,28 @@ app.get('/register', (req, res) => {
 function generateOffset() {
   return Math.floor(Math.random() * 20000)
 }
+
+Handlebars.registerHelper('getArtistNameByArtworkId', async function(id) {
+  try { 
+    const config = {
+      headers: {
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
+      },
+      params: {
+        artwork_id: id
+      }
+    };
+
+    const artist_obj = await axios.get('https://api.artsy.net/api/artists', config);
+    
+    artist = artist_obj.data._embedded.artists
+
+    return artist;
+  } catch(err) {
+    console.log(err);
+  }
+});
+
 app.get('/artworks', async (req, res) => {
   //Note: there is around 27000 artworks provided by artsy
   //going to select a sample of around 100 to show
@@ -226,7 +248,7 @@ app.get('/artworks', async (req, res) => {
       },
       params: {
         offset: art_offset,
-        size: 100
+        size: 36
       }
     }
     const response = await axios.get('https://api.artsy.net/api/artworks', config);
