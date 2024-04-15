@@ -106,3 +106,7 @@ function displayArtists(artistArray) {
         artistsContainer.append(row);
     }
 }
+
+// *****************************************************
+// <!          Individual-Artwork-Ethan                  >
+// *****************************************************

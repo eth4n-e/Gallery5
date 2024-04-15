@@ -224,7 +224,28 @@ app.get('/register', (req, res) => {
   
   // app.use(auth);
 
+// *****************************************************
+// <!          Individual-Artwork-Ethan                  >
+// *****************************************************
+app.get('artwork/:id', async (req, res) => {
+  try {
+    const artwork_id = req.params.id;
 
+    console.log(artwork_id);
+
+    const config = {
+      headers: {
+        'X-XAPP-Token': process.env.X_XAPP_TOKEN
+      },
+    }
+
+    const artwork = await axios.get(`https://api.artsy.net/api/artworks/${artwork_id}`);
+
+    res.render('pages/oneArtwork', artwork);
+  } catch(error) {
+    console.log(error);
+  }
+});
   
 // *****************************************************
 // <!          Artworks-Ethan                  >
