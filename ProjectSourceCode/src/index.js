@@ -497,105 +497,54 @@ app.post('/events', async(req,res)=>{
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-
-/* Upon reaching the artists page, the page will display a list of all artists. If a search was used, the artist page will first
-    display the artist, followed by two subsections related artwork and related artists (using Artsy's similarity)
-
-  FOOM:
-  1. Check for keyword
-    a) if NO Key word then display page of artists using artsy search
-    b) if keyword, query artsy for the keyword.
-  2. Upon receiving the keyword, begin querying for Artist information:
-      artist name, thumbnail, bio, birth-deathday, etc.
-  3. Example Output from Artsy:
-        "id": "4d8b92b34eb68a1b2c0003f4",
-        "slug": "andy-warhol",
-        "created_at": "2010-08-23T14:15:30+00:00",
-        "updated_at": "2024-04-10T16:42:54+00:00",
-        "name": "Andy Warhol",
-        "sortable_name": "Warhol Andy",
-        "gender": "male",
-        "biography": "An American painter, printmaker, sculptor, draughtsman, illustrator, filmmaker, writer and collector, who became one of the most famous artists of the 20th century. Warhol began his career as a successful commercial artist and illustrator for magazines and newspapers but by 1960 was determined to establish his name as a painter. He quickly became renowned for painting everyday advertisements or images from comic strips that looked eerily similar to the originals and contained no traditional marks of an artist. Warhol accentuated this look through the use of silkscreens and by painting in collaboration with a team of assistants in a studio he called \"The Factory.\" In the late sixties, Warhol turned his attention to making experimental films and multimedia events, and in the 1970s, to creating commissioned portraits. During the 1980s Warhol continued to exert an influence on the art world, collaborating with young artists such as Jean-Michel Basquiat and creating a series of paintings, which engaged with Renaissance masterworks.",
-        "birthday": "1928",
-        "deathday": "1987",
-        "hometown": "Pittsburgh, PA, USA",
-        "location": "New York, NY, USA",
-        "nationality": "American",
-        "target_supply": true,
-  4. Using the artist id, display their artwork
-  5. Using the artwork id, display similar pieces in a section below this
-  6. Using the artist id, display similar artists at the end
-*/
 // Austin's xapp expires: 4-17
-const xapptoken = process.env.xapptokenENV
+const xapptoken = process.env.xapptokenENV;
 
-
-//app.use(express.static(__dirname, '../resources/js/'));
-
-
+// Display all artists or redirect to a specific artist page based on keyword
 app.get('/artists', async (req, res) => {
-  keyArtistID = req.query.keyword;
-  //if there is no keyword: display all artists
-  if(!keyArtistID){
-    res.render('./pages/allArtists', {xapptoken});
-  }
-  else{
-    res.redirect('/artist', {keyArtistID});
+  const keyword = req.query.keyword;
+  if (!keyword) {
+    // Display all artists
+    res.render('./pages/allArtists', { xapptoken });
+  } else {
+    // Redirect to the artist page based on the keyword
+    res.redirect(`/artist/${keyword}`);
   }
 });
 
-
-
-// For displaying a single artist:
-app.get('/artist', async (req, res) => {
-  const keyword = req.query.keyword;
-  // Check for keyword. If no keyword then send back to all-artist page
-  //if(!keyword){
-  //   res.redirect('/artists', {message: 'Artist page failed to load. Please try again. -Error 9 sent: beating will continue for the Dev responsible'})
-  // }
+// Display a specific artist's page based on artistId
+app.get('/artist/:artistId', async (req, res) => {
+  const artistId = req.params.artistId;
+  const artistURL = 'https://api.artsy.net/api/artists/' + artistId;
   try {
-    // Make a GET request to fetch detailed information about the artist
-    const artistSearch = await axios({
-      url: 'https://api.artsy.net/api/artists/',
-      method: 'GET',
-      dataType: 'json',
-      headers: { 'X-XApp-Token': xapptoken },
-      params: { 'q': keyword }
-    });
-
-    // Extract the URL of the first artist in the search results
-    const artistURL = artistSearch._embedded.results[0]._links.self.href;
-
-    // Make another GET request to fetch detailed information about the artist
-    const response = await axios({
+    const artistData = await axios({
       url: artistURL,
       method: 'GET',
-      dataType: 'json',
       headers: { 'X-XApp-Token': xapptoken }
     });
 
-    // Extract relevant information from the response
     const artistInfo = {
-      name: response.data.name,
-      biography: response.data.biography,
-      birthday: response.data.birthday,
-      deathday: response.data.deathday,
-      hometown: response.data.hometown,
-      location: response.data.location,
-      nationality: response.data.nationality,
-      thumbnailURL: response.data._links.thumbnail.href
+      name: artistData.data.name,
+      biography: artistData.data.biography,
+      birthday: artistData.data.birthday,
+      deathday: artistData.data.deathday,
+      hometown: artistData.data.hometown,
+      location: artistData.data.location,
+      nationality: artistData.data.nationality,
+      thumbnailURL: artistData.data._links.thumbnail.href,
+      similarartists: artistData.data._links.similar_artists.href,
+      artworksLink: artistData.data._links.artworks.href
     };
 
-    // Render the 'artist' Handlebars template with the extracted information
     res.render('./pages/artist', { artistInfo: artistInfo });
-
+    
   } catch (error) {
     console.error(error);
-    res.render('./pages//artist', { message: 'Error generating web page. Commence beating developer responsible.' });
+    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' });
   }
 });
 
-
+module.exports = app;
 
 // *****************************************************
 // <!               Logout - Nate                   >
@@ -612,8 +561,6 @@ app.get('/logout', (req, res) => {
 // starting the server and keeping the connection open to listen for more requests
 module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');
-
-
 
 // *****************************************************
 // <!-- Section 11 : Lab 11-->

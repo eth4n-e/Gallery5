@@ -1,24 +1,25 @@
 <title>Display One Artist Page</title>
 {{> message }}
 
-<div class="container mt-3" id="artistContainer">
-  <div class="row">
-    <div class="col-md-4">
-      <img src="{{ artistInfo.thumbnailURL }}" alt="{{ artistInfo.name }} Thumbnail" class="img-fluid mb-3">
+<div class="container mt-5">
+    <div class="row">
+      <div class="col-md-2">
+        <!-- Artist Thumbnail on Left 1/3 of screen -->
+        <img src="{{artistInfo.thumbnailURL}}" class="img-fluid" alt="Artist">
+      </div>
+      <div class="col-md-8">
+        <!-- Artist Name and Details on Right 2/3 of screen-->
+        <h2>{{artistInfo.name}}</h2>
+        <p><strong>Birthday:</strong> {{artistInfo.birthday}}</p>
+        <p><strong>Deathday:</strong> {{artistInfo.deathday}}</p>
+        <p><strong>Location:</strong> {{artistInfo.location}}</p>
+      </div>
     </div>
-    <div class="col-md-8">
-      <h2>{{ artistInfo.name }}</h2>
-      <p>
-        {{#if artistInfo.birthday}}
-          Born: {{ artistInfo.birthday }}
-        {{/if}}
-        {{#if artistInfo.deathday}} - Died: {{ artistInfo.deathday }}{{/if}}
-        <br>
-        {{#if artistInfo.location}}
-          Location: {{ artistInfo.location }}
-        {{/if}}
-      </p>
-      <p>{{ artistInfo.biography }}</p>
+    <div class="row mt-3">
+      <div class="col">
+        <!-- Artist Bio -->
+          <p>{{artistInfo.biography}}</p>
+      </div>
     </div>
   </div>
-</div>
+</body>
