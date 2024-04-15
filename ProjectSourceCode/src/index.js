@@ -98,11 +98,6 @@ app.use(
   })
 );
 
-// *****************************************************
-// <!-- Section 4 : API Routes -->
-// *****************************************************
-
-// TODO - Include your API routes here
 
 // *****************************************************
 // <!               Login - Amy                   >
@@ -111,6 +106,10 @@ const user = {
     username: undefined,
     password: undefined,
   };
+
+  app.get('/',(req,res)=>{
+    res.redirect('/discover');
+  });
 
   app.get('/login', (req, res) => {
     res.render('pages/login');
@@ -213,16 +212,16 @@ app.get('/register', (req, res) => {
 // *****************************************************
 // <!     Authentication Middleware                   >
 // *****************************************************
-  // //Authentication Middleware
-  // const auth = (req, res, next) => {
-  //   if (!req.session.user) {
-  //     // Default to login page if not authenticated
-  //     return res.redirect('/login');
-  //   }
-  //   next(); // Allow access if authenticated
-  // };
+  //Authentication Middleware
+  const auth = (req, res, next) => {
+    if (!req.session.user) {
+      // Default to login page if not authenticated
+      return res.redirect('/login');
+    }
+    next(); // Allow access if authenticated
+  };
   
-  // app.use(auth);
+  app.use(auth);
 
 
   
@@ -293,7 +292,7 @@ app.get('/artworks', async (req, res) => {
   } catch(error) {
     console.log(error);
 
-    res.redirect('/register');
+    res.redirect('/discover');
   }
 })
 
