@@ -8,16 +8,6 @@
                         <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
                         <div class="card-body">
                             <h6 class="card-title">{{title}}</h6>
-                            <!--
-                            {{#each (getArtistNameByArtworkId id)}}
-                                <p class="fw-light fst-italic">
-                                    {{name}}
-                                </p>
-                            {{/each}}
-                            here I'm trying to access the name of the artist through an external
-                            helper function which makes a call to artsy to retrieve the artist
-                            by the artwork id
-                            -->
                             <div class="card-text fst-italic fw-light">
                                 <p>{{date}}</p>
                             </div>
@@ -29,7 +19,7 @@
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a id="artworks-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
+                            <a id="card-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
                         </div>
                     </div>
                 </div>

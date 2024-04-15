@@ -210,38 +210,46 @@ app.get('/register', (req, res) => {
 // <!          Artworks-Ethan                  >
 // *****************************************************
 
-// generate an offset to be used in api calls for events, artworks, artists
+// generate an offset to be used in api calls for artworks
 // using 20000 artworks has size>20000
-function generateOffset() {
+function generateOffsetArtworks() {
   return Math.floor(Math.random() * 20000)
 }
 
-Handlebars.registerHelper('getArtistNameByArtworkId', async function(id) {
-  try { 
-    const config = {
-      headers: {
-        'X-XAPP-Token': process.env.X_XAPP_TOKEN
-      },
-      params: {
-        artwork_id: id
-      }
-    };
+// generate an offset to be used in api calls for artworks
+// using 200000 ~ 261000 artists available
+function generateOffsetArtists() {
+  return Math.floor(Math.random() * 200000)
+}
 
-    const artist_obj = await axios.get('https://api.artsy.net/api/artists', config);
+// Handlebars.registerHelper('getArtistNameByArtworkId', async function(id) {
+//   try { 
+//     const config = {
+//       headers: {
+//         'X-XAPP-Token': process.env.X_XAPP_TOKEN
+//       },
+//       params: {
+//         artwork_id: id
+//       }
+//     };
+
+//     const artist_obj = await axios.get('https://api.artsy.net/api/artists', config);
     
-    artist = artist_obj.data._embedded.artists
+//     artist = artist_obj.data._embedded.artists
 
-    return artist;
-  } catch(err) {
-    console.log(err);
-  }
-});
+//     return artist;
+//   } catch(err) {
+//     console.log(err);
+//   }
+// });
+
+Handlebars.unregisterHelper('getArtistNameByArtworkId');
 
 app.get('/artworks', async (req, res) => {
   //Note: there is around 27000 artworks provided by artsy
   //going to select a sample of around 100 to show
   try {
-    const art_offset = generateOffset();
+    const art_offset = generateOffsetArtworks();
     const config = {
       headers: {
         'X-XAPP-Token': process.env.X_XAPP_TOKEN
@@ -314,14 +322,17 @@ function getArtworks() {
 
 // handle artists api call
 function getArtists() {
+  const artist_offset = generateOffsetArtists();
+
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
     },
     params: {
+      size: 4,
       artworks: true,
       sort: '-trending',
-      size: 4
+      offset: artist_offset
     }
   };
   //axios.get(url, config *e.g headers and such*)
