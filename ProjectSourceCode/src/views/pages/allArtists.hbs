@@ -3,18 +3,18 @@
 
     
 
-<div id="artistsContainer" class="container mt-3 mb-3">
+<div id="artistsContainer" class="container mt-3 mb-3 md-3">
 {{!-- {{#each geneData as |gene|}}
   {{displayGeneInfo gene}}  <h2>{{gene.name}}</h2>  <div class="col-md-4"> --}}
   {{#each geneNames}}
-    <h2>{{geneNames}}</h2> <div class="col-md-4">
+    <h2>{{geneNames}}</h2> <div class="col-md-2">
       <div class="card mt-3">
         <div class="card-header">
           </div>
         <div class="card-body">
           <div class="row">
             {{#each artists}}
-              <div class="col-md-X"> <div class="card mb-3">
+              <div class="col-md-2"> <div class="card mb-3">
                   <img src="{{thumbnail}}" class="card-img-top" alt="{{name}} Thumbnail">
                   <div class="card-body">
                     <p class="card-text">{{name}}</p> </div>
@@ -28,14 +28,6 @@
     {{/each}} --}}
   {{/each}}
 </div>
-
-
-
-<!-- This might work to pass along xapptoken?
-    <script>
-        // Set the xAppToken as a global variable
-        const xAppToken = "{{xapptokenENV}}";
-    </script-->
 
     <script src = "/resources/js/script.js" type="text/javascript"></script>
     <!-- Script to fetch and display artists -->
