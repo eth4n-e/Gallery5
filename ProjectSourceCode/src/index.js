@@ -297,7 +297,7 @@ app.get('/artworks', async (req, res) => {
         ]
     */
     const artworks = response.data._embedded.artworks;
-    res.render('pages/artworks', {artworks});
+    res.render('pages/artworks', {artworks, username: req.session.user.username});
 
   } catch(error) {
     console.log(error);
@@ -383,12 +383,12 @@ try {
   console.log(artists);
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { events, artworks, artists });
+  res.render('pages/discover', { events, artworks, artists, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
   // If the API call fails, render pages/discover with an empty results array and the error message
-  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' ,username: req.session.user.username });
 }
 });
 // *****************************************************
@@ -396,7 +396,7 @@ try {
 // *****************************************************
 app.get('/events', (req, res) => {
   
-  res.render('pages/events');
+  res.render('pages/events', {username: req.session.user.username});
 });
 
 function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage) {
@@ -616,7 +616,7 @@ app.post('/events', async(req,res)=>{
   // console.log(datesForWeek[5]);
   // console.log(events6);
   
-  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
   
 });
@@ -653,7 +653,7 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events');
+  res.redirect('/events', {username: req.session.user.username});
 
 
 }); //add event to user events
@@ -676,7 +676,7 @@ app.get('/artists', async (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     // Display all artists
-    res.render('./pages/allArtists', { xapptoken });
+    res.render('./pages/allArtists', { xapptoken, username: req.session.user.username });
   } else {
     // Redirect to the artist page based on the keyword
     res.redirect(`/artist/${keyword}`);
@@ -707,11 +707,11 @@ app.get('/artist/:artistId', async (req, res) => {
       artworksLink: artistData.data._links.artworks.href
     };
 
-    res.render('./pages/artist', { artistInfo: artistInfo });
+    res.render('./pages/artist', { artistInfo: artistInfo , username: req.session.user.username});
     
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' });
+    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' , username: req.session.user.username});
   }
 });
 
