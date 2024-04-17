@@ -1,3 +1,13 @@
-<form action="/profile" method="post" enctype="multipart/form-data">
-  <input type="file" name="avatar" />
+<form method="POST" action="/profile-upload-single" enctype="multipart/form-data">
+    <div>
+        <label>Upload picture</label>
+        <input type="file" name="upload-file" required/>
+    </div>
+    <div>
+        <input type="submit" value="Upload" />
+    </div>
+    <div>
+      <img src={{img_src}} />
+    </div>
+    
 </form>

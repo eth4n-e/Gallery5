@@ -733,6 +733,46 @@ app.get('/profile', (req, res) => {
   req.session.destroy();
   res.render('pages/profile');
 });
+
+
+app.get('/publicPosts', (req, res) => {
+  req.session.destroy();
+  res.render('pages/publicPosts');
+});
+
+// // // // // // // /// // // // // 
+
+const multer  = require('multer')
+// const upload = multer({ dest: 'uploads/' })
+var port = 3000;
+
+var storage = multer.diskStorage({ //tell multer where we want to save file
+  destination: function (req, file, cb) {
+    cb(null, './uploads') // destination to save set to uploads
+  },
+  filename: function(req, file, cb){
+    cb(null, file.originalname)
+  }
+})
+var upload = multer({ storage: storage })
+
+app.use(express.static(__dirname + '/'));
+app.use('./uploads', express.static('uploads'));
+
+app.post('/profile-upload-single', upload.single('upload-file', function(req, res, next){
+  console.log(req.file.path)
+  // var response = '<a href = "/">uploads<a/><br>'
+  // response += "Files uploaded successfully!<br>"
+  // response += `img src = "${req.file.path}" /><br> `
+  // return res.send(response)
+  res.render('pages/profile', {img_src:req.file.path})
+}))
+
+
+// app.post('/profile', upload.single('userUpload'), function (req, res, next) {
+  // req.file is the `avatar` file
+  // req.body will hold the text fields, if there were any
+// })
 ///////////////////////////////////
 // Upload (multer)              //
 // images uploaded to artworks or profile //
