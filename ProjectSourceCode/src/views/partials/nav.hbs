@@ -13,36 +13,24 @@
       </nav>
 
       <a class="navbar-brand" href="#" style="margin-left: 8px" style="margin-right: 64px">Pallet5</a>
+
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
+
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        {{!-- <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="/discover" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="margin-right: 48px">
-              Discover
-            </a>
-            <ul class="dropdown-menu">
-              <li><a class="dropdown-item" href="/events">Event</a></li>
-              <li><a class="dropdown-item" href="/artists">Artists</a></li>
-              <li><a class="dropdown-item" href="/artwork">Artwork</a></li>
-            </ul>
-          </li>
-          
-        </ul> --}}
         <ul class="navbar-nav mb-2 mb-lg-0"></ul>
-          {{!-- <div class="btn-group" align="left"> --}}
             <a class="nav-link" href="/discover">Discover</a>
             <button type="button" class="btn dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
               <span class="visually-hidden">Toggle Dropdown</span>
             </button>
             <ul class="dropdown-menu" style="position: absolute; inset: 0px auto auto 0px; margin: 0px; transform: translate3d(80.5px, 40px, 0px);" data-popper-placement="bottom-start">
-              <li><a class="dropdown-item" href="/events">Event</a></li>
+              <li><a class="dropdown-item" href="/events">Events</a></li>
               <li><a class="dropdown-item" href="/artists">Artists</a></li>
               <li><a class="dropdown-item" href="/artwork">Artwork</a></li>
             </ul>
-          {{!-- </div> --}}
         </ul>
+        
         <ul class="navbar-nav ms-auto" align="right">
             <li class="nav-item">
               <a class="nav-link" href="/profile">{{username}}</a>

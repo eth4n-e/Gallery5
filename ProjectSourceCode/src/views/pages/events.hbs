@@ -103,15 +103,15 @@
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h1 class="modal-title fs-5" id="exampleModalLabel">Click to Get Events Near You</h1>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form method="POST" action="/events" data-bs-toggle="modal" data-bs-target="#exampleModal" align="center">
-            <input id="latitude" name="latitude" type="hidden"></input>
-            <input id="longitude" name="longitude" type="hidden"></input>
-            <button type="button" class="btn btn-primary" onclick="getLocation()">Get Events</button>
-            {{!-- <button type="submit" hidden>Get Events</button> --}}
+        <div class="modal-header">
+            <h4 class="modal-title center" id="exampleModalLabel" align="center">Click to Get Local Events Near You</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <form method="POST" action="/events" data-bs-toggle="modal" data-bs-target="#exampleModal" align="center">
+                <input id="latitude" name="latitude" type="hidden"></input>
+                <input id="longitude" name="longitude" type="hidden"></input>
+                <button type="button" class="btn btn-primary btn-lg" onclick="getLocation()">Get Events</button>
+                {{!-- <button type="submit" hidden>Get Events</button> --}}
         </form>
     </div>
   </div>
@@ -120,13 +120,6 @@
 {{/if}}
 
 <h2 class="text-center mt-4">Large Events and Fairs Happening Soon</h2>
-
-
-
-
-
-
-
 <div class="container mt-5">
     <div class="row justify-content-center">
         {{#each eventsArr}}
