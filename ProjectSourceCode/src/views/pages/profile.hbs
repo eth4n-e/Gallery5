@@ -8,18 +8,46 @@
 </head>
 <body>
     <h1>{{username}}'s Profile</h1>
+
+    <br>
+
+    <h2>Your Artworks</h2>
+        {{#if orignalArt}}
+        <ul>
+            <table>
+            {{originalArt}}
+            </table>
+        </ul>
+    {{else}}
+        <p>No orignal artwork!</p>
+    {{/if}}
+
+    <br>
+
     <h2>Followed Artists</h2>
-    <ul>
-        {{#each followedArtists}}
-            <li>{{this.artist_name}}</li>
-        {{/each}}
-    </ul>
-    <h2>User Events</h2>
-    <ul>
-        {{#each userEvents}}
-            <li>{{this.event_name}}</li>
-        {{/each}}
-    </ul>
+
+    {{#if followedArtists}}
+        <ul>
+            <table>
+            {{followedArtists}}
+            </table>
+        </ul>
+    {{else}}
+        <p>No followed artists!</p>
+    {{/if}}
+
+    <br>
+    
+    <h2>Saved Events</h2>
+    {{#if userEvents}}
+        <ul>
+            <table>
+            {{userEvents}}
+            </table>
+        </ul>
+    {{else}}
+        <p>No saved events!</p>
+    {{/if}}
     <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 </body>
