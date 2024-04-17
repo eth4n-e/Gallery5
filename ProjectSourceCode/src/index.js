@@ -496,7 +496,7 @@ app.post('/events', async(req,res)=>{
 
   //console.log(currentISODate, futureISODate);
 
-
+  console.log(':(');
   const results=await axios({ //get in the fine arts within one week of right now
     url: 'https://app.ticketmaster.com/discovery/v2/events.json',
     method: 'GET',
@@ -657,7 +657,7 @@ app.post('/addEvent', async(req,res)=>{
 
 
 }); //add event to user events
-
+ 
 
 // *****************************************************
 // <!               Profile- Catherine                 >
@@ -684,13 +684,13 @@ app.get('/profile', async (req, res) => {
     );
 
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents });
+    res.render('pages/profile', { followedArtists, userEvents , username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
   }
 });
-
+ 
 
 // *****************************************************
 // <!       Artist / Collection -Austin                >

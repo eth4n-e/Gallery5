@@ -1,8 +1,13 @@
-  <title>{{Username}}</title>
+  <title>{{username}}</title>
   <main class="container">
       <div class="col-sm-8 py-5 mx-auto">
-        <h1>{{Username}}</h1>
-        <h2>{{Email}}</h2>
+        <h1>Welcome, {{username}}</h1>
+        <table>
+            {{followedArtists}}
+        </table>
+        <table>
+            {{userEvents}}
+        </table>
       </div>
       <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   </main>
