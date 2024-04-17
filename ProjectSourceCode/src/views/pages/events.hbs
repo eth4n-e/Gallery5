@@ -1,87 +1,83 @@
+{{! Title: Events Page }}
+<!-- Bootstrap icons library -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+/>
 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events</title>
-    <!-- Include Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Bootstrap JS library -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+  crossorigin="anonymous"
+></script>
 
-    {{!-- <div class="container mt-5">
-        <!-- Carousel -->
-        <div id="myCarousel" class="carousel slide" data-ride="carousel">
-            <div class="carousel-inner">
-                <!-- Points of Interest -->
-                <div class="carousel-item active">
-                    <h2 class="text-center">Points of Interest</h2>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <img src="poi1.jpg" class="card-img-top" alt="Point of Interest 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Point of Interest 1</h5>
-                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Add more cards for other points of interest -->
-                    </div>
-                </div>
-                <!-- Events -->
-                <div class="carousel-item">
-                    <h2 class="text-center">Events</h2>
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <img src="event1.jpg" class="card-img-top" alt="Event 1">
-                                <div class="card-body">
-                                    <h5 class="card-title">Event 1</h5>
-                                    <p class="card-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Add more cards for other events -->
-                    </div>
-                </div>
-            </div>
-            <!-- Carousel controls -->
-            <a class="carousel-control-prev" href="#myCarousel" role="button" data-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="sr-only">Previous</span>
-            </a>
-            <a class="carousel-control-next" href="#myCarousel" role="button" data-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="sr-only">Next</span>
-            </a>
-        </div>
-    </div> --}}
+<!-- Bootstrap icons library -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+/>
 
-    <!-- Include Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<style>
 
-
-<button onclick="getLocation()">Try It</button>
-
-<p id="demo"></p>
-
-<script>
-const x = document.getElementById("demo");
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
+    .flip-card {
+  background-color: transparent;
+  width: 300px;
+  height: 200px;
+  border: 1px solid #f1f1f1;
+  perspective: 1000px; /* Remove this if you don't want the 3D effect */
+  margin-bottom: 100px;
 }
 
-function showPosition(position) {
-  x.innerHTML = "Latitude: " + position.coords.latitude + 
-  "<br>Longitude: " + position.coords.longitude;
+/* This container is needed to position the front and back side */
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  transition: transform 0.8s;
+  transform-style: preserve-3d;
 }
-</script>
 
-{{!-- <div class="container mt-5">
+/* Do an horizontal flip when you move the mouse over the flip box container */
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+/* Position the front and back side */
+.flip-card-front, .flip-card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  -webkit-backface-visibility: hidden; /* Safari */
+  backface-visibility: hidden;
+}
+
+/* Style the front side (fallback if image is missing) */
+.flip-card-front {
+  background-color: white;
+  color: black;
+}
+
+/* Style the back side */
+.flip-card-back {
+    background-color: white;
+    color: black;
+    transform: rotateY(180deg);
+    overflow-y: auto;
+}
+
+
+</style>
+
+<form method="POST" action="/events">
+    <input id="latitude" name="latitude" type="hidden"></input>
+    <input id="longitude" name="longitude" type="hidden"></input>
+    <button type="button" onclick="getLocation()">Get Events</button>
+    <button type="submit" hidden>Get Events</button>
+</form>
+
+<div class="container mt-6"></div>
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="text-center">Art Near You</h2>
@@ -91,24 +87,7 @@ function showPosition(position) {
                 frameborder="0"
                 style="border:0"
                 referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art+near+Boulder"
-                allowfullscreen>
-            </iframe>
-        </div>
-    </div>
-</div> --}}
-
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <h2 class="text-center">Art Near You</h2>
-            <iframe
-                width="100%"
-                height="400"
-                frameborder="0"
-                style="border:0"
-                referrerpolicy="no-referrer-when-downgrade"
-                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center=40.0150,-105.2705&zoom=13"
+                src="https://www.google.com/maps/embed/v1/search?key={{API_KEY}}&q=art&center={{lat}},{{long}}&zoom=13"
                 allowfullscreen>
             </iframe>
         </div>
@@ -116,11 +95,395 @@ function showPosition(position) {
 </div>
 
 
-{{!-- <iframe
-  width="450"
-  height="250"
-  frameborder="0" style="border:0"
-  referrerpolicy="no-referrer-when-downgrade"
-  src="https://www.google.com/maps/embed/v1/search?key=AIzaSyBuNqZC4SWBOPjGiN3uN1u27sTR3caa3J8&q=art+near+Boulder"
-  allowfullscreen>
-</iframe> --}}
+<h2 class="text-center">Large Events and Fairs Happening Soon</h2>
+
+
+
+
+
+
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        {{#each eventsArr}}
+        <div class="col-md-4">
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <img src="{{this.eventImage}}" class="card-img-top" alt="Event Image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.eventName}}</h5>
+                        <p class="card-text">{{this.eventDate}}</p>
+                    </div>
+                </div>
+                <div class="flip-card-back">
+                    <div class="card-body">
+                        <p class="card-text">{{this.eventDescp}}</p>
+                        <p class="card-text"><a href="{{this.eventLink}}">{{this.eventLink}}</a></p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+
+
+{{!-- <table class="table">
+    <tr class="font-weight-bold">
+        {{#each daysOfWeek}}
+        <td><h1>{{this}}</h1></td>
+        {{/each}}
+    </tr>
+    <tr>
+        {{#each datesForWeek}}
+        <td>{{this}}</td>
+        {{/each}}
+    </tr>
+    <tr>
+        <td>
+            {{#each userEvents}}
+                {{#eq this.eventDateNoTime datesForWeek.[0]}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                            
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if (eq (this.eventDateNoTime, datesForWeek.[1]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                           
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if (eq (this.eventDateNoTime, datesForWeek.[2]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                           
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if (eq (this.eventDateNoTime ,datesForWeek.[3]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                          
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if (eq (this.eventDateNoTime ,datesForWeek.[4]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                           
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if (eq (this.eventDateNoTime, datesForWeek.[5]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                           
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+        <td>
+            {{#each userEvents}}
+                {{#if ((eq this.eventDateNoTime ,datesForWeek.[6]))}}
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{this.eventName}}</h5>
+                            <p class="card-text">{{this.eventDescp}}</p>
+                      
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </td>
+    </tr>
+</table> --}}
+
+
+{{!-- 
+<table class="table">
+    <tr class="font-weight-bold">
+        {{#each daysOfWeek}}
+        <td><h1>{{this}}</h1></td>
+        {{/each}}
+    </tr>
+    <tr>
+        {{#each datesForWeek}}
+        <td>{{this}}</td>
+        {{/each}}
+    </tr>
+    <tr>
+        <td>
+            <p>{{datesForWeek.[1]}}</p>
+            
+            {{#each userEvents}}
+                {{this.eventName}}
+                <p>{{this.eventDateNoTime}}</p>
+                {{#eq this.eventDateNoTime (arrayIndex datesForWeek '1')}}
+                    {{this.eventDateNoTime}}
+                {{/eq}}
+                
+            {{/each}}
+           
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+        <td>
+
+        </td>
+    </tr>
+</table> --}}
+
+
+<table class="table">
+    <tr class="font-weight-bold">
+        {{#each daysOfWeek}}
+        <td><h1>{{this}}</h1></td>
+        {{/each}}
+    </tr>
+    <tr>
+        {{#each datesForWeek}}
+        <td>{{this}}</td>
+        {{/each}}
+    </tr>
+    <tr>
+        <td>
+            {{#each events1}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+            {{#each events2}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+            {{#each events3}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+           {{#each events4}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+           {{#each events5}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+            {{#each events6}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+        <td>
+            {{#each events7}}
+                <div class="card">
+                    <div class="card-body">
+                         <h5 class="card-title">{{this.event_name}}</h5>
+                         <p class="card-text">{{this.event_descp}}</p>
+                      
+                    </div>
+                 </div>
+            {{/each}}
+        </td>
+    </tr>
+</table> 
+
+
+
+<button type="button" onclick="openForm()">Add Event</button>
+
+<div id="eventForm" class="form-popup">
+    <form action="/addEvent" method="POST" class="form-container">
+        <h2>Add Event</h2>
+
+        <label for="location"><b>Location</b></label>
+        <input type="text" placeholder="Street Address" name="streetAddress" required>
+        <input type="text" placeholder="Postal Code" name="postalCode" required>
+        <input type="text" placeholder="City" name="city" required>
+        <input type="text" placeholder="State" name="state" required>
+        <input type="text" placeholder="Country" name="country">
+
+        <label for="eventName"><b>Event Name</b></label>
+        <input type="text" placeholder="Enter Event Name" name="eventName" required>
+
+        <label for="description"><b>Description</b></label>
+        <textarea placeholder="Enter Event Description" name="description" required></textarea>
+
+        <label for="eventDate"><b>Event Date</b></label>
+        <input type="date" name="eventDate" required>
+
+        <button type="submit" class="btn">Submit</button>
+        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+    </form>
+</div>
+
+<script>
+function openForm() {
+    document.getElementById("eventForm").style.display = "block";
+}
+
+function closeForm() {
+    document.getElementById("eventForm").style.display = "none";
+}
+</script>
+
+<!-- Modal -->
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventFormModal">Add Event</button>
+
+
+<div class="modal fade" id="eventFormModal" tabindex="-1" role="dialog" aria-labelledby="eventFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventFormModalLabel">Add Event</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addEvent" method="POST">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" placeholder="Street Address" required>
+                        <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Postal Code" required>
+                        <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                        <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                        <input type="text" class="form-control" id="country" name="country" placeholder="Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventName">Event Name</label>
+                        <input type="text" class="form-control" id="eventName" name="eventName" placeholder="Enter Event Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" placeholder="Enter Event Description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Event Date</label>
+                        <input type="date" class="form-control" id="eventDate" name="eventDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div> 

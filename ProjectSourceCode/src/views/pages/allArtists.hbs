@@ -1,33 +1,34 @@
-<title>Display All Artists Page</title>
-  
-  <div class="container mt-3">
-    <input type="text" id="searchInput" class="form-control" placeholder="Search Artists">
-  </div>
-<div class = "container mt-5" id="artistContainer">
-{{#if results}}
-<h1>Similar Artists for {{ keyword }}</h1>
-<div class="artist-grid">
-  {{#each results}}
-    <div class="artist-card">
-      <a href="/artists/{{ this.id }}">
-        {{#if this._links.thumbnail}}
-          <img src="{{ this._links.thumbnail.href }}" alt="{{ this.name }} Artwork" class="artist-image">
-        {{/if}}
-        <div class="artist-info">
-          <h3>{{ this.name }}</h3>
+{{>message}}
+<body>
+<script>var geneNames = ['modern','pop-art','architecture','renaissance','expressionism','surrealism']; // Replace with the desired gene names </script>
+<script src = "/resources/js/script.js" type="text/javascript"></script>
+<!-- Script to fetch and display artists -->
+<script>
+    // Example usage: Fetch artists of a certain gene when the page loads
+    $(document).ready(function() {
+        fetchArtistsByGene(geneNames);
+    });
+</script>
+    
+<div id="artistsContainer" class="container mt-3 mb-3 md-3">
+  {{#each geneNames}}
+    <div class="container mb-3" id="geneContainer">
+      <h2>{{geneNames.name}}</h2> <!-- Assuming geneNames is an array of gene names -->
+    <div class="row">
+      {{#each artists}}
+        <div class="col-md-3">
+          <div class="card mt-3">
+            <img src="{{thumbnail}}" class="card-img-top" alt="{{name}} Thumbnail">
+            <div class="card-body">
+              <p class="card-text">{{name}}</p>
+            </div>
+          </div>
         </div>
-      </a>
+      {{/each}}
+    </div>
     </div>
   {{/each}}
 </div>
-{{else}}
-  {{#if message}}
-    <p class="error-message">{{ message }}</p> {{else}}
-    <p>No similar artists found for {{ keyword }}. Try a different artist!</p>
-  {{/if}}
-{{/if}}
 
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="../../../resources/js/script.js">
+</body>
