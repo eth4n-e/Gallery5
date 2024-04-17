@@ -1,13 +1,26 @@
-  <title>{{username}}</title>
-  <main class="container">
-      <div class="col-sm-8 py-5 mx-auto">
-        <h1>Welcome, {{username}}</h1>
-        <table>
-            {{followedArtists}}
-        </table>
-        <table>
-            {{userEvents}}
-        </table>
-      </div>
-      <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-  </main>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <div class="col-sm-8 py-5 mx-auto">
+    <title>User Profile</title>
+</head>
+<body>
+    <h1>{{username}}'s Profile</h1>
+    <h2>Followed Artists</h2>
+    <ul>
+        {{#each followedArtists}}
+            <li>{{this.artist_name}}</li>
+        {{/each}}
+    </ul>
+    <h2>User Events</h2>
+    <ul>
+        {{#each userEvents}}
+            <li>{{this.event_name}}</li>
+        {{/each}}
+    </ul>
+    <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+</body>
+</html>
