@@ -131,4 +131,3 @@ async function fetchAndDisplayArtwork(artistname) {
       console.error('Error fetching artwork:', error);
     }
 }
-  
