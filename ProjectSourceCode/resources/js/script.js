@@ -107,23 +107,22 @@ function displayArtists(artistArray, geneName) {
 
 async function fetchAndDisplayArtwork(artistname) {
     try {
-      const artworkURL = `https://api.artsy.net/api/artworks/`+artistId;
+      const artworkURL = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=20&fields=id,title,image_id`;
       const artworkData = await $.ajax({
         url: artworkURL,
         type: 'GET',
         headers: { 'X-XApp-Token': xAppToken },
         data: {
-            artist_id: 'artistID',
-            'size': 4
-        } // Assuming you want to fetch 4 artworks
+            msearch: artistname,
+        }
       });
       // Assuming artworkData._embedded.artworks is an array of artwork objects
-      artworkData._embedded.artworks.forEach(artwork => {
+      artworkData.data.forEach(data => {
+
         const artworkItem = $(`
-          <div class="col-md-4">
-            <img src="${artwork.imageUrl}" class="img-fluid" alt="${artwork.title}">
-            <h5>${artwork.title}</h5>
-            <!-- Additional artwork details -->
+          <div class="col-md-3">
+            <img src="https://www.artic.edu/iiif/2/${data.image_id}/full/843,/0/default.jpg" class="img-fluid" alt="${data.title}">
+            <p>${data.title}</p>
           </div>
         `);
         $('#artworkRow').append(artworkItem);
@@ -132,5 +131,4 @@ async function fetchAndDisplayArtwork(artistname) {
       console.error('Error fetching artwork:', error);
     }
 }
-
   
