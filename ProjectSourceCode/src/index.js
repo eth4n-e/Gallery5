@@ -2,6 +2,10 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
+//require('dotenv').config();
+const { storage } = require('./storage/storage');
+const multer = require('multer');
+const upload = multer({ storage });
 
 const express = require('express'); // To build an application server or API
 const app = express();
@@ -777,3 +781,12 @@ console.log('Server is listening on port 3000');
     await db.none('INSERT INTO users(username, password, email, firstname, lastname) VALUES($1, $2, $3, $4, $5)', [onetimeuser, onetimehash,'rehehe@gmail.com','Scooby','Doo']);
   }
 })();
+
+// *****************************************************
+// <!-- Section 12 : Multer->
+// *****************************************************
+
+app.post('/upload', upload.single('image'), (req, res) => {
+  console.log(req.file);
+  res.send('Done');
+});
