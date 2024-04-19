@@ -230,19 +230,21 @@ app.get('/register', (req, res) => {
 app.get('/artwork/:id', async (req, res) => {
   try {
     const artwork_id = req.params.id;
+
     const api_url = `https://api.artic.edu/api/v1/artworks/${artwork_id}`;
-    console.log(artwork_id);
-
-    // const config = {
-    //   headers: {
-    //     'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    //   },
-    // }
-
     const artworkData = await axios.get(api_url);
-
     const artwork = artworkData.data.data;
 
+    //having trouble getting related artworks to work atm, come back
+      // figure out how to use public domain
+      // also how to possibly differentiate the inputs into the .hbs file
+        // thought: the related artworks information might be getting overwritten
+                // by the information related to the primary artwork
+    // const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][style_id]=${artwork.style_id}&fields=id,title,image_id,description,artist_display&size=4`;
+    // const related_artwork_data = await axios.get(related_artworks_api_url);
+    // const related_artworks = related_artwork_data.data;
+
+    // console.log(artwork, related_artworks);
     res.render('pages/oneArtwork', artwork);
   } catch(error) {
     console.log(error);

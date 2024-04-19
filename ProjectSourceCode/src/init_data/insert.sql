@@ -26,3 +26,14 @@ VALUES
     ('Test Event 2', '2024-04-20', '12:00:00', 'Test Location 2', '39.95968257960303', '-105.03287645398008', 'Test Description 2', 'test_image_2.jpg', (SELECT user_id FROM users WHERE username='admin')),
     ('Ice Cream Art Discovery Panel', '2024-04-16', '12:00:00', 'Test Location 3', '39.86481853909692', '-105.12053605549596', 'We will discuss the beautiful, and inherently artistitc, nature of ice cream', 'test_image_3.jpg', (SELECT user_id FROM users WHERE username='Joseph Robinette Biden Jr.')),
     ('Test Event 4', '2021-12-04', '12:00:00', 'Test Location 4', '0.0', '0.0', 'Test Description 4', 'test_image_4.jpg', (SELECT user_id FROM users WHERE username='admin'));
+
+INSERT INTO artworks (artwork_id, artwork_title)
+VALUES
+    (9768, 'Coin Depicting Cow Suckling Calf'),
+    (100476, 'Beach at Cabasson (Baigne-Cul)');
+
+INSERT INTO user_to_artworks (user_id, artwork_id)
+VALUES 
+    (1, 9768),
+    (2, 100476),
+    (1, 100476),

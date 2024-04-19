@@ -1,10 +1,57 @@
 <div class="container">
-    <div class="row justify-center">
-        <div class="col-4">
-            col1
+    <!--
+        Important information passed to page
+        title:
+        date_display:
+        artist_display
+        place_of_origin
+        description - note this is html so use triple brackets
+        medium_display
+        style_title
+        style_id - maybe can use to search for similar artwork
+
+        Features to add:
+            - Button to add to collection
+                - maybe add modal which appears upon successful request
+                - maybe change button color if successful
+            - button to search for more artworks by artist, maybe genre
+        -->
+    <div class="row justify-center mt-4">
+        <div class="col-4 p-2">
+            <p class="fw-light mb-0">{{artist_display}}</p>
+            <div class="w-75">
+                <h4 class="text-wrap">{{title}}</h4>
+            </div>
+            <div class="w-75">
+                <p class="text-wrap fst-italic fw-lighter">{{medium_display}}  --  {{date_display}}</p>
+            </div>
+            {{{description}}}
+            <button class="btn btn-outline-primary">Add To Collection</button>
         </div>
-        <div class="col-8">
-            <img class="h-75 object-fit-cover text-center" src="https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg"/>
+        <div class="col-8 p-2">
+            <img class="img-fluid object-fit-cover text-center" src="https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg"/>
+        </div>
+    </div>
+    <hr/>
+    <div>
+        <h4 class="text-center">Explore Related Artworks</h4>
+        <div class="row row-cols-4 gx-4">
+            {{#each related_artworks}}
+                <div class="col">
+                    <div class="card h-100 overflow-y-scroll shadow">
+                        <img src='https://www.artic.edu/iiif/2/{{data.image_id}}/full/843,/0/default.jpg' class="card-img-top w-100 h-50 object-fit-cover">
+                        <div class="card-body">
+                            <h6 class="card-title">{{data.title}}</h6>
+                            <div class="card-text fst-italic fw-light">
+                                <p>{{data.artist_display}}</p>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a id="artwork-link" href="/artwork/{{data.id}}" class="btn btn-dark shadow card-button">View Work</a>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
         </div>
     </div>
 </div>
