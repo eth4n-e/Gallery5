@@ -1,0 +1,48 @@
+Monday afternoon meeting 1pm
+Cory's Office Hours
+Attendees: Austin Ethan Khizar Nate
+
+Questions raised:
+What did you do this week, what are you working on, what issues do you have, how are you going to follow up?
+
+Nate:
+  Finished logout
+  Database practice / implementation through Azure
+  Issues working on an upload feature.
+  Following up- Meeting with Cory about upload.
+
+Ethan: 
+  Implemented: Basic Discover
+    -Artwork page
+  Working on:
+  -Adding reviews
+  -Saving artworks to user-profile
+  -Working on adding favorites
+  Issue: Still no profile page so adding favorite artworks is difficult
+
+Khizar:
+  Implemented Ticketmaster Events
+  Created front/end backend for user events
+    -user events calender
+    -location based calender
+  Working on:
+    -Cleaning up modals for event page
+    -Issues with modals
+  Followup- Javascript resources
+
+Austin:
+  Implemented All-Artist Page with genres
+  Implemented singular artist page
+    -Issues with displaying artist's artworks
+    -Public domain problems?
+  Attempting to switch over to Art Institute of Chicago by Wednesday
+    -Public domain images appear to be simple to implement unlike Artsy
+
+Amy (remote):
+  Completed NavBar format
+  Completed login and registration pages
+  Fixed past merge issues regarding login/registration issues
+  Working on:
+  Updating Navbar with user sessions vs none (user/logout vs login/registration)
+  -Issues: Maintaining user session when shifting pagess
+  Followup: Going to help Catherine with Profile Page

@@ -98,19 +98,21 @@ app.use(
   })
 );
 
-// *****************************************************
-// <!-- Section 4 : API Routes -->
-// *****************************************************
-
-// TODO - Include your API routes here
 
 // *****************************************************
 // <!               Login - Amy                   >
 // *****************************************************
 const user = {
     username: undefined,
-    password: undefined,
+    email: undefined,
+    firstname: undefined,
+    lastname: undefined,
+    user_id: undefined
   };
+
+  app.get('/',(req,res)=>{
+    res.redirect('/discover');
+  });
 
   app.get('/login', (req, res) => {
     res.render('pages/login');
@@ -123,20 +125,27 @@ const user = {
 
     try {
         // Find the user from the database
-        const user = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
+        const user_db = await db.oneOrNone('SELECT * FROM users WHERE username = $1', [username]);
         
-        if (user) {
+        if (user_db) {
           // Check if the entered password matches the stored hashed pord
           
-          const passwordMatch = await bcrypt.compare(password, user.password);
-    
+          const passwordMatch = await bcrypt.compare(password, user_db.password);
+          console.log('_____________');
+          console.log(user_db.user_id);
           if (passwordMatch) {
             // Save the user in the session variable
+            user.user_id = user_db.user_id;
+            user.username = user_db.username;
+            // user.password = user_db.password;
+            user.email = user_db.email;
+            user.firstname = user_db.firstname;
+            user.lastname = user_db.lastname;
             req.session.user = user;
             req.session.save();
-    
+            console.log(user);
             // Redirect to /discover route after setting the session
-            res.redirect('/discover');
+            res.render('pages/discover', {username: req.session.user.username});
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
@@ -213,16 +222,16 @@ app.get('/register', (req, res) => {
 // *****************************************************
 // <!     Authentication Middleware                   >
 // *****************************************************
-  // //Authentication Middleware
-  // const auth = (req, res, next) => {
-  //   if (!req.session.user) {
-  //     // Default to login page if not authenticated
-  //     return res.redirect('/login');
-  //   }
-  //   next(); // Allow access if authenticated
-  // };
+  //Authentication Middleware
+  const auth = (req, res, next) => {
+    if (!req.session.user) {
+      // Default to login page if not authenticated
+      return res.redirect('/login');
+    }
+    next(); // Allow access if authenticated
+  };
   
-  // app.use(auth);
+  app.use(auth);
 
 // *****************************************************
 // <!          Individual-Artwork-Ethan                  >
@@ -266,33 +275,20 @@ app.get('/artworks', async (req, res) => {
   //going to select a sample of around 100 to show
   try {
     const art_offset = generateOffsets();
+   
     const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${art_offset}&size=36`;
-    // const config = {
-    //   headers: {
-    //     'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    //   },
-    //   params: {
-    //     offset: art_offset,
-    //     size: 36
-    //   }
-    // }
     const response = await axios.get(api_url);
-    /* format of response 
-    {
-      _embedded {
-        artworks: [
-          list of artworks
-        ]
-    */
+
     const artworks = response.data.data;
     res.render('pages/artworks', {artworks});
 
   } catch(error) {
     console.log(error);
 
-    res.redirect('/register');
+    res.redirect('/discover');
   }
-});
+})
+
 
 // *****************************************************
 // <!          Home / Discover-Ethan                  >
@@ -318,17 +314,11 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
+  const artworks_offset = generateOffsets();
   // setup for API call
   const artwork_offset = generateOffsets();
   const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${artwork_offset}&size=4`;
 
-  // const config = {
-  //   params: {
-  //     query[term][is_public_domain]: true,
-  //     size: 4,
-  //     offset: artwork_offset,
-  //   },
-  // };
   //axios.get(url, config *e.g headers and such*)
   return axios.get(api_url)
     .catch(err => {
@@ -341,17 +331,6 @@ function getArtists() {
   const artist_offset = generateOffsets();
   
   const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
-
-  // const config = {
-  //   headers: {
-  //     'X-XAPP-Token': process.env.X_XAPP_TOKEN
-  //   },
-  //   params: {
-  //     sort: '-trending',
-  //     size: 4,
-  //     offset: artist_offset,
-  //   },
-  // };
   //axios.get(url, config *e.g headers and such*)
   return axios.get(api_url)
     .catch(err => {
@@ -381,21 +360,20 @@ try {
   const artists = artistsRes.data.data;
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { events, artworks, artists });
+  res.render('pages/discover', { events, artworks, artists, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
   // If the API call fails, render pages/discover with an empty results array and the error message
-  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' });
+  res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' ,username: req.session.user.username });
 }
 });
-
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
   
-  res.render('pages/events');
+  res.render('pages/events', {username: req.session.user.username});
 });
 
 function Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage) {
@@ -495,7 +473,7 @@ app.post('/events', async(req,res)=>{
 
   //console.log(currentISODate, futureISODate);
 
-
+  console.log(':(');
   const results=await axios({ //get in the fine arts within one week of right now
     url: 'https://app.ticketmaster.com/discovery/v2/events.json',
     method: 'GET',
@@ -615,7 +593,7 @@ app.post('/events', async(req,res)=>{
   // console.log(datesForWeek[5]);
   // console.log(events6);
   
-  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7});
+  res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
   
 });
@@ -652,16 +630,44 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events');
+  res.redirect('/events', {username: req.session.user.username});
 
 
 }); //add event to user events
-
+ 
 
 // *****************************************************
 // <!               Profile- Catherine                 >
 // *****************************************************
+app.get('/profile', async (req, res) => {
+  try {
+    const user_id = req.session.user.user_id;
+    
+    // Fetch user's followed artists
+    const followedArtists = await db.any(
+      `SELECT a.* 
+       FROM artists a
+       INNER JOIN user_artists ua ON a.artist_id = ua.artist_id
+       WHERE ua.user_id = $1`,
+      [user_id]
+    );
 
+    // Fetch user's events
+    const userEvents = await db.any(
+      `SELECT * 
+       FROM events 
+       WHERE user_id = $1`,
+      [user_id]
+    );
+
+    // Render the profile page and pass the followed artists and user's events data to it
+    res.render('pages/profile', { followedArtists, userEvents , username: req.session.user.username});
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching profile data.');
+  }
+});
+ 
 
 // *****************************************************
 // <!       Artist / Collection -Austin                >
@@ -675,7 +681,7 @@ app.get('/artists', async (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     // Display all artists
-    res.render('./pages/allArtists', { xapptoken });
+    res.render('./pages/allArtists', { xapptoken, username: req.session.user.username });
   } else {
     // Redirect to the artist page based on the keyword
     res.redirect(`/artist/${keyword}`);
@@ -706,11 +712,11 @@ app.get('/artist/:artistId', async (req, res) => {
       artworksLink: artistData.data._links.artworks.href
     };
 
-    res.render('./pages/artist', { artistInfo: artistInfo });
+    res.render('./pages/artist', { artistInfo: artistInfo , username: req.session.user.username});
     
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' });
+    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' , username: req.session.user.username});
   }
 });
 

@@ -1,5 +1,22 @@
 {{! Title: Events Page }}
+<!-- Bootstrap icons library -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+/>
 
+<!-- Bootstrap JS library -->
+<script
+  src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+  crossorigin="anonymous"
+></script>
+
+<!-- Bootstrap icons library -->
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.1/font/bootstrap-icons.css"
+/>
 
 <style>
 
@@ -361,6 +378,8 @@
     </tr>
 </table> 
 
+
+
 <button type="button" onclick="openForm()">Add Event</button>
 
 <div id="eventForm" class="form-popup">
@@ -397,3 +416,74 @@ function closeForm() {
     document.getElementById("eventForm").style.display = "none";
 }
 </script>
+
+<!-- Modal -->
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventFormModal">Add Event</button>
+
+
+<div class="modal fade" id="eventFormModal" tabindex="-1" role="dialog" aria-labelledby="eventFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventFormModalLabel">Add Event</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form action="/addEvent" method="POST">
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" placeholder="Street Address" required>
+                        <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Postal Code" required>
+                        <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
+                        <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
+                        <input type="text" class="form-control" id="country" name="country" placeholder="Country">
+                    </div>
+                    <div class="form-group">
+                        <label for="eventName">Event Name</label>
+                        <input type="text" class="form-control" id="eventName" name="eventName" placeholder="Enter Event Name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" id="description" name="description" placeholder="Enter Event Description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="eventDate">Event Date</label>
+                        <input type="date" class="form-control" id="eventDate" name="eventDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Button trigger modal -->
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button>
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div> 
