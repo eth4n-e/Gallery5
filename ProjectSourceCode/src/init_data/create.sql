@@ -49,12 +49,20 @@ CREATE TABLE IF NOT EXISTS events (
 CREATE TABLE IF NOT EXISTS artworks (
     artwork_id INT PRIMARY KEY,
     artwork_title VARCHAR(255) NOT NULL,
+    image_link VARCHAR(255),
     UNIQUE(artwork_id)
-)
+);
 
 --Create user_artworks table
 CREATE TABLE IF NOT EXISTS user_to_artworks (
     user_id INT REFERENCES users(user_id),
     artwork_id INT REFERENCES artworks(artwork_id),
     UNIQUE(user_id, artwork_id)
-)
+);
+
+CREATE TABLE IF NOT EXISTS comments (
+    comment_id SERIAL PRIMARY KEY,
+    comment_text TEXT,
+    user_id INT REFERENCES users(user_id),
+    artwork_id INT REFERENCES events(event_id)
+);
