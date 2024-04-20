@@ -237,71 +237,54 @@ app.get('/register', (req, res) => {
   
   app.use(auth);
 
+// *****************************************************
+// <!          Individual-Artwork-Ethan                  >
+// *****************************************************
+app.get('/artwork/:id', async (req, res) => {
+  try {
+    const artwork_id = req.params.id;
 
+    const api_url = `https://api.artic.edu/api/v1/artworks/${artwork_id}`;
+    const artworkData = await axios.get(api_url);
+    const artwork = artworkData.data.data;
+
+    //having trouble getting related artworks to work atm, come back
+      // figure out how to use public domain
+      // also how to possibly differentiate the inputs into the .hbs file
+        // thought: the related artworks information might be getting overwritten
+                // by the information related to the primary artwork
+    // const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][style_id]=${artwork.style_id}&fields=id,title,image_id,description,artist_display&size=4`;
+    // const related_artwork_data = await axios.get(related_artworks_api_url);
+    // const related_artworks = related_artwork_data.data;
+
+    // console.log(artwork, related_artworks);
+    res.render('pages/oneArtwork', artwork);
+  } catch(error) {
+    console.log(error);
+  }
+});
   
 // *****************************************************
 // <!          Artworks-Ethan                  >
 // *****************************************************
 
 // generate an offset to be used in api calls for artworks
-// using 20000 artworks has size>20000
-function generateOffsetArtworks() {
-  return Math.floor(Math.random() * 20000);
+// using 900 because offsets greater led to errors in request
+function generateOffsets() {
+  return Math.floor(Math.random() * 900);
 }
-
-// generate an offset to be used in api calls for artworks
-// using 200000 ~ 261000 artists available
-function generateOffsetArtists() {
-  return Math.floor(Math.random() * 200000);
-}
-
-// Handlebars.registerHelper('getArtistNameByArtworkId', async function(id) {
-//   try { 
-//     const config = {
-//       headers: {
-//         'X-XAPP-Token': process.env.X_XAPP_TOKEN
-//       },
-//       params: {
-//         artwork_id: id
-//       }
-//     };
-
-//     const artist_obj = await axios.get('https://api.artsy.net/api/artists', config);
-    
-//     artist = artist_obj.data._embedded.artists
-
-//     return artist;
-//   } catch(err) {
-//     console.log(err);
-//   }
-// });
-
-Handlebars.unregisterHelper('getArtistNameByArtworkId');
 
 app.get('/artworks', async (req, res) => {
   //Note: there is around 27000 artworks provided by artsy
   //going to select a sample of around 100 to show
   try {
-    const art_offset = generateOffsetArtworks();
-    const config = {
-      headers: {
-        'X-XAPP-Token': process.env.X_XAPP_TOKEN
-      },
-      params: {
-        offset: art_offset,
-        size: 36
-      }
-    }
-    const response = await axios.get('https://api.artsy.net/api/artworks', config);
-    /* format of response 
-    {
-      _embedded {
-        artworks: [
-          list of artworks
-        ]
-    */
-    const artworks = response.data._embedded.artworks;
-    res.render('pages/artworks', {artworks, username: req.session.user.username});
+    const art_offset = generateOffsets();
+   
+    const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${art_offset}&size=36`;
+    const response = await axios.get(api_url);
+
+    const artworks = response.data.data;
+    res.render('pages/artworks', {artworks});
 
   } catch(error) {
     console.log(error);
@@ -318,7 +301,6 @@ app.get('/artworks', async (req, res) => {
 // handle events api call
 function getEvents() {
   //axios.get(url, config *e.g headers and such*)
-
   const config = {
     headers: {
       'X-XAPP-Token': process.env.X_XAPP_TOKEN
@@ -328,7 +310,6 @@ function getEvents() {
       size: 4
     }
   };
-
   return axios.get('https://api.artsy.net/api/fairs', config)
     .catch(err => {
       console.log(err);
@@ -337,19 +318,13 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
-  const artworks_offset = generateOffsetArtworks();
+  const artworks_offset = generateOffsets();
   // setup for API call
-  const config = {
-    headers: {
-      'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    },
-    params: {
-      size: 4,
-      offset: artworks_offset
-    }
-}
+  const artwork_offset = generateOffsets();
+  const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${artwork_offset}&size=4`;
+
   //axios.get(url, config *e.g headers and such*)
-  return axios.get('https://api.artsy.net/api/artworks', config)
+  return axios.get(api_url)
     .catch(err => {
       console.log(err);
     });
@@ -357,23 +332,26 @@ function getArtworks() {
 
 // handle artists api call
 function getArtists() {
-  const artist_offset = generateOffsetArtists();
-
-  const config = {
-    headers: {
-      'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    },
-    params: {
-      size: 4,
-      sort: '-trending',
-      offset: artist_offset
-    }
-  };
+  const artist_offset = generateOffsets();
+  
+  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
   //axios.get(url, config *e.g headers and such*)
-  return axios.get('https://api.artsy.net/api/artists', config)
+  return axios.get(api_url)
     .catch(err => {
       console.log(err);
     })
+}
+
+function scrapeArtistImages(artist_name) {
+  const api_url = `https://api.artic.edu/api/v1/artworks/search?q=${artist_name}&fields=image_id`
+
+  axios.get(api_url)
+  .then(artists_artworks => {
+    //return the first image id for a particular artist
+    return artists_artworks.data.data[0].image_id;
+  }).catch(err => {
+    console.log(err);
+  })
 }
 
 app.get('/discover', async (req, res) => {
@@ -382,9 +360,8 @@ try {
   const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
 
   const events = eventsRes.data._embedded.fairs;
-  const artworks = artworksRes.data._embedded.artworks;
-  const artists = artistsRes.data._embedded.artists;
-  console.log(artists);
+  const artworks = artworksRes.data.data;
+  const artists = artistsRes.data.data;
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { events, artworks, artists, username: req.session.user.username });
