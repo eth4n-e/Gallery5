@@ -44,3 +44,17 @@ CREATE TABLE IF NOT EXISTS events (
     event_image VARCHAR(255),
     user_id INT REFERENCES users(user_id)
 );
+
+--Create artworks table 
+CREATE TABLE IF NOT EXISTS artworks (
+    artwork_id INT PRIMARY KEY,
+    artwork_title VARCHAR(255) NOT NULL,
+    UNIQUE(artwork_id)
+)
+
+--Create user_artworks table
+CREATE TABLE IF NOT EXISTS user_to_artworks (
+    user_id INT REFERENCES users(user_id),
+    artwork_id INT REFERENCES artworks(artwork_id),
+    UNIQUE(user_id, artwork_id)
+)

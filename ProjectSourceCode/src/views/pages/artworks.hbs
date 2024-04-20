@@ -5,21 +5,15 @@
             {{#each artworks}}
                 <div class="col">
                     <div class="card h-100 overflow-y-scroll shadow">
-                        <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
+                        <img src='https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg' class="card-img-top w-100 h-50 object-fit-cover">
                         <div class="card-body">
                             <h6 class="card-title">{{title}}</h6>
                             <div class="card-text fst-italic fw-light">
-                                <p>{{date}}</p>
-                            </div>
-                            <div class="card-text">
-                                <p>{{medium}}</p>
-                            </div>
-                            <div class="card-text">
-                                <p>{{dimensions.in.text}}</p>
+                                <p>{{artist_display}}</p>
                             </div>
                         </div>
                         <div class="card-footer">
-                            <a id="card-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
+                            <a id="artwork-link" href="/artwork/{{id}}" class="btn btn-dark shadow card-button">View Work</a>
                         </div>
                     </div>
                 </div>

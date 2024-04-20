@@ -105,6 +105,11 @@ function displayArtists(artistArray, geneName) {
     }
 }
 
+<<<<<<< HEAD
+// *****************************************************
+// <!          Individual-Artwork-Ethan                  >
+// *****************************************************
+=======
 async function fetchAndDisplayArtwork(artistname) {
     try {
       const artworkURL = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=20&fields=id,title,image_id`;
@@ -131,3 +136,4 @@ async function fetchAndDisplayArtwork(artistname) {
       console.error('Error fetching artwork:', error);
     }
 }
+>>>>>>> main

@@ -50,18 +50,18 @@
                 {{#each artworks}}
                     <div class="col-3 mb-3">
                         <div class="card h-100 overflow-y-scroll shadow">
-                            <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
+                            <img src='https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg' class="card-img-top w-100 h-50 object-fit-cover">
                             <div class="card-body">
                                 <h6 class="card-title">{{title}}</h6>
                                 <div class="card-text fst-italic fw-light">
-                                    <p>{{date}}</p>
-                                </div>
-                                <div class="card-text">
-                                    <p>{{medium}}</p>
+                                    <p>{{artist_display}}</p>
                                 </div>
                                 <div class="card-text">
                                     <p>{{dimensions.in.text}}</p>
                                 </div>
+                            </div>
+                            <div class="card-footer">
+                                <a id="card-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
                             </div>
                             <div class="card-footer">
                                 <a id="card-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
@@ -77,7 +77,7 @@
             <div class="row justify-content-center mt-2 mb-1">
                 <h4 class="col-md-3">Featured Artists</h4>
                 <div class="col-md-3">
-                    <a href="/artworks" class="btn btn-secondary p-1 shadow">Explore</a>
+                    <a href="/artists" class="btn btn-secondary p-1 shadow">Explore</a>
                 </div>
             </div>
         </div>
@@ -88,12 +88,9 @@
                         <div class="card h-100 overflow-y-scroll shadow">
                             <img src={{_links.thumbnail.href}} class="card-img-top w-100 h-50 object-fit-cover">
                             <div class="card-body">
-                                <h6 class="card-title">{{name}}</h6>
+                                <h6 class="card-title">{{title}}</h6>
                                 <div class="card-text fst-italic fw-light">
-                                    <p>{{location}}</p>
-                                </div>
-                                <div class="card-text">
-                                    <p>{{biography}}</p>
+                                    <p>{{birth_date}}</p>
                                 </div>
                             </div>
                             <div class="card-footer">
