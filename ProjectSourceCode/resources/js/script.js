@@ -20,26 +20,6 @@ function getArtistThumb(artistName) {
     });
 }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-// *****************************************************
-// <!          Individual-Artwork-Ethan                  >
-// *****************************************************
-=======
-async function fetchAndDisplayArtwork(artistname) {
-    try {
-      const artworkURL = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=20&fields=id,title,image_id`;
-      const artworkData = await $.ajax({
-        url: artworkURL,
-        type: 'GET',
-        headers: { 'X-XApp-Token': xAppToken },
-        data: {
-            msearch: artistname,
-        }
-      });
-      // Assuming artworkData._embedded.artworks is an array of artwork objects
-      artworkData.data.forEach(data => {
-=======
   
 async function displayRelatedArtists(artistName) {
   try {
@@ -47,7 +27,6 @@ async function displayRelatedArtists(artistName) {
     const response = await fetch(artistURL);
     const artistsData = await response.json();
     const artists = artistsData.data; // Assuming this is where the artists array is located
->>>>>>> artistPageChicago
 
     // Clear the similarArtistsContainer before adding new cards
     const similarArtistsContainer = document.getElementById('similarArtistsRow');
@@ -74,9 +53,6 @@ async function displayRelatedArtists(artistName) {
     console.error(`Error fetching artists related to ${artistName}`, error);
   }
 }
-<<<<<<< HEAD
->>>>>>> main
-=======
   
 async function fetchAndDisplayArtwork(artistname) {
   try {
@@ -88,9 +64,10 @@ async function fetchAndDisplayArtwork(artistname) {
           q: artistname,
       }
     });
+    let isEmpty = 1;
     // Assuming artworkData.data is an array of artwork objects
     artworkData.data.forEach(data => {
-      if(data.image_id){
+      if(data.image_id != null){
       const artworkItem = `
         <div class="col-md-3 mb-4 shadow-sm">
           <div class="artwork-card" data-artworkID="${data.id}">
@@ -101,9 +78,17 @@ async function fetchAndDisplayArtwork(artistname) {
           </div>
         </div>
       `;
+      isEmpty =0;
       $('#artworkRow').append(artworkItem);
       }
     });
+    if(isEmpty==1){
+      const artworkFailed = `
+      <div class="container-fluid">
+        <h5>No related artworks found in the public domain.</h5>
+      </div>`;
+      $('#artworkRow').append(artworkFailed);
+    }
   } catch (error) {
     console.error('Error fetching artwork:', error);
   }
@@ -199,4 +184,3 @@ async function fetchMoreArtists() {
 // });
 
 // module.exports = router;
->>>>>>> artistPageChicago
