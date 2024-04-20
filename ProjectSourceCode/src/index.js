@@ -763,7 +763,34 @@ console.log('Server is listening on port 3000');
 // <!-- Section 12 : Multer->
 // *****************************************************
 
-app.post('/upload', upload.single('image'), (req, res) => {
-  console.log(req.file);
+app.post('/upload', upload.single('image'), async (req, res) => {
+  const result = await req.file.path;
+  //now we need to get the current users user id:
+  const user_id = req.session.user.user_id;
+
+  //now we can add the image to the images db:
+  const title = req.body.title;
+  await db.none('INSERT INTO images(image_link, image_title,user_id) VALUES($1, $2, $3)', [result, title, user_id]);
+  
+  //console.log(title);
+  //console.log(req.file);
   res.send('Done');
+});
+
+//now we implement posting a comment to an image
+app.post('/comment', async(req,res)=>{
+  const user_id = req.session.user.user_id;
+  const image_id = db.oneOrNone('SELECT image_id FROM images WHERE image_link = $1', [req.body.image_link]);
+  const comment = req.body.comment;
+  await db.none('INSERT INTO comments(comment_text, user_id, image_id) VALUES($1, $2, $3)', [comment, user_id, image_id]);
+  res.send('Done');
+});
+
+//now we implement getting all images uploaded by some user
+app.get('/myImages', async(req,res)=>{
+  const username = req.body.username;
+  const user_id= await db.oneOrNone('SELECT user_id FROM users WHERE username = $1', [username]);
+  const myImages= db.manyOrNone('SELECT * FROM images WHERE user_id = $1', [user_id]);
+
+  res.send(myImages);
 });

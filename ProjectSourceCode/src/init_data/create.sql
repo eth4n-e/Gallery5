@@ -66,3 +66,11 @@ CREATE TABLE IF NOT EXISTS comments (
     user_id INT REFERENCES users(user_id),
     artwork_id INT REFERENCES events(event_id)
 );
+
+--make images table for user uploaded images
+CREATE TABLE IF NOT EXISTS images (
+    image_id SERIAL PRIMARY KEY,
+    image_link VARCHAR(255),
+    image_title VARCHAR(255),
+    user_id INT REFERENCES users(user_id)
+);
