@@ -244,6 +244,7 @@ app.get('/artwork/:id', async (req, res) => {
     const artworkData = await axios.get(api_url);
     const artwork = artworkData.data.data;
 
+    const img_src = `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`;
     //having trouble getting related artworks to work atm, come back
       // figure out how to use public domain
       // also how to possibly differentiate the inputs into the .hbs file
@@ -254,7 +255,7 @@ app.get('/artwork/:id', async (req, res) => {
     // const related_artworks = related_artwork_data.data;
 
     // console.log(artwork, related_artworks);
-    res.render('pages/oneArtwork', artwork);
+    res.render('pages/oneArtwork', {id: artwork.id, artist_display: artwork.artist_display, description: artwork.description, title: artwork.title, medium_display: artwork.medium_display , date_display: artwork.date_display , image_src: img_src, username: req.session.user.username});
   } catch(error) {
     console.log(error);
   }
@@ -280,7 +281,7 @@ app.get('/artworks', async (req, res) => {
     const response = await axios.get(api_url);
 
     const artworks = response.data.data;
-    res.render('pages/artworks', {artworks});
+    res.render('pages/artworks', {artworks, username: req.session.user.username});
 
   } catch(error) {
     console.log(error);
@@ -314,7 +315,6 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
-  const artworks_offset = generateOffsets();
   // setup for API call
   const artwork_offset = generateOffsets();
   const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${artwork_offset}&size=4`;
@@ -353,14 +353,14 @@ function scrapeArtistImages(artist_name) {
 app.get('/discover', async (req, res) => {
 try {
   // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-  const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+  const [/*eventsRes,*/ artworksRes, artistsRes] = await Promise.all([/*getEvents(),*/ getArtworks(), getArtists()]); 
 
-  const events = eventsRes.data._embedded.fairs;
+  // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
   const artists = artistsRes.data.data;
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { events, artworks, artists, username: req.session.user.username });
+  res.render('pages/discover', { /*events,*/ artworks, artists, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -667,7 +667,17 @@ app.get('/profile', async (req, res) => {
     res.status(500).send('An error occurred while fetching profile data.');
   }
 });
- 
+
+// *****************************************************
+// <!               Profile-Post-Artwork                 >
+// *****************************************************
+app.post('/profile/:username/collection/:artworkId', async (req, res) => {
+  try {
+    console.log('route called');
+  } catch(err) {
+    console.log(err);
+  }
+});
 
 // *****************************************************
 // <!       Artist / Collection -Austin                >

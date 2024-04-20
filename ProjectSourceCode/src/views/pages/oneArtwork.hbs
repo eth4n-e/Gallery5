@@ -26,32 +26,11 @@
                 <p class="text-wrap fst-italic fw-lighter">{{medium_display}}  --  {{date_display}}</p>
             </div>
             {{{description}}}
-            <button class="btn btn-outline-primary">Add To Collection</button>
+            <a class="btn btn-outline-primary" href="/profile/{{username}}/collection/{{id}}">Add To Collection</a>
         </div>
         <div class="col-8 p-2">
-            <img class="img-fluid object-fit-cover text-center" src="https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg"/>
+            <img class="img-fluid object-fit-cover text-center" src={{image_src}}/>
         </div>
     </div>
     <hr/>
-    <div>
-        <h4 class="text-center">Explore Related Artworks</h4>
-        <div class="row row-cols-4 gx-4">
-            {{#each related_artworks}}
-                <div class="col">
-                    <div class="card h-100 overflow-y-scroll shadow">
-                        <img src='https://www.artic.edu/iiif/2/{{data.image_id}}/full/843,/0/default.jpg' class="card-img-top w-100 h-50 object-fit-cover">
-                        <div class="card-body">
-                            <h6 class="card-title">{{data.title}}</h6>
-                            <div class="card-text fst-italic fw-light">
-                                <p>{{data.artist_display}}</p>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <a id="artwork-link" href="/artwork/{{data.id}}" class="btn btn-dark shadow card-button">View Work</a>
-                        </div>
-                    </div>
-                </div>
-            {{/each}}
-        </div>
-    </div>
 </div>
