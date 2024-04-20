@@ -673,54 +673,108 @@ app.get('/profile', async (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-// Austin's xapp expires: 4-17
-const xapptoken = process.env.xapptokenENV;
+var page = 1;
 
-// Display all artists or redirect to a specific artist page based on keyword
+async function getArtistThumb_Bio(artistName) {
+  const wikiURL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages|extracts&titles=${artistName}&origin=*&pithumbsize=100`;
+  try {
+    const response = await axios.get(wikiURL);
+    const pages = response.data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    const artistInfo = pages[pageId];
+    return {
+      thumbnail: artistInfo.thumbnail ? artistInfo.thumbnail.source : null,
+      extract: artistInfo.extract
+    };
+  } catch (error) {
+    console.error(`Error retrieving data from Wikipedia for: ${artistName}`, error);
+    return null; // or handle the error as you prefer
+  }
+}
+
 app.get('/artists', async (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     // Display all artists
-    res.render('./pages/allArtists', { xapptoken, username: req.session.user.username });
+    try {
+      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=1');
+
+      // Retrieve additional data from Wikipedia for each artist
+      const artistsWithThumbnails = await Promise.all(artistData.data.data.map(async (data) => {
+        const artistInfo = await getArtistThumb_Bio(data.title);
+        return {
+          ...data,
+          thumbnail: artistInfo.thumbnail,
+          bio: artistInfo.extract
+        };
+      }));
+
+      res.render('./pages/allArtists', { artists: artistsWithThumbnails});
+    } catch (error) {
+      console.error(error);
+      res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.' });
+    }
   } else {
     // Redirect to the artist page based on the keyword
     res.redirect(`/artist/${keyword}`);
   }
 });
 
-// Display a specific artist's page based on artistId
-app.get('/artist/:artistId', async (req, res) => {
-  const artistId = req.params.artistId;
-  const artistURL = 'https://api.artsy.net/api/artists/' + artistId;
+
+// Display a specific artist's page based on an artistID from Art Institute of Chicago API
+app.get('/artist/:artistID', async (req, res) => {
+  const artistId = req.params.artistID;
+  const artistURL = `https://api.artic.edu/api/v1/artists/${artistId}`;
   try {
-    const artistData = await axios({
-      url: artistURL,
-      method: 'GET',
-      headers: { 'X-XApp-Token': xapptoken }
-    });
+    const artistResponse = await axios.get(artistURL);
+    const artistData = artistResponse.data.data; // Adjusted according to the API response structure
 
-    const artistInfo = {
-      name: artistData.data.name,
-      biography: artistData.data.biography,
-      birthday: artistData.data.birthday,
-      deathday: artistData.data.deathday,
-      hometown: artistData.data.hometown,
-      location: artistData.data.location,
-      nationality: artistData.data.nationality,
-      thumbnailURL: artistData.data._links.thumbnail.href,
-      similarartists: artistData.data._links.similar_artists.href,
-      artworksLink: artistData.data._links.artworks.href
-    };
+    const wikiData = await getArtistThumb_Bio(artistData.title); // Assuming title is the correct field
+    if (wikiData) {
+      const artistInfo = {
+        id: artistData.id, // Added id property
+        name: artistData.title,
+        thumbnail: wikiData.thumbnail,
+        biography: wikiData.extract, // Changed from extract to biography
+        bday: artistData.birth_date,
+        dday: artistData.death_date,
+        // Add other properties as needed
+      };
 
-    res.render('./pages/artist', { artistInfo: artistInfo , username: req.session.user.username});
-    
+      res.render('./pages/artist', { artist: artistInfo });
+    } else {
+      res.render('./pages/artist', { message: 'Error retrieving artist information.' });
+    }
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' , username: req.session.user.username});
+    res.render('./pages/artist', { message: 'Error generating web page. Please try again later.' });
   }
 });
 
 module.exports = app;
+
+app.post('/follow', async (req, res) => {
+  try {
+    // Assuming 'username' is stored in the session or passed in some other way
+    const username = req.session.username; // or however you have stored the username
+    const artistId = req.body.artistId;
+    console.log(username+ " follows " + artistId);
+    // Retrieve the user_id for the logged-in user
+    const user = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+
+    // Implement the logic to follow the artist
+    // For example, insert a record into a 'follows' table
+    await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [user.user_id, artistId]);
+
+    // Send a success response back to the client
+    res.status(200).json({ message: 'Follow successful' });
+  } catch (error) {
+    console.error('Follow failed:', error);
+    res.status(500).json({ message: 'An error occurred while attempting to follow.' });
+  }
+});
+
+
 
 // *****************************************************
 // <!               Logout - Nate                   >
