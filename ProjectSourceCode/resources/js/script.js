@@ -20,7 +20,6 @@ function getArtistThumb(artistName) {
     });
 }
 
-  
 async function displayRelatedArtists(artistName) {
   try {
     const artistURL = `https://api.artic.edu/api/v1/artists/search?query=${artistName}&limit=25`;
