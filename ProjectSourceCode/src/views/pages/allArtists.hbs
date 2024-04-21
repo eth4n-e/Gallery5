@@ -1,34 +1,55 @@
-{{>message}}
+{{> message}}
 <body>
-<script>var geneNames = ['modern','pop-art','architecture','renaissance','expressionism','surrealism']; // Replace with the desired gene names </script>
-<script src = "/resources/js/script.js" type="text/javascript"></script>
-<!-- Script to fetch and display artists -->
-<script>
-    // Example usage: Fetch artists of a certain gene when the page loads
-    $(document).ready(function() {
-        fetchArtistsByGene(geneNames);
-    });
-</script>
-    
-<div id="artistsContainer" class="container mt-3 mb-3 md-3">
-  {{#each geneNames}}
-    <div class="container mb-3" id="geneContainer">
-      <h2>{{geneNames.name}}</h2> <!-- Assuming geneNames is an array of gene names -->
-    <div class="row">
-      {{#each artists}}
-        <div class="col-md-3">
-          <div class="card mt-3">
-            <img src="{{thumbnail}}" class="card-img-top" alt="{{name}} Thumbnail">
-            <div class="card-body">
-              <p class="card-text">{{name}}</p>
-            </div>
-          </div>
-        </div>
-      {{/each}}
-    </div>
-    </div>
-  {{/each}}
+<div>
+  <h2 class="mt-3 mb-3 mx-5 text-justified-center">Explore all artists here:</h2>
 </div>
+<div class="container mt-3 mb-3" id="artistContainer">
+  <div class="row">
+    {{#each artists}}
+        {{#if thumbnail}}
+            <div class="col-md-2 mb-4">
+                <div class="artist-card shadow-sm position-relative" data-artistID="{{id}}" data-name="{{title}}">
+                    <img src="{{thumbnail}}" class="card-img-top" alt="Artwork by {{title}}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{title}}</h5>
+                        <div class="d-grid gap-2">
+                            <button type="follow_button" class="btn btn-outline-danger">Learn More</button>
+                        </div>
+                      </div>
+                </div>
+            </div>
+        {{/if}}
+    {{/each}}
+  </div>
+</div>
+<script src="/resources/js/script.js" type="text/javascript"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    let page = 1;
+    window.addEventListener('scroll', () => {
+        if (window.innerHeight + window.scrollY >= document.body.offsetHeight) {
+            fetchMoreArtists(page);
+        }
+    });
+    
+    
+    let container = document.querySelector('#artistContainer');
+    if (container) {
+        container.addEventListener('click', (event) => {
+            const artistID = event.target.closest('.artist-card').dataset.artistid;
+            console.log('Artist ID: ' + artistID);
+            if (artistID) {
+                window.location.href = `/artist/${artistID}`;
+            }
+        });
+    } else {
+        console.error('Container not found in the DOM.');
+    }
+});
 
 
+</script>
 </body>
+
+

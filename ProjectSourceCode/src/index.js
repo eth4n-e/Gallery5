@@ -2,10 +2,6 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
-//require('dotenv').config();
-const { storage } = require('./storage/storage');
-const multer = require('multer');
-const upload = multer({ storage });
 
 const express = require('express'); // To build an application server or API
 const app = express();
@@ -248,6 +244,7 @@ app.get('/artwork/:id', async (req, res) => {
     const artworkData = await axios.get(api_url);
     const artwork = artworkData.data.data;
 
+    const img_src = `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`;
     //having trouble getting related artworks to work atm, come back
       // figure out how to use public domain
       // also how to possibly differentiate the inputs into the .hbs file
@@ -258,7 +255,7 @@ app.get('/artwork/:id', async (req, res) => {
     // const related_artworks = related_artwork_data.data;
 
     // console.log(artwork, related_artworks);
-    res.render('pages/oneArtwork', artwork);
+    res.render('pages/oneArtwork', {id: artwork.id, artist_display: artwork.artist_display, description: artwork.description, title: artwork.title, medium_display: artwork.medium_display , date_display: artwork.date_display , image_src: img_src, username: req.session.user.username});
   } catch(error) {
     console.log(error);
   }
@@ -284,7 +281,7 @@ app.get('/artworks', async (req, res) => {
     const response = await axios.get(api_url);
 
     const artworks = response.data.data;
-    res.render('pages/artworks', {artworks});
+    res.render('pages/artworks', {artworks, username: req.session.user.username});
 
   } catch(error) {
     console.log(error);
@@ -318,7 +315,6 @@ function getEvents() {
 
 // handle artworks api call
 function getArtworks() {
-  const artworks_offset = generateOffsets();
   // setup for API call
   const artwork_offset = generateOffsets();
   const api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&fields=id,title,image_id,description,artist_display&from=${artwork_offset}&size=4`;
@@ -357,14 +353,14 @@ function scrapeArtistImages(artist_name) {
 app.get('/discover', async (req, res) => {
 try {
   // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-  const [eventsRes, artworksRes, artistsRes] = await Promise.all([getEvents(), getArtworks(), getArtists()]); 
+  const [/*eventsRes,*/ artworksRes, artistsRes] = await Promise.all([/*getEvents(),*/ getArtworks(), getArtists()]); 
 
-  const events = eventsRes.data._embedded.fairs;
+  // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
   const artists = artistsRes.data.data;
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { events, artworks, artists, username: req.session.user.username });
+  res.render('pages/discover', { /*events,*/ artworks, artists, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -671,60 +667,124 @@ app.get('/profile', async (req, res) => {
     res.status(500).send('An error occurred while fetching profile data.');
   }
 });
- 
+
+// *****************************************************
+// <!               Profile-Post-Artwork                 >
+// *****************************************************
+app.post('/profile/:username/collection/:artworkId', async (req, res) => {
+  try {
+    console.log('route called');
+  } catch(err) {
+    console.log(err);
+  }
+});
 
 // *****************************************************
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-// Austin's xapp expires: 4-17
-const xapptoken = process.env.xapptokenENV;
+var page = 1;
 
-// Display all artists or redirect to a specific artist page based on keyword
+async function getArtistThumb_Bio(artistName) {
+  const wikiURL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages|extracts&titles=${artistName}&origin=*&pithumbsize=100`;
+  try {
+    const response = await axios.get(wikiURL);
+    const pages = response.data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    const artistInfo = pages[pageId];
+    return {
+      thumbnail: artistInfo.thumbnail ? artistInfo.thumbnail.source : null,
+      extract: artistInfo.extract
+    };
+  } catch (error) {
+    console.error(`Error retrieving data from Wikipedia for: ${artistName}`, error);
+    return null; // or handle the error as you prefer
+  }
+}
+
 app.get('/artists', async (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     // Display all artists
-    res.render('./pages/allArtists', { xapptoken, username: req.session.user.username });
+    try {
+      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=1');
+
+      // Retrieve additional data from Wikipedia for each artist
+      const artistsWithThumbnails = await Promise.all(artistData.data.data.map(async (data) => {
+        const artistInfo = await getArtistThumb_Bio(data.title);
+        return {
+          ...data,
+          thumbnail: artistInfo.thumbnail,
+          bio: artistInfo.extract
+        };
+      }));
+
+      res.render('./pages/allArtists', { artists: artistsWithThumbnails});
+    } catch (error) {
+      console.error(error);
+      res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.' });
+    }
   } else {
     // Redirect to the artist page based on the keyword
     res.redirect(`/artist/${keyword}`);
   }
 });
 
-// Display a specific artist's page based on artistId
-app.get('/artist/:artistId', async (req, res) => {
-  const artistId = req.params.artistId;
-  const artistURL = 'https://api.artsy.net/api/artists/' + artistId;
+
+// Display a specific artist's page based on an artistID from Art Institute of Chicago API
+app.get('/artist/:artistID', async (req, res) => {
+  const artistId = req.params.artistID;
+  const artistURL = `https://api.artic.edu/api/v1/artists/${artistId}`;
   try {
-    const artistData = await axios({
-      url: artistURL,
-      method: 'GET',
-      headers: { 'X-XApp-Token': xapptoken }
-    });
+    const artistResponse = await axios.get(artistURL);
+    const artistData = artistResponse.data.data; // Adjusted according to the API response structure
 
-    const artistInfo = {
-      name: artistData.data.name,
-      biography: artistData.data.biography,
-      birthday: artistData.data.birthday,
-      deathday: artistData.data.deathday,
-      hometown: artistData.data.hometown,
-      location: artistData.data.location,
-      nationality: artistData.data.nationality,
-      thumbnailURL: artistData.data._links.thumbnail.href,
-      similarartists: artistData.data._links.similar_artists.href,
-      artworksLink: artistData.data._links.artworks.href
-    };
+    const wikiData = await getArtistThumb_Bio(artistData.title); // Assuming title is the correct field
+    if (wikiData) {
+      const artistInfo = {
+        id: artistData.id, // Added id property
+        name: artistData.title,
+        thumbnail: wikiData.thumbnail,
+        biography: wikiData.extract, // Changed from extract to biography
+        bday: artistData.birth_date,
+        dday: artistData.death_date,
+        // Add other properties as needed
+      };
 
-    res.render('./pages/artist', { artistInfo: artistInfo , username: req.session.user.username});
-    
+      res.render('./pages/artist', { artist: artistInfo });
+    } else {
+      res.render('./pages/artist', { message: 'Error retrieving artist information.' });
+    }
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' , username: req.session.user.username});
+    res.render('./pages/artist', { message: 'Error generating web page. Please try again later.' });
   }
 });
 
 module.exports = app;
+
+app.post('/follow', async (req, res) => {
+  try {
+    // Assuming 'username' is stored in the session or passed in some other way
+    const username = req.session.username; // or however you have stored the username
+    const artistId = req.body.artistId;
+    console.log(username+ " follows " + artistId);
+    // Retrieve the user_id for the logged-in user
+    const user = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+
+    // Implement the logic to follow the artist
+    // For example, insert a record into a 'follows' table
+    await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [user.user_id, artistId]);
+
+    // Send a success response back to the client
+    res.status(200).json({ message: 'Follow successful' });
+  } catch (error) {
+    console.error('Follow failed:', error);
+    res.status(500).json({ message: 'An error occurred while attempting to follow.' });
+  }
+});
+
+
 
 // *****************************************************
 // <!               Logout - Nate                   >
@@ -758,39 +818,3 @@ console.log('Server is listening on port 3000');
     await db.none('INSERT INTO users(username, password, email, firstname, lastname) VALUES($1, $2, $3, $4, $5)', [onetimeuser, onetimehash,'rehehe@gmail.com','Scooby','Doo']);
   }
 })();
-
-// *****************************************************
-// <!-- Section 12 : Multer->
-// *****************************************************
-
-app.post('/upload', upload.single('image'), async (req, res) => {
-  const result = await req.file.path;
-  //now we need to get the current users user id:
-  const user_id = req.session.user.user_id;
-
-  //now we can add the image to the images db:
-  const title = req.body.title;
-  await db.none('INSERT INTO images(image_link, image_title,user_id) VALUES($1, $2, $3)', [result, title, user_id]);
-  
-  //console.log(title);
-  //console.log(req.file);
-  res.send('Done');
-});
-
-//now we implement posting a comment to an image
-app.post('/comment', async(req,res)=>{
-  const user_id = req.session.user.user_id;
-  const image_id = db.oneOrNone('SELECT image_id FROM images WHERE image_link = $1', [req.body.image_link]);
-  const comment = req.body.comment;
-  await db.none('INSERT INTO comments(comment_text, user_id, image_id) VALUES($1, $2, $3)', [comment, user_id, image_id]);
-  res.send('Done');
-});
-
-//now we implement getting all images uploaded by some user
-app.get('/myImages', async(req,res)=>{
-  const username = req.body.username;
-  const user_id= await db.oneOrNone('SELECT user_id FROM users WHERE username = $1', [username]);
-  const myImages= db.manyOrNone('SELECT * FROM images WHERE user_id = $1', [user_id]);
-
-  res.send(myImages);
-});
