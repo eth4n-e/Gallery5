@@ -415,7 +415,7 @@ console.log("test");
   eventsArr.sort(function(a,b){
     return new Date(a.eventDate) - new Date(b.eventDate);
   });
-  console.log(eventsArr);
+
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
