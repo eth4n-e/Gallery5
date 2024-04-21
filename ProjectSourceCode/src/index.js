@@ -719,10 +719,10 @@ app.get('/artists', async (req, res) => {
         };
       }));
 
-      res.render('./pages/allArtists', { artists: artistsWithThumbnails});
+      res.render('./pages/allArtists', { artists: artistsWithThumbnails, username: req.session.user.username});
     } catch (error) {
       console.error(error);
-      res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.' });
+      res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.', username: req.session.user.username });
     }
   } else {
     // Redirect to the artist page based on the keyword
@@ -751,13 +751,13 @@ app.get('/artist/:artistID', async (req, res) => {
         // Add other properties as needed
       };
 
-      res.render('./pages/artist', { artist: artistInfo });
+      res.render('./pages/artist', { artist: artistInfo, username: req.session.user.username });
     } else {
-      res.render('./pages/artist', { message: 'Error retrieving artist information.' });
+      res.render('./pages/artist', { message: 'Error retrieving artist information.', username: req.session.user.username });
     }
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try again later.' });
+    res.render('./pages/artist', { message: 'Error generating web page. Please try again later.', username: req.session.user.username });
   }
 });
 
@@ -770,11 +770,11 @@ app.post('/follow', async (req, res) => {
     const artistId = req.body.artistId;
     console.log(username+ " follows " + artistId);
     // Retrieve the user_id for the logged-in user
-    const user = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
 
     // Implement the logic to follow the artist
     // For example, insert a record into a 'follows' table
-    await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [user.user_id, artistId]);
+    await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userId, artistId]);
 
     // Send a success response back to the client
     res.status(200).json({ message: 'Follow successful' });
@@ -784,6 +784,47 @@ app.post('/follow', async (req, res) => {
   }
 });
 
+app.get('/followedArtists', async (req, res) => {
+  try {
+    // Get follow list from db
+    const username = req.session.username;
+    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE username = $1', [username]);
+    console.log("followed_list: ", followed_list);
+
+    let artistsInfo = []; // Array to hold all artist info
+
+    if (followed_list.length > 0) {
+      for (let artist_id of followed_list) {
+        const artistURL = `https://api.artic.edu/api/v1/artists/${artist_id.artist_id}`;
+        try {
+          const artistResponse = await axios.get(artistURL);
+          const artistData = artistResponse.data.data; // Adjusted according to the API response structure
+
+          const wikiData = await getArtistThumb_Bio(artistData.title); // Assuming title is the correct field
+          if (wikiData) {
+            const artistInfo = {
+              id: artistData.id, // Added id property
+              name: artistData.title,
+              thumbnail: wikiData.thumbnail
+            };
+            artistsInfo.push(artistInfo); // Add artist info to array
+          }
+
+        } catch (error) {
+          console.error('Follow listings failed:', error);
+          res.status(500).json({ message: 'An error occurred while attempting to load followed artists.' });
+          return; // Exit the function after sending the response
+        }
+      }
+      res.render('./pages/followedArtists', { artists: artistsInfo, username: req.session.user.username }); // Render the page with all artists
+    } else {
+      res.render("./pages/followedArtists", { message: 'No followed artists found.', username: req.session.user.username }); // Render the page with a message
+    }
+  } catch (error) {
+    console.error('Error accessing db for follow listing. Please try again:', error);
+    res.status(500).render("./pages/followedArtists", { message: 'An error occurred while attempting to access the database.', username: req.session.user.username });
+  }
+});
 
 
 // *****************************************************

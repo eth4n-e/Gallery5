@@ -1,0 +1,28 @@
+{{> message}}
+<div class="container-fluid" id="page container">
+    <div class="container-fluid" id="userinfo">
+        <div class="text-justified">
+            <h3>{{username}}</h3>
+        </div>
+    </div>
+
+    <div class="container mt-3 mb-3" id="artistContainer">
+        <div class="row">
+            {{#each artists}}
+                {{#if thumbnail}}
+                    <div class="col-md-2 mb-4">
+                        <div class="artist-card shadow-sm position-relative" data-artistID="{{id}}" data-name="{{title}}">
+                            <img src="{{thumbnail}}" class="card-img-top" alt="Artwork by {{title}}">
+                            <div class="card-body">
+                                <h5 class="card-title">{{title}}</h5>
+                                <div class="d-grid gap-2">
+                                    <button type="follow_button" class="btn btn-outline-danger">Learn More</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {{/if}}
+            {{/each}}
+        </div>
+    </div>
+</div>

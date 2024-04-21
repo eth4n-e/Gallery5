@@ -56,7 +56,7 @@ async function displayRelatedArtists(artistName) {
   
 async function fetchAndDisplayArtwork(artistname) {
   try {
-    const artworkURL = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=25&fields=id,title,image_id`;
+    const artworkURL = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=50&fields=id,title,image_id`;
     const artworkData = await $.ajax({
       url: artworkURL,
       type: 'GET',
