@@ -73,4 +73,5 @@ CREATE TABLE IF NOT EXISTS images (
     image_link VARCHAR(255),
     image_title VARCHAR(255),
     user_id INT REFERENCES users(user_id)
+
 );

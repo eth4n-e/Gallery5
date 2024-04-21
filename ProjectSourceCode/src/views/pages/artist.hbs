@@ -9,9 +9,10 @@
       </div>
       <div class="col-md-8">
         <!-- Artist Name and Details on Right 2/3 of screen-->
-        <h2 class="text-centered">{{artist.name}}</h2>
+        <h2 class="text-centered" id="artistInfo" data-artist-name="{{artist.name}}">{{artist.name}}</h2>
         <div class="container-fluid" id="links_container">
-          <button type="follow_button" id="follow_button" class="btn btn-outline-danger">Follow Artist</button>
+          <button type="follow_button" id="follow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Follow Artist</button>
+          <a class="btn btn-outline-danger" href="/followedArtists">Your Follow List</a>
         </div>
       </div>
     </div>
@@ -73,18 +74,19 @@
     });
 
     document.addEventListener('click', (event) => {
-    if (event.target.matches('.follow_button')) {
+    if (event.target.matches('#follow_button')) {
       // Prevent the default button action
       event.preventDefault();
 
       // Get the artist ID from the artist object
-      const artistId = '{{artist.id}}';
-
+      const artistId = $('#follow_button').attr('data-artist-id');
+      console.log("artistID-client: " + artistId);
+      const artistName= $('#artistInfo').attr('data-artist-name');
       // Make an AJAX POST request to the server
       $.ajax({
         url: '/follow', // Your server endpoint that handles the POST request
         type: 'POST',
-        data: { artistId: artistId }, // Data you want to send to the server
+        data: { artistId: artistId , artistName: artistName}, // Data you want to send to the server
         success: function(response) {
           // Handle success (e.g., update the button text to 'Following', display a message, etc.)
           console.log('Follow successful:', response);
@@ -99,6 +101,4 @@
 });
 
     
-  </script>
-
-</body>
+</script>
