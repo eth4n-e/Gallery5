@@ -145,7 +145,8 @@ const user = {
             req.session.save();
             console.log(user);
             // Redirect to /discover route after setting the session
-            res.render('pages/discover', {username: req.session.user.username});
+            //res.render('pages/discover', {username: req.session.user.username});
+            res.redirect('/discover');
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
@@ -358,9 +359,66 @@ try {
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
   const artists = artistsRes.data.data;
+
+console.log("test");
+  //To get evevnts:
+  const currentDate = new Date();
+  const futureDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+  const currentISODate = currentDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-11T07:33:26
+  const futureISODate = futureDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-18T07:33:26
+
+  const results=await axios({ //get in the fine arts within one week of right now
+    url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+    method: 'GET',
+    params: {
+      apikey: process.env.TICKET_API_KEY,
+      startDateTime: currentISODate, //right now
+      endDateTime: futureISODate, //one week from now
+      classificationName: 'fine-art', //search in the fine arts
+      //size: 10, //get 10 events
+      sort: 'random' //sort 
+    }
+  });
+  var eventsArr= []; //array to store events
+  //console.log(results.data._embedded.events);
+  for(var i=0; i<results.data._embedded.events.length; i++){
+    var checker=false;
+    var event = results.data._embedded.events[i];
+    var eventName = event.name;
+    var eventDescp = event.info;
+    var eventLink = event.url;
+    var eventDate = event.dates.start.localDate;
+    var eventImage= event.images?.[0]?.url || "https://via.placeholder.com/150";
+    var eventLocation= event._embedded.venues?.[0]?.name ||"Location not available";
+
+    
+    
+    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage);
+    for(var j=0; j<eventsArr.length; j++){ //check if event already in array
+      if(eventsArr[j].eventName === newEvent.eventName){ //if it is
+        //onsole.log("test");
+        if(eventsArr[j].eventDate <= newEvent.eventDate){ //check if the date of the event in the array is less than the new event
+          checker=true;
+          break; //if it is, then no need to updatem, leave as is, and break the loop
+        }
+        else{
+          eventsArr.splice(j, 1); //if the date of the event in the array is greater than the new event, remove the event in the array
+        }
+      }
+    }
+    if(checker) continue; //if the event is already in the array and the date is less than the new event, continue to the next event
+ 
+    eventsArr.push(newEvent); //add the new event to the array
+  }
+
+  //now we want to sort the array by date ascendng:
+  eventsArr.sort(function(a,b){
+    return new Date(a.eventDate) - new Date(b.eventDate);
+  });
+  console.log(eventsArr);
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { /*events,*/ artworks, artists, username: req.session.user.username });
+  res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
