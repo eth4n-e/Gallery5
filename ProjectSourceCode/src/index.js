@@ -246,19 +246,43 @@ app.get('/artwork/:id', async (req, res) => {
     const artwork = artworkData.data.data;
 
     const img_src = `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`;
-    //having trouble getting related artworks to work atm, come back
-      // figure out how to use public domain
-      // also how to possibly differentiate the inputs into the .hbs file
-        // thought: the related artworks information might be getting overwritten
-                // by the information related to the primary artwork
-    // const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][style_id]=${artwork.style_id}&fields=id,title,image_id,description,artist_display&size=4`;
-    // const related_artwork_data = await axios.get(related_artworks_api_url);
-    // const related_artworks = related_artwork_data.data;
+
+    const artworkInDb = await db.oneOrNone('SELECT * FROM artworks WHERE artwork_id = $1', [artwork.id]);
+
+    // have yet to add the artwork into the database
+    // insert the artwork
+    if(!artworkInDb) {
+      await db.none('INSERT INTO artworks VALUES ($1, $2, $3)', [artwork.id, artwork.title, img_src]);
+    } // otherwise, proceed as normal
+
+    // elastic search style query to fetch artworks with same style 
+      // NOT WORKING ATM
+    const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?
+    {
+      "query": {
+      "terms": {
+        "style_id": ${artwork.style_id}, 
+        "is_public_domain": true
+      }
+    }&fields=id,title,image_id, description, artist_display&size=4`;
+    const related_artwork_data = await axios.get(related_artworks_api_url);
+    const related_artwork = related_artwork_data.data;
+
+    console.log(related_artwork);
 
     // console.log(artwork, related_artworks);
-    res.render('pages/oneArtwork', {id: artwork.id, artist_display: artwork.artist_display, description: artwork.description, title: artwork.title, medium_display: artwork.medium_display , date_display: artwork.date_display , image_src: img_src, username: req.session.user.username});
+    res.render('pages/oneArtwork', {id: artwork.id, 
+      artist_display1: artwork.artist_display, 
+      description1: artwork.description, 
+      title1: artwork.title, 
+      medium_display1: artwork.medium_display, 
+      date_display1: artwork.date_display, 
+      image_src1: img_src, 
+      related_artworks: related_artwork_data.data,
+      username: req.session.user.username, related_artwork});
   } catch(error) {
     console.log(error);
+    res.redirect('/artworks');
   }
 });
   
@@ -729,9 +753,36 @@ app.get('/profile', async (req, res) => {
 // *****************************************************
 // <!               Profile-Post-Artwork                 >
 // *****************************************************
-app.post('/profile/:username/collection/:artworkId', async (req, res) => {
+app.post('/updateCollection', async (req, res) => {
   try {
-    console.log('route called');
+    const username = req.session.user.username; 
+    const artwork_id = req.body.artworkId;
+
+    console.log(username);
+    console.log(artwork_id);
+    // retrieve usersID (object containing user_id as an attribute)
+    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    
+    // user present in database, allow insert
+    if(userId) {
+      // insert the artwork_id and user_id into the users_to_artworks table
+      const artworkInDb = await db.oneOrNone('SELECT * FROM artworks WHERE artwork_id = $1', [artwork_id]);
+
+      // ask if I need a check to see if the work is already inserted
+
+      await db.none('INSERT INTO user_to_artworks VALUES ($1, $2)', [userId.user_id, artwork_id]);
+
+      // testing
+      const entry = await db.any('SELECT * FROM user_to_artworks');
+
+      console.log(entry);
+
+      if (entry) {
+        res.status(200).json({message: 'Successful Insert'});
+      }
+    } else {
+      res.status(500).json({message: 'Unable to find user.'});
+    }
   } catch(err) {
     console.log(err);
   }

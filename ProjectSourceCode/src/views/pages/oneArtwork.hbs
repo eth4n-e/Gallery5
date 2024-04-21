@@ -18,19 +18,83 @@
         -->
     <div class="row justify-center mt-4">
         <div class="col-4 p-2">
-            <p class="fw-light mb-0">{{artist_display}}</p>
+            <p class="fw-light mb-0">{{artist_display1}}</p>
             <div class="w-75">
-                <h4 class="text-wrap">{{title}}</h4>
+                <h4 class="text-wrap">{{title1}}</h4>
             </div>
             <div class="w-75">
-                <p class="text-wrap fst-italic fw-lighter">{{medium_display}}  --  {{date_display}}</p>
+                <p class="text-wrap fst-italic fw-lighter">{{medium_display1}}  --  {{date_display1}}</p>
             </div>
-            {{{description}}}
-            <a class="btn btn-outline-primary" href="/profile/{{username}}/collection/{{id}}">Add To Collection</a>
+            {{{description1}}}
+            <a class="btn btn-outline-primary" id="add-to-collection" data-artwork-id="{{id}}">Add To Collection</a>
         </div>
         <div class="col-8 p-2">
-            <img class="img-fluid object-fit-cover text-center" src={{image_src}}/>
+            <img class="img-fluid object-fit-cover text-center" src={{image_src1}}/>
         </div>
     </div>
+    <hr/>
+    <!--idea: create a row, one column is comments, other column shows related artworks in a row style-->
+    <div class="row justify-center mt-4"> 
+        <div class="col-4 p-2">
+            <h4 class="text-start">Comments</h4>
+        </div>
+        <div class="col-8 p-2">
+            <h4 class="text-start">Related Artworks</h4>
+            <div class="row row-cols-2">
+                {{#each related_artworks}}
+                    <div class="col-3 mb-3">
+                        <div class="card h-100 overflow-y-scroll shadow">
+                            <img src='https://www.artic.edu/iiif/2/{{image_id}}/full/843,/0/default.jpg' class="card-img-top w-100 h-50 object-fit-cover">
+                            <div class="card-body">
+                                <h6 class="card-title">{{title}}</h6>
+                                <div class="card-text fst-italic fw-light">
+                                    <p>{{artist_display}}</p>
+                                </div>
+                                <div class="card-text">
+                                    <p>{{dimensions.in.text}}</p>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a id="card-button" href="/artwork/{{id}}" class="btn btn-dark shadow">View Work</a>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+    </div>
+    <script>
+        // handle clicking of add to collection button
+        function addToCollection(event) {
+            const artwork_id = $('#add-to-collection').attr('data-artwork-id');
+
+            // make ajax call to post route on button click
+            // send artwork id in request body
+            $.ajax({
+                url: '/updateCollection',
+                method: 'POST',
+                data: {
+                    artworkId: artwork_id
+                },   
+                success: function(response) {
+                    console.log('Artwork added to collection:', response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors
+                    console.error('Error adding artwork to collection:', error);
+                }
+            });
+
+            // set disabled state to true, add disabled to classList to alter button appearance, update content
+            event.target.disabled = true;
+            event.target.classList.add('disabled');
+            event.target.innerHTML = 'Added!';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const addToCollectionBtn = document.getElementById('add-to-collection');
+            addToCollectionBtn.addEventListener('click', addToCollection);
+        });
+    </script>
     <hr/>
 </div>
