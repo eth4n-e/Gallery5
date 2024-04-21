@@ -145,7 +145,8 @@ const user = {
             req.session.save();
             console.log(user);
             // Redirect to /discover route after setting the session
-            res.render('pages/discover', {username: req.session.user.username});
+            //res.render('pages/discover', {username: req.session.user.username});
+            res.redirect('/discover');
           } else {
             // Incorrect username or password, render login page with error message
             message = `Incorrect username or password.`
@@ -358,9 +359,66 @@ try {
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
   const artists = artistsRes.data.data;
+
+console.log("test");
+  //To get evevnts:
+  const currentDate = new Date();
+  const futureDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
+  const currentISODate = currentDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-11T07:33:26
+  const futureISODate = futureDate.toISOString().slice(0, 19)+"Z"; // Format: 2024-04-18T07:33:26
+
+  const results=await axios({ //get in the fine arts within one week of right now
+    url: 'https://app.ticketmaster.com/discovery/v2/events.json',
+    method: 'GET',
+    params: {
+      apikey: process.env.TICKET_API_KEY,
+      startDateTime: currentISODate, //right now
+      endDateTime: futureISODate, //one week from now
+      classificationName: 'fine-art', //search in the fine arts
+      //size: 10, //get 10 events
+      sort: 'random' //sort 
+    }
+  });
+  var eventsArr= []; //array to store events
+  //console.log(results.data._embedded.events);
+  for(var i=0; i<results.data._embedded.events.length; i++){
+    var checker=false;
+    var event = results.data._embedded.events[i];
+    var eventName = event.name;
+    var eventDescp = event.info;
+    var eventLink = event.url;
+    var eventDate = event.dates.start.localDate;
+    var eventImage= event.images?.[0]?.url || "https://via.placeholder.com/150";
+    var eventLocation= event._embedded.venues?.[0]?.name ||"Location not available";
+
+    
+    
+    var newEvent = new Events(eventName, eventDescp, eventLink, eventDate, eventLocation, eventImage);
+    for(var j=0; j<eventsArr.length; j++){ //check if event already in array
+      if(eventsArr[j].eventName === newEvent.eventName){ //if it is
+        //onsole.log("test");
+        if(eventsArr[j].eventDate <= newEvent.eventDate){ //check if the date of the event in the array is less than the new event
+          checker=true;
+          break; //if it is, then no need to updatem, leave as is, and break the loop
+        }
+        else{
+          eventsArr.splice(j, 1); //if the date of the event in the array is greater than the new event, remove the event in the array
+        }
+      }
+    }
+    if(checker) continue; //if the event is already in the array and the date is less than the new event, continue to the next event
+ 
+    eventsArr.push(newEvent); //add the new event to the array
+  }
+
+  //now we want to sort the array by date ascendng:
+  eventsArr.sort(function(a,b){
+    return new Date(a.eventDate) - new Date(b.eventDate);
+  });
+  console.log(eventsArr);
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { /*events,*/ artworks, artists, username: req.session.user.username });
+  res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -683,54 +741,167 @@ app.post('/profile/:username/collection/:artworkId', async (req, res) => {
 // <!       Artist / Collection -Austin                >
 // *****************************************************
 
-// Austin's xapp expires: 4-17
-const xapptoken = process.env.xapptokenENV;
+var page = 1;
+var followList = []; //list of artists that the user follows
 
-// Display all artists or redirect to a specific artist page based on keyword
+async function getArtistThumb_Bio(artistName) {
+  const wikiURL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages|extracts&titles=${artistName}&origin=*&pithumbsize=100`;
+  try {
+    const response = await axios.get(wikiURL);
+    const pages = response.data.query.pages;
+    const pageId = Object.keys(pages)[0];
+    const artistInfo = pages[pageId];
+    return {
+      thumbnail: artistInfo.thumbnail ? artistInfo.thumbnail.source : null,
+      extract: artistInfo.extract
+    };
+  } catch (error) {
+    console.error(`Error retrieving data from Wikipedia for: ${artistName}`, error);
+    return null; // or handle the error as you prefer
+  }
+}
+
 app.get('/artists', async (req, res) => {
   const keyword = req.query.keyword;
   if (!keyword) {
     // Display all artists
-    res.render('./pages/allArtists', { xapptoken, username: req.session.user.username });
+    try {
+      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=1');
+
+      // Retrieve additional data from Wikipedia for each artist
+      const artistsWithThumbnails = await Promise.all(artistData.data.data.map(async (data) => {
+        const artistInfo = await getArtistThumb_Bio(data.title);
+        return {
+          ...data,
+          thumbnail: artistInfo.thumbnail,
+          bio: artistInfo.extract
+        };
+      }));
+
+      res.render('./pages/allArtists', { artists: artistsWithThumbnails, username: req.session.user.username});
+    } catch (error) {
+      console.error(error);
+      res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.', username: req.session.user.username });
+    }
   } else {
     // Redirect to the artist page based on the keyword
     res.redirect(`/artist/${keyword}`);
   }
 });
 
-// Display a specific artist's page based on artistId
-app.get('/artist/:artistId', async (req, res) => {
-  const artistId = req.params.artistId;
-  const artistURL = 'https://api.artsy.net/api/artists/' + artistId;
+
+// Display a specific artist's page based on an artistID from Art Institute of Chicago API
+app.get('/artist/:artistID', async (req, res) => {
+  const artistId = req.params.artistID;
+  const artistURL = `https://api.artic.edu/api/v1/artists/${artistId}`;
   try {
-    const artistData = await axios({
-      url: artistURL,
-      method: 'GET',
-      headers: { 'X-XApp-Token': xapptoken }
-    });
+    const artistResponse = await axios.get(artistURL);
+    const artistData = artistResponse.data.data; // Adjusted according to the API response structure
 
-    const artistInfo = {
-      name: artistData.data.name,
-      biography: artistData.data.biography,
-      birthday: artistData.data.birthday,
-      deathday: artistData.data.deathday,
-      hometown: artistData.data.hometown,
-      location: artistData.data.location,
-      nationality: artistData.data.nationality,
-      thumbnailURL: artistData.data._links.thumbnail.href,
-      similarartists: artistData.data._links.similar_artists.href,
-      artworksLink: artistData.data._links.artworks.href
-    };
+    const wikiData = await getArtistThumb_Bio(artistData.title); // Assuming title is the correct field
+    if (wikiData) {
+      const artistInfo = {
+        id: artistData.id, // Added id property
+        name: artistData.title,
+        thumbnail: wikiData.thumbnail,
+        biography: wikiData.extract, // Changed from extract to biography
+        bday: artistData.birth_date,
+        dday: artistData.death_date,
+        // Add other properties as needed
+      };
 
-    res.render('./pages/artist', { artistInfo: artistInfo , username: req.session.user.username});
-    
+      res.render('./pages/artist', { artist: artistInfo, username: req.session.user.username });
+    } else {
+      res.render('./pages/artist', { message: 'Error retrieving artist information.', username: req.session.user.username });
+    }
   } catch (error) {
     console.error(error);
-    res.render('./pages/artist', { message: 'Error generating web page. Please try beating devs again.' , username: req.session.user.username});
+    res.render('./pages/artist', { message: 'Error generating web page. Please try again later.', username: req.session.user.username });
   }
 });
 
 module.exports = app;
+
+app.post('/follow', async (req, res) => {
+  try {
+    // Assuming 'username' is stored in the session or passed in some other way
+    const username = req.session.user.username; // or however you have stored the username
+    const artistId = req.body.artistId;   
+    const artistName = req.body.artistName; // Added artistName
+    
+    console.log('artistId' + artistId);
+    // Retrieve the user_id for the logged-in user
+    const userId = await db.one('SELECT * FROM users WHERE username = $1', [username]);
+    if(!userId)
+      return res.status(404).json({ message: 'User not found in db.' });
+    const userIdInt = parseInt(userId.user_id,10); 
+    // Implement the logic to follow the artist\
+    //console.log(userIdInt, artistId);
+    
+    // Check to see if artist is in db
+    const artistInDB = await db.oneOrNone('SELECT * FROM artists WHERE artist_id = $1', [artistId]);
+    if (!artistInDB) {
+      // If artist is not in db, add them
+      await db.none('INSERT INTO artists(artist_id, artist_name) VALUES($1, $2)', [artistId, artistName]);
+    }
+
+    // Check if the artist is already followed
+    const artistFollowed = await db.oneOrNone('SELECT * FROM user_artists WHERE user_id = $1 AND artist_id = $2', [userIdInt, artistId]);
+    if (artistFollowed) {
+      return res.status(400).json({ message: 'Artist already followed.' });
+    }
+    else{
+      console.log("Artist not followed yet.");
+      await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userIdInt, artistId]);
+    }
+
+ 
+    // Send a success response back to the client
+
+    res.status(200).json({ message: 'Follow successful' });
+  } catch (error) {
+    console.error('Follow failed:', error);
+    res.status(500).json({ message: 'An error occurred while attempting to follow.' });
+  }
+});
+
+app.get('/followedArtists', async (req, res) => {
+  try {
+    // Get follow list from db
+    const username = req.session.user.username; // Change req.session.user.username to req.session.username
+    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    console.log("User ID retrieved:", userId.user_id);
+    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE user_id = $1', [userId.user_id]);
+    console.log("followed_list: ", followed_list);
+
+    let artistsInfo = []; // Array to hold all artist info
+
+    // for loop to go through the follow list
+    for (let i = 0; i < followed_list.length; i++) {
+      //if follow list at i is not null, search for the artist's info using axios
+      if (followed_list[i] != null) {
+        const artistURL = `https://api.artic.edu/api/v1/artists/${followed_list[i].artist_id}`;
+        const artiststart = await axios.get(artistURL);
+        const artistThumb = await getArtistThumb_Bio(artiststart.data.data.title);
+        if(artistThumb){
+          const artist ={
+            id: artiststart.data.data.id,
+            title: artiststart.data.data.title,
+            thumbnail: artistThumb.thumbnail
+          }
+          artistsInfo.push(artist);
+        }
+      } else {
+        //if follow list at i is null, skip it
+      }
+    }
+    res.render('pages/followedArtists', { artists: artistsInfo, username: req.session.user.username });
+  } catch (error) {
+    console.error('Error accessing db for follow listing. Please try again:', error);
+    res.status(500).render("./pages/followedArtists", { message: 'An error occurred while attempting to access the database.', username: req.session.user.username });
+  }
+});
+
 
 // *****************************************************
 // <!               Logout - Nate                   >
