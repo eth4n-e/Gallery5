@@ -684,6 +684,7 @@ app.post('/profile/:username/collection/:artworkId', async (req, res) => {
 // *****************************************************
 
 var page = 1;
+var followList = []; //list of artists that the user follows
 
 async function getArtistThumb_Bio(artistName) {
   const wikiURL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages|extracts&titles=${artistName}&origin=*&pithumbsize=100`;
@@ -766,17 +767,39 @@ module.exports = app;
 app.post('/follow', async (req, res) => {
   try {
     // Assuming 'username' is stored in the session or passed in some other way
-    const username = req.session.username; // or however you have stored the username
-    const artistId = req.body.artistId;
-    console.log(username+ " follows " + artistId);
+    const username = req.session.user.username; // or however you have stored the username
+    const artistId = req.body.artistId;   
+    const artistName = req.body.artistName; // Added artistName
+    
+    console.log('artistId' + artistId);
     // Retrieve the user_id for the logged-in user
-    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    const userId = await db.one('SELECT * FROM users WHERE username = $1', [username]);
+    if(!userId)
+      return res.status(404).json({ message: 'User not found in db.' });
+    const userIdInt = parseInt(userId.user_id,10); 
+    // Implement the logic to follow the artist\
+    //console.log(userIdInt, artistId);
+    
+    // Check to see if artist is in db
+    const artistInDB = await db.oneOrNone('SELECT * FROM artists WHERE artist_id = $1', [artistId]);
+    if (!artistInDB) {
+      // If artist is not in db, add them
+      await db.none('INSERT INTO artists(artist_id, artist_name) VALUES($1, $2)', [artistId, artistName]);
+    }
 
-    // Implement the logic to follow the artist
-    // For example, insert a record into a 'follows' table
-    await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userId, artistId]);
+    // Check if the artist is already followed
+    const artistFollowed = await db.oneOrNone('SELECT * FROM user_artists WHERE user_id = $1 AND artist_id = $2', [userIdInt, artistId]);
+    if (artistFollowed) {
+      return res.status(400).json({ message: 'Artist already followed.' });
+    }
+    else{
+      console.log("Artist not followed yet.");
+      await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userIdInt, artistId]);
+    }
 
+ 
     // Send a success response back to the client
+
     res.status(200).json({ message: 'Follow successful' });
   } catch (error) {
     console.error('Follow failed:', error);
@@ -787,39 +810,34 @@ app.post('/follow', async (req, res) => {
 app.get('/followedArtists', async (req, res) => {
   try {
     // Get follow list from db
-    const username = req.session.username;
-    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE username = $1', [username]);
+    const username = req.session.user.username; // Change req.session.user.username to req.session.username
+    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    console.log("User ID retrieved:", userId.user_id);
+    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE user_id = $1', [userId.user_id]);
     console.log("followed_list: ", followed_list);
 
     let artistsInfo = []; // Array to hold all artist info
 
-    if (followed_list.length > 0) {
-      for (let artist_id of followed_list) {
-        const artistURL = `https://api.artic.edu/api/v1/artists/${artist_id.artist_id}`;
-        try {
-          const artistResponse = await axios.get(artistURL);
-          const artistData = artistResponse.data.data; // Adjusted according to the API response structure
-
-          const wikiData = await getArtistThumb_Bio(artistData.title); // Assuming title is the correct field
-          if (wikiData) {
-            const artistInfo = {
-              id: artistData.id, // Added id property
-              name: artistData.title,
-              thumbnail: wikiData.thumbnail
-            };
-            artistsInfo.push(artistInfo); // Add artist info to array
+    // for loop to go through the follow list
+    for (let i = 0; i < followed_list.length; i++) {
+      //if follow list at i is not null, search for the artist's info using axios
+      if (followed_list[i] != null) {
+        const artistURL = `https://api.artic.edu/api/v1/artists/${followed_list[i].artist_id}`;
+        const artiststart = await axios.get(artistURL);
+        const artistThumb = await getArtistThumb_Bio(artiststart.data.data.title);
+        if(artistThumb){
+          const artist ={
+            id: artiststart.data.data.id,
+            title: artiststart.data.data.title,
+            thumbnail: artistThumb.thumbnail
           }
-
-        } catch (error) {
-          console.error('Follow listings failed:', error);
-          res.status(500).json({ message: 'An error occurred while attempting to load followed artists.' });
-          return; // Exit the function after sending the response
+          artistsInfo.push(artist);
         }
+      } else {
+        //if follow list at i is null, skip it
       }
-      res.render('./pages/followedArtists', { artists: artistsInfo, username: req.session.user.username }); // Render the page with all artists
-    } else {
-      res.render("./pages/followedArtists", { message: 'No followed artists found.', username: req.session.user.username }); // Render the page with a message
     }
+    res.render('pages/followedArtists', { artists: artistsInfo, username: req.session.user.username });
   } catch (error) {
     console.error('Error accessing db for follow listing. Please try again:', error);
     res.status(500).render("./pages/followedArtists", { message: 'An error occurred while attempting to access the database.', username: req.session.user.username });

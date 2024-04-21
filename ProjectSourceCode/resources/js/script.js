@@ -71,7 +71,7 @@ async function fetchAndDisplayArtwork(artistname) {
       const artworkItem = `
         <div class="col-md-3 mb-4 shadow-sm">
           <div class="artwork-card" data-artworkID="${data.id}">
-            <img src="https://www.artic.edu/iiif/2/${data.image_id}/full/843,/0/default.jpg" class="card-img-top img-fluid" alt="${data.title}">
+            <img src="https://www.artic.edu/iiif/2/${data.image_id}/full/600,/0/default.jpg" class="card-img-top img-fluid" alt="${data.title}">
             <div class="card-body">
               <p class="card-text">${data.title}</p>
             </div>

@@ -1,8 +1,9 @@
+<body>
 {{> message}}
 <div class="container-fluid" id="page container">
     <div class="container-fluid" id="userinfo">
         <div class="text-justified">
-            <h3>{{username}}</h3>
+            <h3 mx-5>{{username}}'s followed artists: </h3>
         </div>
     </div>
 
@@ -15,9 +16,9 @@
                             <img src="{{thumbnail}}" class="card-img-top" alt="Artwork by {{title}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{title}}</h5>
-                                <div class="d-grid gap-2">
+                                {{!-- <div class="d-grid gap-2">
                                     <button type="follow_button" class="btn btn-outline-danger">Learn More</button>
-                                </div>
+                                </div> --}}
                             </div>
                         </div>
                     </div>
@@ -26,3 +27,4 @@
         </div>
     </div>
 </div>
+</body>
