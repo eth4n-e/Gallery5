@@ -652,9 +652,9 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events', {username: req.session.user.username});
+  res.redirect('/events');
 
-
+ 
 }); //add event to user events
  
 
