@@ -724,9 +724,9 @@ app.get('/profile', async (req, res) => {
 
     //get all image  links and image ids from the users images
     //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
-    const userId2= await db.one('SELECT user_id FROM users WHERE username = $1', ['abc']);
+    
     //console.log(userId2.user_id);
-    const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [userId2.user_id]);
+    const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
     console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
     res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
