@@ -2,6 +2,10 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
+const { storage } = require('./storage/storage');
+const multer = require('multer');
+const upload = multer({ storage });
+
 
 const express = require('express'); // To build an application server or API
 const app = express();
@@ -415,7 +419,7 @@ console.log("test");
   eventsArr.sort(function(a,b){
     return new Date(a.eventDate) - new Date(b.eventDate);
   });
-  console.log(eventsArr);
+  
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
@@ -718,8 +722,14 @@ app.get('/profile', async (req, res) => {
       [user_id]
     );
 
+    //get all image  links and image ids from the users images
+    //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
+    const userId2= await db.one('SELECT user_id FROM users WHERE username = $1', ['abc']);
+    //console.log(userId2.user_id);
+    const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [userId2.user_id]);
+    console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents , username: req.session.user.username});
+    res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
@@ -934,4 +944,26 @@ console.log('Server is listening on port 3000');
   if (!onetimeuserExists) {
     await db.none('INSERT INTO users(username, password, email, firstname, lastname) VALUES($1, $2, $3, $4, $5)', [onetimeuser, onetimehash,'rehehe@gmail.com','Scooby','Doo']);
   }
+  const userId2= await db.one('SELECT user_id FROM users WHERE username = $1', ['abc']);
+  const userId= userId2.user_id;
+ //want to do the following insert into images DB: ('https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', (SELECT user_id FROM users WHERE username='abc'))
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', userId]);
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713382059/cld-sample-4.jpg', 'Test-Image-2', userId]);
+
 })();
+
+
+// *****************************************************
+// <!-- Section 12 : Multer->
+// *****************************************************
+
+app.post('/upload', upload.single('image'), async (req, res) => {
+  console.log(req.file);
+  //insert image into database
+  const imageLink = req.file.path;
+  const imageTitle = req.body.title;
+  const userId = req.session.user.user_id;
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', [imageLink, imageTitle, userId]);
+
+  res.redirect('/profile');
+});
