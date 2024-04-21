@@ -8,9 +8,15 @@
     <title>Logout Page</title>
     <style>
         .center-div {
-            width: 300px; /* Set width of the div */
-            margin: 0 auto; /* Set left and right margin to auto */
+            /* width: 300px; /* Set width of the div */
+            /* margin: 0 auto; /* Set left and right margin to auto */
             /* background-color: #f0f0f0; /* Just for visualization */ 
+            border: 5px solid;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px;
         }
     </style>
 </head>
@@ -18,8 +24,8 @@
     <div class="center-div" id="logout-container">
         <h1>Logout</h1>
         <p>You are now logged out and your session is over.</p>
-        <a href="/discover" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Return Home</a>
-        <a href="/login" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Log In</a>
+        <a href="/login" class="btn btn-primary btn-lg active" role="button" aria-pressed="true">Return to login</a>
+        <a href="/register" class="btn btn-secondary btn-lg active" role="button" aria-pressed="true">Register</a>
     </div>
 </body>
 </html>
