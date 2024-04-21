@@ -21,17 +21,18 @@
         </div>
         <div class="container-md mb-2">
             <div class="row gx-4">
-                {{#each events}}
+                {{#each eventsArr}}
                     <div class="col-3 mb-3">
                         <div class="card h-100 overflow-y-scroll shadow">
                             <div class="card-body">
-                                <h6 class="card-title">{{name}}</h6>
+                                <h6 class="card-title">{{this.eventName}}</h6>
                             </div>
                             <div class="card-footer">
-                                <a id="card-button" href="/event/{{id}}" class="btn btn-dark shadow">View Event</a>
+                                <a id="card-button" href="{{this.eventLink}}" class="btn btn-dark shadow">View Event</a>
                             </div>
                         </div>
                     </div>
+                    {{!-- <p>{{this.eventName}}</p> --}}
                 {{/each}}
             </div>
         </div>

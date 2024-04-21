@@ -36,4 +36,4 @@ INSERT INTO user_to_artworks (user_id, artwork_id)
 VALUES 
     (1, 9768),
     (2, 100476),
-    (1, 100476),
+    (1, 100476);
