@@ -68,6 +68,39 @@
             </div>
         </div>
     </div>
+    {{!-- user images --}}
+    <div id="user_images">
+        <div class="container text-center">
+            <div class="row justify-content-center mt-2 mb-1">
+                <h4 class="col-md-3">Featured User Images</h4>
+                <div class="col-md-3">
+                    <a href="/userimages" class="btn btn-secondary p-1 shadow">Explore</a>
+                </div>
+            </div>
+        </div>
+        <div class="container mb-2">
+            <div class="row gx-4">
+                {{#each userImages}}
+                    <div class="col-3 mb-3">
+                        <div class="card h-100 overflow-y-scroll shadow">
+                            <img src={{this.image_link}} class="card-img-top w-100 h-50 object-fit-cover">
+                            <div class="card-body">
+                                <h6 class="card-title">{{this.image_title}}</h6>
+                                <div class="card-text fst-italic fw-light">
+                                    <p>Uploaded by {{this.username}}</p>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a id="card-button" href="/userImages/{{this.image_id}}" class="btn btn-dark shadow">View More</a>
+                            </div>
+                        </div>
+                    </div>
+                {{/each}}
+            </div>
+        </div>
+        {{!-- End of user images --}}
+
+    </div>
     <div id="artists">
         <div class="container text-center">
             <div class="row justify-content-center mt-2 mb-1">
