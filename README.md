@@ -9,6 +9,6 @@ TODO: Fill out readme with following pieces.
 2. Contributors - Amy Bowers, Nathaniel Covington, Ethan Epperson, Austin McCutcheon, Khizar Pasha, Catherine Xie. 
 3. Technology Stack used for the project - The front end uses handlebars and javascript while the back end uses mostly express with some postgres sql. Docker is used for containerization. Mocha and chai is used for user tests. 
 4. Prerequisites to run the application - Any software that needs to be installed to run the application - No previous software is required. 
-5. Instructions on how to run the application locally.
-6. How to run the tests
-7. Link to the deployed application
+5. Instructions on how to run the application locally. - Install docker and clone repository. CD into the project source code and run a "docker compose up" command. And then with your browser of choice go to "loaclhost3000:/login". From there you should be able to play around in the app. 
+6. How to run the tests - Tests can be found in the 'server.spec.js' and to run the tests, one can change the docker-compose.yaml file. In the file at the bottom there is a to-do comment and can change it based on that to run the tests. 
+7. Link to the deployed application - 

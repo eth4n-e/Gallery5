@@ -1,26 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <div class="col-sm-8 py-5 mx-auto">
-    <title>User Profile</title>
-</head>
-<body>
-    <h1>{{username}}'s Profile</h1>
-    <h2>Followed Artists</h2>
-    <ul>
-        {{#each followedArtists}}
-            <li>{{this.artist_name}}</li>
-        {{/each}}
-    </ul>
-    <h2>User Events</h2>
-    <ul>
-        {{#each userEvents}}
-            <li>{{this.event_name}}</li>
-        {{/each}}
-    </ul>
-    <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  {{!-- <title>{{username}}</title>
+  <main class="container">
+      <div class="col-sm-8 py-5 mx-auto">
+        <h1>Welcome, {{username}}</h1>
+        <table>
+            {{followedArtists}}
+        </table>
+        <table>
+            {{userEvents}}
+        </table>
+      </div>
+      <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+  </main> --}}
 
-</body>
-</html>
+  <form action="/upload" method="POST" enctype="multipart/form-data">
+              <div class="mb-3">
+                    <div class="form-file custom-file">
+                        <input class="form-control" type="file" id="formFile" name="image" multiple>
+                        <label class="form-file-label" for="image"
+                        </label>
+                    </div>
+                    <input class="form-control" type="text" id="title" name="title" placeholder="Enter title">
+           </div>
+     <button type="submit" class="btn btn-success">Upload</button>
+</form>
