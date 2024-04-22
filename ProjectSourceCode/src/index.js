@@ -419,6 +419,9 @@ console.log("test");
   eventsArr.sort(function(a,b){
     return new Date(a.eventDate) - new Date(b.eventDate);
   });
+
+  //now only send the first 4 events
+  eventsArr=eventsArr.slice(0, 4);
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
@@ -692,7 +695,7 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events', {username: req.session.user.username});
+  res.redirect('/events');
 
 
 }); //add event to user events
@@ -967,3 +970,39 @@ app.post('/upload', upload.single('image'), async (req, res) => {
 
   res.redirect('/profile');
 });
+
+
+app.get('/userImages', async (req, res) => {
+  try {
+    const userImages = await db.any('SELECT * FROM images ORDER BY image_id DESC');
+    //console.log(userImages);
+
+    //now for any image, we want to get the username of the user who uploaded it
+    for(var i=0; i<userImages.length; i++){
+      const userId = userImages[i].user_id;
+      const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+      userImages[i].username = user.username;
+    }
+    //console.log(userImages);
+    res.render('pages/userImages', { userImages, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching user images.');
+  }
+});
+
+app.get('/userImages/:imageId', async (req, res) => {
+  try {
+    const imageId = req.params.imageId;
+    const image = await db.one('SELECT * FROM images WHERE image_id = $1', [imageId]);
+    const userId = image.user_id;
+    const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+    image.username = user.username;
+    console.log(image);
+    res.render('pages/specificimage', { image, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching the image.');
+  }
+});
+

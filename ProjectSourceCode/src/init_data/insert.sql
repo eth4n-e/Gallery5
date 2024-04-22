@@ -39,7 +39,12 @@ VALUES
     (1, 100476);
 
 
- 
+INSERT INTO images (image_link, image_title, image_descp, user_id)
+VALUES
+    ('https://res.cloudinary.com/dimflwoci/image/upload/v1713382058/cld-sample.jpg', 'Test Image 20', 'Test Description 1', (SELECT user_id FROM users WHERE username='admin')),
+    ('https://res.cloudinary.com/dimflwoci/image/upload/v1713382057/samples/upscale-face-1.jpg', 'Test Image 30', 'Test Description 2', (SELECT user_id FROM users WHERE username='admin')),
+    ('https://res.cloudinary.com/dimflwoci/image/upload/v1713382057/samples/upscale-face-1.jpg', 'Test Image 40', 'Test Description 3', (SELECT user_id FROM users WHERE username='Joseph Robinette Biden Jr.')),
+    ('https://res.cloudinary.com/dimflwoci/image/upload/v1713382051/samples/breakfast.jpg', 'Test Image 50', 'Test Description 4', (SELECT user_id FROM users WHERE username='admin')); 
 
 -- CREATE TABLE IF NOT EXISTS comments (
 --     comment_id SERIAL PRIMARY KEY,
@@ -53,6 +58,7 @@ VALUES
 --     image_id SERIAL PRIMARY KEY,
 --     image_link VARCHAR(255),
 --     image_title VARCHAR(255),
+--     image_descp TEXT,
 --     user_id INT REFERENCES users(user_id)
 
 -- );
