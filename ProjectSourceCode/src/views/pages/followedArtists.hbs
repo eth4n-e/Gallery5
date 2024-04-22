@@ -11,15 +11,17 @@
         <div class="row">
             {{#each artists}}
                 {{#if thumbnail}}
-                    <div class="col-md-2 mb-4">
-                        <div class="artist-card shadow-sm position-relative" data-artistID="{{id}}" data-name="{{title}}">
+                    <div class="col-md-4 mb-4">
+                        <div class="artist-card h-100 shadow-sm position-relative" data-artistID="{{id}}" data-name="{{title}}">
                             <img src="{{thumbnail}}" class="card-img-top" alt="Artwork by {{title}}">
                             <div class="card-body">
                                 <h5 class="card-title">{{title}}</h5>
-                                <div class="d-grid gap-2">
-                                    <button type="more_button" class="btn btn-outline-danger">See More</button>
-                                    <button type="unfollow_button" class="btn btn-outline-danger">Unfollow</button>
-                                </div>
+                              </div>
+                            <div class="card-footer" id="links_container">
+                              <div class="d-grid gap-2">
+                                  <button type="more_button" class="btn btn-outline-danger">See More</button>
+                                  {{!-- <button type="unfollow_button" class="btn btn-outline-danger">Unfollow</button> --}}
+                              </div>
                             </div>
                         </div>
                     </div>
@@ -46,7 +48,7 @@
     }
 
     // Move this part inside the event listener
-    document.addEventListener('click', (event) => {
+    /* document.addEventListener('click', (event) => {
       if (event.target.matches('#unfollow_button')) {
         // Prevent the default button action
         event.preventDefault();
@@ -73,6 +75,6 @@
           },
         });
       }
-    });
+    }); */
   });
 </script>
