@@ -51,7 +51,7 @@ hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
   options.data.root[varName] = varValue;
 });
 
-hbs.handlebars.registerHelper('find', function (array, key, value) {
+hbs.handlebars.registerHelper('find', function (array, key, value) { 
   if (Array.isArray(array)) {
     return array.some((obj) => obj[key] === value);
   }
@@ -694,7 +694,7 @@ app.post('/profile/:username/collection/:artworkId', async (req, res) => {
 // <!       Artist and Artist Follow -Austin                >
 // *****************************************************
 
-var page = 1;
+var page = random(1, 99);
 var followed_Artist_list= [];
 
 async function getArtistThumb_Bio(artistName) {
@@ -719,7 +719,7 @@ app.get('/artists', async (req, res) => {
   if (!keyword) {
     // Display all artists
     try {
-      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=1');
+      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=${page}');
 
       // Retrieve additional data from Wikipedia for each artist
       const artistsWithThumbnails = await Promise.all(artistData.data.data.map(async (data) => {
