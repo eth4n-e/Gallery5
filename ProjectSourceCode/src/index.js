@@ -267,9 +267,10 @@ app.get('/artwork/:id', async (req, res) => {
     // have yet to add the artwork into the database
     // insert the artwork
     if(!artworkInDb) {
-      await db.none('INSERT INTO artworks VALUES ($1, $2, $3)', [artwork.id, artwork.title, img_src]);
+      await db.none('INSERT INTO artworks(artwork_id, artwork_title, image_link) VALUES ($1, $2, $3)', [artwork.id, artwork.title, img_src]);
     } // otherwise, proceed as normal
 
+    const commentSearch = await db.manyOrNone('SELECT comment_text FROM comments WHERE comments.artwork_id = $1', [artwork_id]);
     // searching for artworks with the same classification_id
       // also test out same style id
     const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=4&fields=id,title,image_id,artist_display&q=${artwork.style_id}`;
@@ -286,10 +287,39 @@ app.get('/artwork/:id', async (req, res) => {
       date_display1: artwork.date_display, 
       image_src1: img_src, 
       related_artworks: related_artwork,
-      username: req.session.user.username, related_artwork});
+      comments: commentSearch,
+      username: req.session.user.username, 
+    });
   } catch(error) {
     console.log(error);
     res.redirect('/artworks');
+  }
+});
+
+app.post('/addComment/:id', async (req, res) => {
+  try {
+    // obtaining values needed for insert
+    const commentText = req.body.comment;
+    const artwork_id = parseInt(req.params.id);
+    const user_id = req.session.user.user_id;
+
+    // insert the comment into the database first
+    await db.none(`INSERT INTO comments(comment_text, artwork_id, user_id) VALUES ($1, $2, $3)`, [commentText, artwork_id, user_id]);
+    
+    //testing
+    const entry = await db.any('SELECT * FROM comments WHERE comment_text = $1', [commentText]);
+
+    if(entry) {
+      res.redirect(`/artwork/${artwork_id}`);
+      res.status(500).json({message: 'Success'});
+    } else {
+      res.status(200).json({message: 'Unsuccessful insert'});
+    }
+
+    
+
+  } catch(error) {
+    console.log(error);
   }
 });
   
@@ -327,24 +357,6 @@ app.get('/artworks', async (req, res) => {
 // <!          Home / Discover-Ethan                  >
 // *****************************************************
 
-// handle events api call
-function getEvents() {
-  //axios.get(url, config *e.g headers and such*)
-  const config = {
-    headers: {
-      'X-XAPP-Token': process.env.X_XAPP_TOKEN
-    },
-    params: {
-      status: 'running_and_upcoming',
-      size: 4
-    }
-  };
-  return axios.get('https://api.artsy.net/api/fairs', config)
-    .catch(err => {
-      console.log(err);
-    });
-}
-
 // handle artworks api call
 function getArtworks() {
   // setup for API call
@@ -371,22 +383,11 @@ function getArtists() {
     })
 }
 
-function scrapeArtistImages(artist_name) {
-  const api_url = `https://api.artic.edu/api/v1/artworks/search?q=${artist_name}&fields=image_id`
-
-  axios.get(api_url)
-  .then(artists_artworks => {
-    //return the first image id for a particular artist
-    return artists_artworks.data.data[0].image_id;
-  }).catch(err => {
-    console.log(err);
-  })
-}
 
 app.get('/discover', async (req, res) => {
 try {
   // when successful, Promise.all returns an array of the fulfilled promises (responses is an array)
-  const [/*eventsRes,*/ artworksRes, artistsRes] = await Promise.all([/*getEvents(),*/ getArtworks(), getArtists()]); 
+  const [artworksRes, artistsRes] = await Promise.all([/*getEvents(),*/ getArtworks(), getArtists()]); 
 
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
@@ -405,7 +406,7 @@ try {
   }
 
 
-console.log("test");
+  console.log("test");
   //To get evevnts:
   const currentDate = new Date();
   const futureDate = new Date(currentDate.getTime() + 7 * 24 * 60 * 60 * 1000); // 7 days from now
@@ -466,7 +467,7 @@ console.log("test");
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
+  res.render('pages/discover', { artworks, artists, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -785,25 +786,15 @@ app.post('/updateCollection', async (req, res) => {
   try {
     const username = req.session.user.username; 
     const artwork_id = req.body.artworkId;
-
-    console.log(username);
-    console.log(artwork_id);
     // retrieve usersID (object containing user_id as an attribute)
     const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
-    
     // user present in database, allow insert
     if(userId) {
-      // insert the artwork_id and user_id into the users_to_artworks table
-      const artworkInDb = await db.oneOrNone('SELECT * FROM artworks WHERE artwork_id = $1', [artwork_id]);
-
-      // ask if I need a check to see if the work is already inserted
-
+      // insert into user_to_artworks table with the user id and artwork id
       await db.none('INSERT INTO user_to_artworks VALUES ($1, $2)', [userId.user_id, artwork_id]);
 
       // testing
       const entry = await db.any('SELECT * FROM user_to_artworks');
-
-      console.log(entry);
 
       if (entry) {
         res.status(200).json({message: 'Successful Insert'});

@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS comments (
     comment_id SERIAL PRIMARY KEY,
     comment_text TEXT,
     user_id INT REFERENCES users(user_id),
-    artwork_id INT REFERENCES events(event_id)
+    artwork_id INT REFERENCES artworks(artwork_id)
 );
 
 --make images table for user uploaded images
