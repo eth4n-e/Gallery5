@@ -1,0 +1,23 @@
+<div>
+    <div class="container pb-0 mb-2">
+        <h4 class="text-center mt-2">Explore User Made Artworks</h4>
+        <div class="row row-cols-3 gy-4">
+            {{#each userImages}}
+                <div class="col">
+                    <div class="card h-100 overflow-y-scroll shadow">
+                        <img src='{{this.image_link}}' class="card-img-top w-100 h-50 object-fit-cover">
+                        <div class="card-body">
+                            <h6 class="card-title">{{this.image_title}}</h6>
+                            <div class="card-text fst-italic fw-light">
+                                <p>Username: {{this.username}}</p>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a id="artwork-link" href="/userImages/{{this.image_id}}" class="btn btn-dark shadow card-button">View Work</a>
+                        </div>
+                    </div>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+</div>

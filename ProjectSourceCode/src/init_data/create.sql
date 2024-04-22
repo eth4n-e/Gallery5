@@ -72,6 +72,7 @@ CREATE TABLE IF NOT EXISTS images (
     image_id SERIAL PRIMARY KEY,
     image_link VARCHAR(255),
     image_title VARCHAR(255),
+    image_descp TEXT,
     user_id INT REFERENCES users(user_id)
 
 );
