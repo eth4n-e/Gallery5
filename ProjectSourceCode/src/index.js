@@ -245,8 +245,6 @@ app.get('/artwork/:id', async (req, res) => {
     const artworkData = await axios.get(api_url);
     const artwork = artworkData.data.data;
 
-    console.log(artwork);
-
     const img_src = `https://www.artic.edu/iiif/2/${artwork.image_id}/full/843,/0/default.jpg`;
 
     const artworkInDb = await db.oneOrNone('SELECT * FROM artworks WHERE artwork_id = $1', [artwork.id]);
@@ -259,7 +257,7 @@ app.get('/artwork/:id', async (req, res) => {
 
     // searching for artworks with the same classification_id
       // also test out same style id
-    const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=4&fields=id,title,image_id, description, artist_display&q=${artwork.classification_id}`;
+    const related_artworks_api_url = `https://api.artic.edu/api/v1/artworks/search?query[term][is_public_domain]=true&limit=4&fields=id,title,image_id,artist_display&q=${artwork.style_id}`;
   
     const related_artwork_data = await axios.get(related_artworks_api_url);
     const related_artwork = related_artwork_data.data.data;
