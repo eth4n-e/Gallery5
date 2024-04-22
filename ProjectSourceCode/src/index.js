@@ -348,6 +348,7 @@ function getArtists() {
   
   const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
   //axios.get(url, config *e.g headers and such*)
+
   return axios.get(api_url)
     .catch(err => {
       console.log(err);
@@ -373,7 +374,20 @@ try {
 
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
-  const artists = artistsRes.data.data;
+  console.log(artworks); // this is an array of objects
+  var artists = artistsRes.data.data;
+  artists.thumbnail = [];
+  // Call the getArtistThumb in a loop and append artist image
+  for( var i = 0; i < artists.length; i++) {
+    console.log(artists[i]);
+    const thumby = await getArtistThumb_Bio(artists[i].title);
+    console.log(thumby);
+    if(thumby.thumbnail)
+      artists[i].thumbnail = thumby.thumbnail;
+    else
+      artists[i].thumbnail = "/resources/images/noimageavail.png";
+  }
+
 
 console.log("test");
   //To get evevnts:
@@ -977,7 +991,7 @@ async function updateFollowedArtists(req, res) {
     console.error('Error updating followed artists list:', error);
     // Consider adding an error response or throwing the error depending on how you handle errors
   }
-}
+};
 
 
 
