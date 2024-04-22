@@ -379,9 +379,9 @@ try {
   artists.thumbnail = [];
   // Call the getArtistThumb in a loop and append artist image
   for( var i = 0; i < artists.length; i++) {
-    console.log(artists[i]);
+    //console.log(artists[i]);
     const thumby = await getArtistThumb_Bio(artists[i].title);
-    console.log(thumby);
+    //console.log(thumby);
     if(thumby.thumbnail)
       artists[i].thumbnail = thumby.thumbnail;
     else
@@ -1389,7 +1389,7 @@ async function getUserImages(numImages){ // returns userimages for a specified n
     const query = 'SELECT * FROM images ORDER BY image_id DESC LIMIT ' + numImages;
     const userImages = await db.any(query);
     //console.log(userImages);
-    console.log('results' + userImages);
+    //console.log('results' + userImages);
     return userImages;    
   }catch(error){
     console.error(error);
