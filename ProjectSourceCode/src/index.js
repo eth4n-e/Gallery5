@@ -866,8 +866,6 @@ app.post('/follow', async (req, res) => {
       console.log("Artist not followed yet.");
       await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userIdInt, artistId]);
     }
-
- 
     // Send a success response back to the client 
 
     res.status(200).json({ message: 'Follow successful' });
