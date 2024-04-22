@@ -11,7 +11,7 @@
         <!-- Artist Name and Details on Right 2/3 of screen-->
         <h2 class="text-centered" id="artistInfo" data-artist-name="{{artist.name}}">{{artist.name}}</h2>
         <div class="container-fluid" id="links_container">
-          {{#if (find followedArtists 'artist_id' '{{artist.id}}')}}
+          {{#if (find followedArtists artist.id)}}
             <button type="button" id="unfollow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Unfollow Artist</button>
           {{else}}
             <button type="button" id="follow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Follow Artist</button>
@@ -59,11 +59,26 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Event delegation for clicks on dynamically added artist cards
     document.addEventListener('click', (event) => {
+      if (event.target.matches('#follow_button, #unfollow_button')) {
+        event.stopPropagation();
       if (event.target.matches('.artist-card, .artist-card *')) {
           const artistId = event.target.closest('.artist-card').dataset.artistId;
           if (artistId) {
               window.location.href = `/artist/${artistId}`; // Redirect to artist page
           }
+      }
+    }
+  });
+
+    document.addEventListener('click', (event) => {
+      if(event.target.matches('.artwork-card, .artwork-card *')) {
+        console.log('Artwork card clicked!');
+        const artworkElement = $(event.target).closest('.artwork-card');
+        const artworkId = artworkElement.data('artworkid');
+        console.log('Artwork id: ' + artworkId);
+        if(artworkId){
+          window.location.href = `/artwork/${artworkId}`;
+        }
       }
     });
 
@@ -84,6 +99,7 @@
         success: function(response) {
           // Handle success (e.g., update the button text to 'Following', display a message, etc.)
           console.log('Follow successful:', response);
+          window.location.reload();
         },
         error: function(xhr, status, error) {
           // Handle error
@@ -91,6 +107,9 @@
         }
       });
     }
+    })
+
+    document.addEventListener('click', (events) =>{    
     if (event.target.matches('#unfollow_button')) {
       // Prevent the default button action
       event.preventDefault();
@@ -107,6 +126,7 @@
         success: function(response) {
           // Handle success (e.g., update the button text to 'Following', display a message, etc.)
           console.log('Unfollow successful:', response);
+          window.location.reload();
         },
         error: function(xhr, status, error) {
           // Handle error
@@ -117,5 +137,4 @@
   });
 });
 
-    
 </script>

@@ -51,12 +51,12 @@ hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
   options.data.root[varName] = varValue;
 });
 
-hbs.handlebars.registerHelper('find', function (array, key, value) { 
-  if (Array.isArray(array)) {
-    return array.some((obj) => obj[key] === value);
-  }
-  return false; // Handle the case when array is undefined
+hbs.handlebars.registerHelper('find', function (array, value) { 
+  if(array.includes(value))
+    return true;
+  return false;
 });
+
 
 
 // database configuration
@@ -698,7 +698,7 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events', {username: req.session.user.username});
+  res.redirect('/events');
 
 
 }); //add event to user events
@@ -751,7 +751,7 @@ app.post('/profile/:username/collection/:artworkId', async (req, res) => {
 // <!       Artist and Artist Follow -Austin                >
 // *****************************************************
 
-var page = random(1, 99);
+var page = Math.floor(Math.random() * 99) + 1;
 var followed_Artist_list= [];
 
 async function getArtistThumb_Bio(artistName) {
@@ -881,6 +881,7 @@ app.post('/follow', async (req, res) => {
 
 app.post('/unfollow', async (req, res) => {
   try {
+    console.log('unfollowing post');
     // Assuming 'username' is stored in the session or passed in some other way
     const username = req.session.user.username; // or however you have stored the username
     const artistId = req.body.artistId;   
