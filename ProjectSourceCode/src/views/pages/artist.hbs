@@ -11,7 +11,11 @@
         <!-- Artist Name and Details on Right 2/3 of screen-->
         <h2 class="text-centered" id="artistInfo" data-artist-name="{{artist.name}}">{{artist.name}}</h2>
         <div class="container-fluid" id="links_container">
-          <button type="follow_button" id="follow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Follow Artist</button>
+          {{#if (find followedArtists artist.id)}}
+            <button type="button" id="unfollow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Unfollow Artist</button>
+          {{else}}
+            <button type="button" id="follow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Follow Artist</button>
+          {{/if}}
           <a class="btn btn-outline-danger" href="/followedArtists">Your Follow List</a>
         </div>
       </div>
@@ -53,25 +57,32 @@
 
   <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Event delegation for clicks on dynamically added artwork cards
-    document.addEventListener('click', (event) => {
-        if (event.target.matches('.artwork-card, .artwork-card *')) {
-            const artworkId = event.target.closest('.artwork-card').dataset.artworkId;
-            if (artworkId) {
-                window.location.href = `/artwork/${artworkId}`; // Redirect to artwork page
-            }
-        }
-    });
-
     // Event delegation for clicks on dynamically added artist cards
     document.addEventListener('click', (event) => {
+      if (event.target.matches('#follow_button, #unfollow_button')) {
+        event.stopPropagation();
       if (event.target.matches('.artist-card, .artist-card *')) {
           const artistId = event.target.closest('.artist-card').dataset.artistId;
           if (artistId) {
               window.location.href = `/artist/${artistId}`; // Redirect to artist page
           }
       }
-    });
+    }
+  });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      let container = document.querySelector('#artistContainer');
+      if (container) {
+        container.addEventListener('click', (event) => {
+          const artistID = event.target.closest('.artist-card').dataset.artistid;
+          console.log('Artist ID: ' + artistID);
+          if (artistID) {
+            window.location.href = `/artist/${artistID}`;
+          }
+        });
+      } else {
+        console.error('Container not found in the DOM.');
+      }
 
     document.addEventListener('click', (event) => {
     if (event.target.matches('#follow_button')) {
@@ -90,6 +101,7 @@
         success: function(response) {
           // Handle success (e.g., update the button text to 'Following', display a message, etc.)
           console.log('Follow successful:', response);
+          window.location.reload();
         },
         error: function(xhr, status, error) {
           // Handle error
@@ -97,8 +109,34 @@
         }
       });
     }
+    })
+
+    document.addEventListener('click', (events) =>{    
+    if (event.target.matches('#unfollow_button')) {
+      // Prevent the default button action
+      event.preventDefault();
+
+      // Get the artist ID from the artist object
+      const artistId = $('#unfollow_button').attr('data-artist-id');
+      console.log("artistID-client: " + artistId);
+      const artistName= $('#artistInfo').attr('data-artist-name');
+      // Make an AJAX POST request to the server
+      $.ajax({
+        url: '/unfollow', // Your server endpoint that handles the POST request
+        type: 'POST',
+        data: { artistId: artistId , artistName: artistName}, // Data you want to send to the server
+        success: function(response) {
+          // Handle success (e.g., update the button text to 'Following', display a message, etc.)
+          console.log('Unfollow successful:', response);
+          window.location.reload();
+        },
+        error: function(xhr, status, error) {
+          // Handle error
+          console.log('Unfollow failed:', error);
+        }
+      });
+    }
   });
 });
 
-    
 </script>

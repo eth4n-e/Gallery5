@@ -20,7 +20,6 @@ function getArtistThumb(artistName) {
     });
 }
 
-  
 async function displayRelatedArtists(artistName) {
   try {
     const artistURL = `https://api.artic.edu/api/v1/artists/search?query=${artistName}&limit=25`;
@@ -70,8 +69,8 @@ async function fetchAndDisplayArtwork(artistname) {
       if(data.image_id != null){
       const artworkItem = `
         <div class="col-md-3 mb-4 shadow-sm">
-          <div class="artwork-card" data-artworkID="${data.id}">
-            <img src="https://www.artic.edu/iiif/2/${data.image_id}/full/600,/0/default.jpg" class="card-img-top img-fluid" alt="${data.title}">
+          <div class="artwork-card" data-artworkID="${data.id}" id="artwork-card">
+            <img src="https://www.artic.edu/iiif/2/${data.image_id}/full/400,/0/default.jpg" class="card-img-top img-fluid" alt="${data.title}">
             <div class="card-body">
               <p class="card-text">${data.title}</p>
             </div>

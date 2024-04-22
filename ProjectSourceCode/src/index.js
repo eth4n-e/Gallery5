@@ -54,6 +54,15 @@ hbs.handlebars.registerHelper('arrayIndex', function (array, index) {
 hbs.handlebars.registerHelper("setVar", function(varName, varValue, options) {
   options.data.root[varName] = varValue;
 });
+
+hbs.handlebars.registerHelper('find', function (array, value) { 
+  if(array.includes(value))
+    return true;
+  return false;
+});
+
+
+
 // database configuration
 const dbConfig = {
   host: 'db', // the database server
@@ -168,6 +177,8 @@ const user = {
         res.render('pages/login', { message });
       }
 });
+
+
 
 
 // *****************************************************
@@ -353,6 +364,7 @@ function getArtists() {
   
   const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
   //axios.get(url, config *e.g headers and such*)
+
   return axios.get(api_url)
     .catch(err => {
       console.log(err);
@@ -378,7 +390,20 @@ try {
 
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
-  const artists = artistsRes.data.data;
+  console.log(artworks); // this is an array of objects
+  var artists = artistsRes.data.data;
+  artists.thumbnail = [];
+  // Call the getArtistThumb in a loop and append artist image
+  for( var i = 0; i < artists.length; i++) {
+    console.log(artists[i]);
+    const thumby = await getArtistThumb_Bio(artists[i].title);
+    console.log(thumby);
+    if(thumby.thumbnail)
+      artists[i].thumbnail = thumby.thumbnail;
+    else
+      artists[i].thumbnail = "/resources/images/noimageavail.png";
+  }
+
 
 console.log("test");
   //To get evevnts:
@@ -711,9 +736,7 @@ app.post('/addEvent', async(req,res)=>{
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
   res.redirect('/events');
-  res.redirect('/events');
 
- 
 }); //add event to user events
  
 
@@ -794,11 +817,11 @@ app.post('/updateCollection', async (req, res) => {
 });
 
 // *****************************************************
-// <!       Artist / Collection -Austin                >
+// <!       Artist and Artist Follow -Austin                >
 // *****************************************************
 
-var page = 1;
-var followList = []; //list of artists that the user follows
+var page = Math.floor(Math.random() * 99) + 1;
+var followed_Artist_list= [];
 
 async function getArtistThumb_Bio(artistName) {
   const wikiURL = `https://en.wikipedia.org/w/api.php?action=query&format=json&prop=pageimages|extracts&titles=${artistName}&origin=*&pithumbsize=100`;
@@ -822,7 +845,7 @@ app.get('/artists', async (req, res) => {
   if (!keyword) {
     // Display all artists
     try {
-      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=1');
+      const artistData = await axios.get('https://api.artic.edu/api/v1/artists/search?=query=*&limit=100&page=${page}');
 
       // Retrieve additional data from Wikipedia for each artist
       const artistsWithThumbnails = await Promise.all(artistData.data.data.map(async (data) => {
@@ -833,8 +856,11 @@ app.get('/artists', async (req, res) => {
           bio: artistInfo.extract
         };
       }));
-
-      res.render('./pages/allArtists', { artists: artistsWithThumbnails, username: req.session.user.username});
+      res.render('./pages/allArtists', {
+        artists: artistsWithThumbnails,
+        username: req.session.user.username,
+        followedArtists: req.session.followArtistsList
+      });
     } catch (error) {
       console.error(error);
       res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.', username: req.session.user.username });
@@ -848,6 +874,8 @@ app.get('/artists', async (req, res) => {
 
 // Display a specific artist's page based on an artistID from Art Institute of Chicago API
 app.get('/artist/:artistID', async (req, res) => {
+  if(!followed_Artist_list)
+    updateFollowedArtists();
   const artistId = req.params.artistID;
   const artistURL = `https://api.artic.edu/api/v1/artists/${artistId}`;
   try {
@@ -866,7 +894,7 @@ app.get('/artist/:artistID', async (req, res) => {
         // Add other properties as needed
       };
 
-      res.render('./pages/artist', { artist: artistInfo, username: req.session.user.username });
+      res.render('./pages/artist', { artist: artistInfo, username: req.session.user.username, followedArtists: followed_Artist_list });
     } else {
       res.render('./pages/artist', { message: 'Error retrieving artist information.', username: req.session.user.username });
     }
@@ -885,7 +913,7 @@ app.post('/follow', async (req, res) => {
     const artistId = req.body.artistId;   
     const artistName = req.body.artistName; // Added artistName
     
-    console.log('artistId' + artistId);
+    // console.log('artistId' + artistId); 
     // Retrieve the user_id for the logged-in user
     const userId = await db.one('SELECT * FROM users WHERE username = $1', [username]);
     if(!userId)
@@ -909,15 +937,45 @@ app.post('/follow', async (req, res) => {
     else{
       console.log("Artist not followed yet.");
       await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userIdInt, artistId]);
+      updateFollowedArtists();
     }
 
- 
     // Send a success response back to the client
-
     res.status(200).json({ message: 'Follow successful' });
   } catch (error) {
     console.error('Follow failed:', error);
     res.status(500).json({ message: 'An error occurred while attempting to follow.' });
+  }
+});
+
+app.post('/unfollow', async (req, res) => {
+  try {
+    console.log('unfollowing post');
+    // Assuming 'username' is stored in the session or passed in some other way
+    const username = req.session.user.username; // or however you have stored the username
+    const artistId = req.body.artistId;   
+    // Retrieve the user_id for the logged-in user
+    const userId = await db.one('SELECT * FROM users WHERE username = $1', [username]);
+    if(!userId)
+      return res.status(404).json({ message: 'User not found in db.' });
+    const userIdInt = parseInt(userId.user_id,10); 
+    // Implement the logic to unfollow the artist
+    // Check if the artist is already followed
+    const artistFollowed = await db.oneOrNone('SELECT * FROM user_artists WHERE user_id = $1 AND artist_id = $2', [userIdInt, artistId]);
+    if (!artistFollowed) {
+      return res.status(400).json({ message: 'Artist not followed.' });
+    }
+    else{
+      await db.oneOrNone('DELETE FROM user_artists WHERE user_id = $1 AND artist_id = $2', [userIdInt, artistId]);
+      console.log("Artist unfollowed.");
+      updateFollowedArtists();
+    }
+  } catch (error) {
+    console.error('Unfollow failed:', error);
+    res.status(500).json({ message: 'An error occurred while attempting to unfollow.' });
+  } finally {
+    // Send a success response back to the client
+    res.status(200).json({ message: 'Unfollow successful' });
   }
 });
 
@@ -951,12 +1009,33 @@ app.get('/followedArtists', async (req, res) => {
         //if follow list at i is null, skip it
       }
     }
-    res.render('pages/followedArtists', { artists: artistsInfo, username: req.session.user.username });
+    res.render('pages/followedArtists', {
+      artists: artistsInfo,
+      username: req.session.user.username,
+      followedArtists: followed_Artist_list    
+    });
   } catch (error) {
     console.error('Error accessing db for follow listing. Please try again:', error);
     res.status(500).render("./pages/followedArtists", { message: 'An error occurred while attempting to access the database.', username: req.session.user.username });
   }
 });
+
+async function updateFollowedArtists(req, res) {
+  try {
+    followed_Artist_list = []; // Corrected assignment
+    const username = req.session.user.username;
+    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+    console.log("User ID retrieved:", userId.user_id);
+    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE user_id = $1', [userId.user_id]);
+    console.log("followed_list: ", followed_list);
+    req.session.followedArtistsList = followed_Artist_list; // Corrected assignment
+  } catch (error) {
+    console.error('Error updating followed artists list:', error);
+    // Consider adding an error response or throwing the error depending on how you handle errors
+  }
+};
+
+
 
 
 // *****************************************************
