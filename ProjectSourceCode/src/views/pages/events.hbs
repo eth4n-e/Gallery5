@@ -92,6 +92,168 @@
     </div>
 </div>
 <h2 class="text-center mt-4">Large Events and Fairs Happening Soon</h2>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        {{#each eventsArr}}
+        <div class="col-md-4">
+            <div class="flip-card">
+                <div class="flip-card-inner">
+                <div class="flip-card-front">
+                    <img src="{{this.eventImage}}" class="card-img-top" alt="Event Image">
+                    <div class="card-body">
+                        <h5 class="card-title">{{this.eventName}}</h5>
+                        <p class="card-text">{{this.eventDate}}</p>
+                    </div>
+                </div>
+                <div class="flip-card-back">
+                    <div class="card-body">
+                        <p class="card-text">{{this.eventDescp}}</p>
+                        <p class="card-text"><a href="{{this.eventLink}}">{{this.eventLink}}</a></p>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+        {{/each}}
+    </div>
+</div>
+
+<!--Calendar-->
+<table class="table">
+    <tr class="font-weight-bold col px-md-2" align="text-center">
+        {{#each daysOfWeek}}
+        <td class="col px-md-2"><h1>{{this}}</h1></td>
+        {{/each}}
+    </tr>
+    <tr>
+        {{#each datesForWeek}}
+        <td class="col px-md-2"><p2>{{this}}</p2></td>
+        {{/each}}
+    </tr>
+    <tr>
+        <td align="position" class="col px-md-2">
+            {{#each events1}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+            {{#each events2}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+        </td>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+            {{#each events3}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+           {{#each events4}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+           {{#each events5}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+            {{#each events6}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+        <td align="position" class="col px-md-2">
+            {{#each events7}}
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
+                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.event_description}}</p>
+                </button>
+            {{/each}}
+        </td>
+    </tr>
+</table> 
+<!--Calendar Model-->
+<div class="container mx-auto text-center mt-4">
+    <button type="button" class="btn btn-primary mx-auto text-center btn-lg" onclick="openForm()" data-bs-toggle="modal" data-bs-target="#calendarModal">
+    Click to Add Event
+    </button>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title center" id="exampleModalLabel" align="center">Add Event</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form action="/addEvent" method="POST" class="form-container">
+                <div class="form-group">
+                    <label for="eventName" class="form-label mt-2">Event Name</label>
+                    <input id = "eventName" type="text" class="form-control" name="eventName" required>
+                </div>
+                <div class="form-group">
+                    <label for="description" class="form-label mt-2">Event Description</label>
+                    <input id = "description" type="text" class="form-control" name="description" required>
+                </div>
+                <div class="form-group">
+                    <label for="eventDate" class="form-label mt-2">Event Date</label>
+                    <input id = "eventDate" type="date" class="form-control" name="eventDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="streetAddress" class="form-label mt-2">Street Address</label>
+                    <input id = "streetAddress" type="text" class="form-control" name="streetAddress" required>
+                </div>
+                <div class="form-group">
+                    <label for="city" class="form-label mt-2">City</label>
+                    <input id = "city" type="text" class="form-control" name="city" required>
+                </div>
+                <div class="form-group">
+                    <label for="state" class="form-label mt-2">State</label>
+                    <input id = "state" type="text" class="form-control" name="state" required>
+                </div>
+                <div class="form-group">
+                    <label for="country" class="form-label mt-2">Country</label>
+                    <input id = "country" type="text" class="form-control" name="country"> 
+                </div>
+                <div class="form-group">
+                    <label for="postalCode" class="form-label mt-2">Postal Code</label>
+                    <input id = "postalCode" type="text" class="form-control" name="postalCode" required>
+                </div>
+
+                {{!-- <label for="eventName"><b>Event Name</b></label>
+                <input type="text" placeholder="Enter Event Name" name="eventName" required>
+
+                <label for="description"><b>Description</b></label>
+                <textarea placeholder="Enter Event Description" name="description" required></textarea>
+
+                <label for="eventDate"><b>Event Date</b></label>
+                <input type="date" name="eventDate" required> --}}
+                <button type="submit" class="btn btn-primary mt-4">Create Event</button>
+                <button type="close" class="btn btn-primary mt-4" onclick="closeForm()">Close</button>
+            </form>
+        </div>
+    </div>
+  </div>
+</div>
 
 <!--If user has not loaded events locally-->
 {{else}}
@@ -120,381 +282,9 @@
 
 {{/if}}
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        {{#each eventsArr}}
-        <div class="col-md-4">
-            <div class="flip-card">
-                <div class="flip-card-inner">
-                <div class="flip-card-front">
-                    <img src="{{this.eventImage}}" class="card-img-top" alt="Event Image">
-                    <div class="card-body">
-                        <h5 class="card-title">{{this.eventName}}</h5>
-                        <p class="card-text">{{this.eventDate}}</p>
-                    </div>
-                </div>
-                <div class="flip-card-back">
-                    <div class="card-body">
-                        <p class="card-text">{{this.eventDescp}}</p>
-                        <p class="card-text"><a href="{{this.eventLink}}">{{this.eventLink}}</a></p>
-                    </div>
-                </div>
-                </div>
-            </div>
-        </div>
-        {{/each}}
-    </div>
-</div>
-
-
-
-{{!-- <table class="table">
-    <tr class="font-weight-bold">
-        {{#each daysOfWeek}}
-        <td><h1>{{this}}</h1></td>
-        {{/each}}
-    </tr>
-    <tr>
-        {{#each datesForWeek}}
-        <td>{{this}}</td>
-        {{/each}}
-    </tr>
-    <tr>
-        <td>
-            {{#each userEvents}}
-                {{#eq this.eventDateNoTime datesForWeek.[0]}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                            
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if (eq (this.eventDateNoTime, datesForWeek.[1]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                           
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if (eq (this.eventDateNoTime, datesForWeek.[2]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                           
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if (eq (this.eventDateNoTime ,datesForWeek.[3]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                          
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if (eq (this.eventDateNoTime ,datesForWeek.[4]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                           
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if (eq (this.eventDateNoTime, datesForWeek.[5]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                           
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-        <td>
-            {{#each userEvents}}
-                {{#if ((eq this.eventDateNoTime ,datesForWeek.[6]))}}
-                    <div class="card">
-                        <div class="card-body">
-                            <h5 class="card-title">{{this.eventName}}</h5>
-                            <p class="card-text">{{this.eventDescp}}</p>
-                      
-                        </div>
-                    </div>
-                {{/if}}
-            {{/each}}
-        </td>
-    </tr>
-</table> --}}
-
-
-{{!-- 
-<table class="table">
-    <tr class="font-weight-bold">
-        {{#each daysOfWeek}}
-        <td><h1>{{this}}</h1></td>
-        {{/each}}
-    </tr>
-    <tr>
-        {{#each datesForWeek}}
-        <td>{{this}}</td>
-        {{/each}}
-    </tr>
-    <tr>
-        <td>
-            <p>{{datesForWeek.[1]}}</p>
-            
-            {{#each userEvents}}
-                {{this.eventName}}
-                <p>{{this.eventDateNoTime}}</p>
-                {{#eq this.eventDateNoTime (arrayIndex datesForWeek '1')}}
-                    {{this.eventDateNoTime}}
-                {{/eq}}
-                
-            {{/each}}
-           
-        </td>
-        <td>
-
-        </td>
-        <td>
-
-        </td>
-        <td>
-
-        </td>
-        <td>
-
-        </td>
-        <td>
-
-        </td>
-        <td>
-
-        </td>
-    </tr>
-</table> --}}
-
-<!--Calendar-->
-<table class="table">
-    <tr class="font-weight-bold">
-        {{#each daysOfWeek}}
-        <td><h1>{{this}}</h1></td>
-        {{/each}}
-    </tr>
-    <tr>
-        {{#each datesForWeek}}
-        <td>{{this}}</td>
-        {{/each}}
-    </tr>
-    <tr>
-        <td>
-            {{#each events1}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-            {{#each events2}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-            {{#each events3}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-           {{#each events4}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-           {{#each events5}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-            {{#each events6}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-        <td>
-            {{#each events7}}
-                <div class="card">
-                    <div class="card-body">
-                         <h5 class="card-title">{{this.event_name}}</h5>
-                         <p class="card-text">{{this.event_descp}}</p>
-                      
-                    </div>
-                 </div>
-            {{/each}}
-        </td>
-    </tr>
-</table> 
-
-<!--Calendar Model-->
-<div class="container mx-auto text-center mt-4">
-    <button type="button" class="btn btn-primary mx-auto text-center btn-lg" onclick="openForm()" data-bs-toggle="modal" data-bs-target="#calendarModal">
-    Click to Add Event
-    </button>
-</div>
-<!-- Modal -->
-<div class="modal fade" id="calendarModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h4 class="modal-title center" id="exampleModalLabel" align="center">Add Event</h4>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-            <form action="/addEvent" method="POST" class="form-container">
-                {{!-- <label for="location"><b>Location</b></label>
-                <input type="text" placeholder="Street Address" name="streetAddress" required>
-                <input type="text" placeholder="Postal Code" name="postalCode" required>
-                <input type="text" placeholder="City" name="city" required>
-                <input type="text" placeholder="State" name="state" required>
-                <input type="text" placeholder="Country" name="country"> --}}
-                <div class="form-group">
-                    <label for="eventName" class="form-label mt-2">Event Name</label>
-                    <input id = "eventName" type="text" class="form-control" name="eventName" required>
-                </div>
-                <div class="form-group">
-                    <label for="description" class="form-label mt-2">Event Description</label>
-                    <input id = "description" type="text" class="form-control" name="description" required>
-                </div>
-                <div class="form-group">
-                    <label for="eventDate" class="form-label mt-2">Event Date</label>
-                    <input id = "eventDate" type="date" class="form-control" name="eventDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="streetAddress" class="form-label mt-2">Street Address</label>
-                    <input id = "streetAddress" type="text" class="form-control" name="streetAddress" required>
-                </div>
-                <div class="form-group">
-                    <label for="city" class="form-label mt-2">City</label>
-                    <input id = "city" type="text" class="form-control" name="city" required>
-                </div>
-                <div class="form-group">
-                    <label for="state" class="form-label mt-2">State</label>
-                    <input id = "state" type="text" class="form-control" name="state" required>
-                </div>
-                <div class="form-group">
-                    <label for="country" class="form-label mt-2">Country</label>
-                    <input id = "country" type="text" class="form-control" name="country" required>
-                </div>
-                <div class="form-group">
-                    <label for="postalCode" class="form-label mt-2">Postal Code</label>
-                    <input id = "postalCode" type="text" class="form-control" name="postalCode" required>
-                </div>
-
-                {{!-- <label for="eventName"><b>Event Name</b></label>
-                <input type="text" placeholder="Enter Event Name" name="eventName" required>
-
-                <label for="description"><b>Description</b></label>
-                <textarea placeholder="Enter Event Description" name="description" required></textarea>
-
-                <label for="eventDate"><b>Event Date</b></label>
-                <input type="date" name="eventDate" required> --}}
-                <button type="submit" class="btn btn-primary mt-4">Create Event</button>
-                <button type="close" class="btn btn-primary mt-4" onclick="closeForm()">Close</button>
-                {{!-- <button type="submit" class="btn">Submit</button>
-                <button type="button" class="btn cancel" onclick="closeForm()">Close</button> --}}
-            </form>
-        </div>
-    </div>
-  </div>
-</div>
-{{!-- <button type="button" onclick="openForm()">Add Event</button> --}}
-
-<div id="eventForm" class="form-popup">
-    {{!-- <form action="/addEvent" method="POST" class="form-container">
-        <h2>Add Event</h2>
-
-        <label for="location"><b>Location</b></label>
-        <input type="text" placeholder="Street Address" name="streetAddress" required>
-        <input type="text" placeholder="Postal Code" name="postalCode" required>
-        <input type="text" placeholder="City" name="city" required>
-        <input type="text" placeholder="State" name="state" required>
-        <input type="text" placeholder="Country" name="country">
-
-        <label for="eventName"><b>Event Name</b></label>
-        <input type="text" placeholder="Enter Event Name" name="eventName" required>
-
-        <label for="description"><b>Description</b></label>
-        <textarea placeholder="Enter Event Description" name="description" required></textarea>
-
-        <label for="eventDate"><b>Event Date</b></label>
-        <input type="date" name="eventDate" required>
-
-        <button type="submit" class="btn">Submit</button>
-        <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
-    </form> --}}
-</div>
-
 <script>
+
+    
 function openForm() {
     document.getElementById("eventForm").style.display = "block";
 }
@@ -504,91 +294,5 @@ function closeForm() {
 }
 </script>
 
-<!-- Modal -->
-
-{{!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#eventFormModal">Add Event</button> --}}
-
-
-{{!-- <div class="modal fade" id="eventFormModal" tabindex="-1" role="dialog" aria-labelledby="eventFormModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="eventFormModalLabel">Add Event</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form action="/addEvent" method="POST">
-                    <div class="form-group">
-                        <label for="location">Location</label>
-                        <input type="text" class="form-control" id="streetAddress" name="streetAddress" placeholder="Street Address" required>
-                        <input type="text" class="form-control" id="postalCode" name="postalCode" placeholder="Postal Code" required>
-                        <input type="text" class="form-control" id="city" name="city" placeholder="City" required>
-                        <input type="text" class="form-control" id="state" name="state" placeholder="State" required>
-                        <input type="text" class="form-control" id="country" name="country" placeholder="Country">
-                    </div>
-                    <div class="form-group">
-                        <label for="eventName">Event Name</label>
-                        <input type="text" class="form-control" id="eventName" name="eventName" placeholder="Enter Event Name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" id="description" name="description" placeholder="Enter Event Description" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="eventDate">Event Date</label>
-                        <input type="date" class="form-control" id="eventDate" name="eventDate" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Submit</button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </form>
-            </div>
-        </div>
-    </div>
-</div> --}}
-
-
-<!-- Button trigger modal -->
-{{!-- <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Launch demo modal
-</button>
-<div class="modal" tabindex="-1">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Modal title</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p>Modal body text goes here.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div> --}}
-<!-- Modal -->
-{{!-- <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        ...
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
-    </div>
-  </div>
-</div>  --}}
 <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 </main>

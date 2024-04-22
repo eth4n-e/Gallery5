@@ -1,0 +1,39 @@
+<div class="container">
+    <!--
+        Important information passed to page
+        title:
+        date_display:
+        artist_display
+        place_of_origin
+        description - note this is html so use triple brackets
+        medium_display
+        style_title
+        style_id - maybe can use to search for similar artwork
+
+        Features to add:
+            - Button to add to collection
+                - maybe add modal which appears upon successful request
+                - maybe change button color if successful
+            - button to search for more artworks by artist, maybe genre
+        -->
+    <div class="row justify-center mt-4">
+        <div class="col-4 p-2">
+            <p class="fw-light mb-0">{{image.username}}</p>
+            <div class="w-75">
+                <h4 class="text-wrap">{{image.image_title}}</h4>
+            </div>
+            {{!-- <div class="w-75">
+                <p class="text-wrap fst-italic fw-lighter">{{medium_display}}  --  {{date_display}}</p>
+            </div> --}}
+            {{{image.image_descp}}}
+            <a class="btn btn-outline-primary" href="/profile/{{username}}/collection/{{image.image_id}}">Add To Collection</a>
+        </div>
+        <div class="col-8 p-2">
+            {{!-- <p>{{image.image_link}}</p> --}}
+            {{!-- <img class="img-fluid object-fit-cover text-center" src={{image.image_link}}/> --}}
+            <img src="{{image.image_link}}" alt="Image" class="img-fluid" style="width: 100%; height: 100%; object-fit: cover; border-radius: 10px; border: 1px solid #000;">
+
+        </div>
+    </div>
+    <hr/>
+</div>
