@@ -260,8 +260,27 @@ app.get('/artwork/:id', async (req, res) => {
   } catch(error) {
     console.log(error);
   }
+  let commentSearch;
+  try {
+    commentSearch = await db.many('SELECT comment_text FROM comments WHERE comments.artwork_id = artwork_id');
+    // Handle useEventsTemp as needed
+  } catch (error) {
+    // Handle the error (e.g., log it or take appropriate action)
+    console.error(error);
+  }
 });
   
+// *****************************************************
+// <!          Comments-nate                  >
+// *****************************************************
+
+
+
+app.post('/artworks', async (req, res) => {
+
+})
+////
+
 // *****************************************************
 // <!          Artworks-Ethan                  >
 // *****************************************************
@@ -426,6 +445,9 @@ console.log("test");
   res.render('pages/discover', { results: [], message: 'An error occurred while fetching data from the Artsy API.' ,username: req.session.user.username });
 }
 });
+
+
+
 // *****************************************************
 // <!               Events - Khizar                   >
 // *****************************************************
