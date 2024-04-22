@@ -482,6 +482,7 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
 
 
 app.post('/events', async(req,res)=>{
+  
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
   const lat =await req.body.latitude; //get user lat
@@ -613,7 +614,7 @@ app.post('/events', async(req,res)=>{
   const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
 
   // console.log(datesForWeek[5]);
-  // console.log(events6);
+  console.log(events1);
   
   res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
@@ -631,7 +632,7 @@ app.post('/addEvent', async(req,res)=>{
   const eventName = req.body.eventName;
   const eventDescp = req.body.description;
   const eventDate = req.body.eventDate;
-  const streetAddy= req.body.streetAddress;
+  const streetAddy= req.body.streetAddress; // love the streetAddy -Amy
   const city = req.body.city;
   const state = req.body.state;
   const zip = req.body.postalCode;
@@ -1044,8 +1045,8 @@ const CALENDAR_EVENTS = [
       
       // const exampleEl = document.getElementById('event');
       // const tooltip = new bootstrap.Tooltip(exampleEl, options);
-      eventElement.setAttribute('data-bs-title', `Event: ${event.name} Time: ${event.time}\n Location: ${event.location}`);
-      eventElement.setAttribute('data-bs-toggle', "tooltip", `Event: ${event.name}\n Time: ${event.time}\n Location: ${event.location}`);
+      eventElement.setAttribute('data-bs-title', `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
+      eventElement.setAttribute('data-bs-toggle', "tooltip", `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
 
       // @TODO: On clicking the event div, it should open the modal with the fields pre-populated.
       // Replace "<>" with the triggering action.
