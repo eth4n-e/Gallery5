@@ -27,6 +27,32 @@
             </div>
             {{{description}}}
             <a class="btn btn-outline-primary" href="/profile/{{username}}/collection/{{id}}">Add To Collection</a>
+                <!--Modal implementation-->
+            <a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Add a Comment
+            </a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title center" id="exampleModalLabel" align="center">Add a comment to {{title}}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/#" method="POST" class="form-container">
+                                    <div class="form-group">
+                                        <label for="comment" class="form-label mt-2">Add comment</label>
+                                        <input id = "comment" type="text" class="form-control" name="comment" required>
+                                    <button type="submit" class="btn btn-primary mt-4">Add Comment</button>
+                                    <button type="close" class="btn btn-primary mt-4">Close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                <!--end of modal-->
         </div>
         <div class="col-8 p-2">
             <img class="img-fluid object-fit-cover text-center" src={{image_src}}/>
