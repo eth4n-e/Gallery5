@@ -15,7 +15,7 @@ const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const { start } = require('repl');
 const { get } = require('http');
-
+  
 //ask about how to get .env variables when in different directory
 
 app.use('/resources', express.static('resources'));
@@ -395,7 +395,6 @@ try {
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
-  
   res.render('pages/events', {username: req.session.user.username});
 });
 
@@ -480,7 +479,7 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
   return d;
 }
 
-
+ 
 app.post('/events', async(req,res)=>{
   
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
