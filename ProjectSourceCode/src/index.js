@@ -447,10 +447,18 @@ console.log("test");
 
   //now only send the first 4 events
   eventsArr=eventsArr.slice(0, 4);
+
+  /*************************
+   * User images in discover:
+   *************************/
+
+  //call function to get userimages
+  const userImages = await getUserImages(4); //get user images
+  console.log("Userimages obj: " + userImages);
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
+  res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, userImages, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -1327,9 +1335,6 @@ const CALENDAR_EVENTS = [
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   }
   
-
-
-
 // *****************************************************
 // <!-- Section 12 : Multer->
 // *****************************************************
@@ -1380,3 +1385,15 @@ app.get('/userImages/:imageId', async (req, res) => {
   }
 });
 
+async function getUserImages(numImages){ // returns userimages for a specified number
+  try {
+    const query = 'SELECT * FROM images ORDER BY image_id DESC LIMIT ' + numImages;
+    const userImages = await db.any(query);
+    //console.log(userImages);
+    console.log('results' + userImages);
+    return userImages;    
+  }catch(error){
+    console.error(error);
+    return null;
+  }
+}
