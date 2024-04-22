@@ -15,7 +15,7 @@ const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const { start } = require('repl');
 const { get } = require('http');
-
+  
 //ask about how to get .env variables when in different directory
 
 app.use('/resources', express.static('resources'));
@@ -430,7 +430,6 @@ console.log("test");
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
-  
   res.render('pages/events', {username: req.session.user.username});
 });
 
@@ -515,8 +514,9 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
   return d;
 }
 
-
+ 
 app.post('/events', async(req,res)=>{
+  
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
   const lat =await req.body.latitude; //get user lat
@@ -648,7 +648,7 @@ app.post('/events', async(req,res)=>{
   const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
 
   // console.log(datesForWeek[5]);
-  // console.log(events6);
+  console.log(events1);
   
   res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
@@ -666,7 +666,7 @@ app.post('/addEvent', async(req,res)=>{
   const eventName = req.body.eventName;
   const eventDescp = req.body.description;
   const eventDate = req.body.eventDate;
-  const streetAddy= req.body.streetAddress;
+  const streetAddy= req.body.streetAddress; // love the streetAddy -Amy
   const city = req.body.city;
   const state = req.body.state;
   const zip = req.body.postalCode;
@@ -687,9 +687,9 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events', {username: req.session.user.username});
+  res.redirect('/events');
 
-
+ 
 }); //add event to user events
  
 
@@ -1202,8 +1202,8 @@ const CALENDAR_EVENTS = [
       
       // const exampleEl = document.getElementById('event');
       // const tooltip = new bootstrap.Tooltip(exampleEl, options);
-      eventElement.setAttribute('data-bs-title', `Event: ${event.name} Time: ${event.time}\n Location: ${event.location}`);
-      eventElement.setAttribute('data-bs-toggle', "tooltip", `Event: ${event.name}\n Time: ${event.time}\n Location: ${event.location}`);
+      eventElement.setAttribute('data-bs-title', `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
+      eventElement.setAttribute('data-bs-toggle', "tooltip", `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
 
       // @TODO: On clicking the event div, it should open the modal with the fields pre-populated.
       // Replace "<>" with the triggering action.
