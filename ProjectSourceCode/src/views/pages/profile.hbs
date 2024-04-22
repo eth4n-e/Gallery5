@@ -23,3 +23,23 @@
            </div>
      <button type="submit" class="btn btn-success">Upload</button>
 </form>
+
+{{!-- Now, for each image in the userImages array, we want to display them in a row of bootstrap cards with the title  --}}
+<div class="container mt-3 mb-3" id="imageContainer">
+  <div class="row" id="imageRow">
+    {{#each userImages}}
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm position-relative" data-imageID="{{image_id}}" data-title="{{image_title}}">
+          <img src="{{image_link}}" class="card-img-top" alt="Artwork by {{image_title}}">
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <div class="d-grid gap-2">
+              <button type="follow_button" class="btn btn-outline-danger">Learn More</button>
+            </div>
+            </div>
+        </div>
+        </div>
+    {{/each}}
+    </div>
+    </div>
+  

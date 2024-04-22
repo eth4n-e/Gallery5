@@ -2,6 +2,10 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
+const { storage } = require('./storage/storage');
+const multer = require('multer');
+const upload = multer({ storage });
+
 
 const express = require('express'); // To build an application server or API
 const app = express();
@@ -415,7 +419,10 @@ console.log("test");
   eventsArr.sort(function(a,b){
     return new Date(a.eventDate) - new Date(b.eventDate);
   });
-  console.log(eventsArr);
+
+  //now only send the first 4 events
+  eventsArr=eventsArr.slice(0, 4);
+  
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
@@ -688,6 +695,7 @@ app.post('/addEvent', async(req,res)=>{
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
   res.redirect('/events');
+  res.redirect('/events');
 
  
 }); //add event to user events
@@ -717,8 +725,14 @@ app.get('/profile', async (req, res) => {
       [user_id]
     );
 
+    //get all image  links and image ids from the users images
+    //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
+    
+    //console.log(userId2.user_id);
+    const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
+    console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents , username: req.session.user.username});
+    res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
@@ -933,6 +947,12 @@ console.log('Server is listening on port 3000');
   if (!onetimeuserExists) {
     await db.none('INSERT INTO users(username, password, email, firstname, lastname) VALUES($1, $2, $3, $4, $5)', [onetimeuser, onetimehash,'rehehe@gmail.com','Scooby','Doo']);
   }
+  const userId2= await db.one('SELECT user_id FROM users WHERE username = $1', ['abc']);
+  const userId= userId2.user_id;
+ //want to do the following insert into images DB: ('https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', (SELECT user_id FROM users WHERE username='abc'))
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', userId]);
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713382059/cld-sample-4.jpg', 'Test-Image-2', userId]);
+
 })();
 
 
@@ -1228,3 +1248,56 @@ const CALENDAR_EVENTS = [
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   }
   
+
+
+
+// *****************************************************
+// <!-- Section 12 : Multer->
+// *****************************************************
+
+app.post('/upload', upload.single('image'), async (req, res) => {
+  console.log(req.file);
+  //insert image into database
+  const imageLink = req.file.path;
+  const imageTitle = req.body.title;
+  const userId = req.session.user.user_id;
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', [imageLink, imageTitle, userId]);
+
+  res.redirect('/profile');
+});
+
+
+app.get('/userImages', async (req, res) => {
+  try {
+    const userImages = await db.any('SELECT * FROM images ORDER BY image_id DESC');
+    //console.log(userImages);
+
+    //now for any image, we want to get the username of the user who uploaded it
+    for(var i=0; i<userImages.length; i++){
+      const userId = userImages[i].user_id;
+      const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+      userImages[i].username = user.username;
+    }
+    //console.log(userImages);
+    res.render('pages/userImages', { userImages, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching user images.');
+  }
+});
+
+app.get('/userImages/:imageId', async (req, res) => {
+  try {
+    const imageId = req.params.imageId;
+    const image = await db.one('SELECT * FROM images WHERE image_id = $1', [imageId]);
+    const userId = image.user_id;
+    const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+    image.username = user.username;
+    console.log(image);
+    res.render('pages/specificimage', { image, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching the image.');
+  }
+});
+
