@@ -396,9 +396,9 @@ try {
   artists.thumbnail = [];
   // Call the getArtistThumb in a loop and append artist image
   for( var i = 0; i < artists.length; i++) {
-    console.log(artists[i]);
+    //console.log(artists[i]);
     const thumby = await getArtistThumb_Bio(artists[i].title);
-    console.log(thumby);
+    //console.log(thumby);
     if(thumby.thumbnail)
       artists[i].thumbnail = thumby.thumbnail;
     else
@@ -464,6 +464,14 @@ try {
 
   //now only send the first 4 events
   eventsArr=eventsArr.slice(0, 4);
+
+  /*************************
+   * User images in discover:
+   *************************/
+
+  //call function to get userimages
+  const userImages = await getUserImages(4); //get user images
+  console.log("Userimages obj: " + userImages);
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
@@ -663,8 +671,10 @@ app.post('/events', async(req,res)=>{
     //console.log(lat, long);
     var distance = getDistanceFromLatLonInKm(parseFloat(lat), parseFloat(long), parseFloat(useEventsTemp[i].event_latitude), parseFloat(useEventsTemp[i].event_longitude));
     
-    console.log(distance);
-    if(distance <= 160){
+    const numDistance = parseFloat(distance);
+    if(numDistance <= 160){
+      console.log(distance);
+  
       const dateNoTime= useEventsTemp[i].event_date.toISOString().slice(0, 10);
       var newEvent = new userEvents1(useEventsTemp[i].event_name, useEventsTemp[i].event_description, useEventsTemp[i].event_date, useEventsTemp[i].event_location, useEventsTemp[i].event_image,dateNoTime);
       userEvents.push(newEvent);
@@ -688,16 +698,60 @@ app.post('/events', async(req,res)=>{
 
   //we will literally pass 7 arrays back to the front end lmao. Each array will contain all events on that day.
 
-  const events1= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[0]]);
-  const events2= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[1]]);
-  const events3= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[2]]);
-  const events4= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[3]]);
-  const events5= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[4]]);
-  const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
-  const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
+  // const events1= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[0]]);
+  // const events2= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[1]]);
+  // const events3= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[2]]);
+ const events47= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[3]]);
+  // const events5= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[4]]);
+  // const events6= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[5]]);
+  // const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
 
-  // console.log(datesForWeek[5]);
-  console.log(events1);
+  //events1 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[0]
+  //events2 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[1]
+  //events3 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[2]
+  //events4 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[3]
+  //events5 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[4]
+  //events6 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[5]
+  //events7 should be all e vents from userevents where userEvents.eventDateNoTime == datesForWeek[6]
+  //console.log(events47);
+  var events1=[];
+  var events2=[];
+  var events3=[];
+  var events4=[];
+  var events5=[];
+  var events6=[];
+  var events7=[];
+
+  for(var i=0; i<userEvents.length; i++){
+    if(userEvents[i].eventDateNoTime === datesForWeek[0]){
+      events1.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[1]){
+      events2.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[2]){
+      events3.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[3]){
+      events4.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[4]){
+      events5.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[5]){
+      events6.push(userEvents[i]);
+    }
+    else if(userEvents[i].eventDateNoTime === datesForWeek[6]){
+      events7.push(userEvents[i]);
+    }
+  }
+  // console.log(events1);
+  // console.log(events2);
+  // console.log(events3);
+  // console.log(events4);
+  // console.log(events5);
+  // console.log(events6);
+  // console.log(events7);
   
   res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
@@ -720,8 +774,10 @@ app.post('/addEvent', async(req,res)=>{
   const state = req.body.state;
   const zip = req.body.postalCode;
 
+  
   const eventLocation = streetAddy + " " + city + " " + state + " " + zip;
   const eventLocation2 = parseSpaces(eventLocation);
+  console.log(eventLocation2);
   const location=await axios({ //get in the fine arts within one week of right now
     url: 'https://maps.googleapis.com/maps/api/geocode/json',
     method: 'GET',
@@ -730,6 +786,13 @@ app.post('/addEvent', async(req,res)=>{
       address: eventLocation2
     }
   });
+  //now check if the location is valid
+  
+  if(location.data.status === "ZERO_RESULTS"){
+    console.log("Invalid location");
+    res.redirect('/events');
+    return;
+  }
 
   console.log(location.data.results[0].geometry.location.lat);
   console.log(location.data.results[0].geometry.location.lng);
@@ -912,7 +975,7 @@ app.post('/follow', async (req, res) => {
     const userIdInt = parseInt(userId.user_id,10); 
     // Implement the logic to follow the artist\
     //console.log(userIdInt, artistId);
-    
+     
     // Check to see if artist is in db
     const artistInDB = await db.oneOrNone('SELECT * FROM artists WHERE artist_id = $1', [artistId]);
     if (!artistInDB) {
@@ -931,7 +994,6 @@ app.post('/follow', async (req, res) => {
       updateFollowedArtists();
     }
 
-    // Send a success response back to the client
     res.status(200).json({ message: 'Follow successful' });
   } catch (error) {
     console.error('Follow failed:', error);
@@ -1361,9 +1423,6 @@ const CALENDAR_EVENTS = [
     const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
   }
   
-
-
-
 // *****************************************************
 // <!-- Section 12 : Multer->
 // *****************************************************
@@ -1414,3 +1473,15 @@ app.get('/userImages/:imageId', async (req, res) => {
   }
 });
 
+async function getUserImages(numImages){ // returns userimages for a specified number
+  try {
+    const query = 'SELECT * FROM images ORDER BY image_id DESC LIMIT ' + numImages;
+    const userImages = await db.any(query);
+    //console.log(userImages);
+    //console.log('results' + userImages);
+    return userImages;    
+  }catch(error){
+    console.error(error);
+    return null;
+  }
+}

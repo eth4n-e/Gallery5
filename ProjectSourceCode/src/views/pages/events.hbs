@@ -133,58 +133,58 @@
     <tr>
         <td align="position" class="col px-md-2">
             {{#each events1}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
             {{#each events2}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
         </td>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
             {{#each events3}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
            {{#each events4}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
            {{#each events5}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
             {{#each events6}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
         <td align="position" class="col px-md-2">
             {{#each events7}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.event_location}}">
-                    <h5 class="card-title">{{this.event_name}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.event_description}}</p>
+                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                    <p class="card-text">Description: {{this.eventDescp}}</p>
                 </button>
             {{/each}}
         </td>
@@ -206,12 +206,6 @@
         </div>
         <div class="modal-body">
             <form action="/addEvent" method="POST" class="form-container">
-                {{!-- <label for="location"><b>Location</b></label>
-                <input type="text" placeholder="Street Address" name="streetAddress" required>
-                <input type="text" placeholder="Postal Code" name="postalCode" required>
-                <input type="text" placeholder="City" name="city" required>
-                <input type="text" placeholder="State" name="state" required>
-                <input type="text" placeholder="Country" name="country"> --}}
                 <div class="form-group">
                     <label for="eventName" class="form-label mt-2">Event Name</label>
                     <input id = "eventName" type="text" class="form-control" name="eventName" required>
@@ -238,7 +232,7 @@
                 </div>
                 <div class="form-group">
                     <label for="country" class="form-label mt-2">Country</label>
-                    <input id = "country" type="text" class="form-control" name="country" required>
+                    <input id = "country" type="text" class="form-control" name="country"> 
                 </div>
                 <div class="form-group">
                     <label for="postalCode" class="form-label mt-2">Postal Code</label>
@@ -255,8 +249,6 @@
                 <input type="date" name="eventDate" required> --}}
                 <button type="submit" class="btn btn-primary mt-4">Create Event</button>
                 <button type="close" class="btn btn-primary mt-4" onclick="closeForm()">Close</button>
-                {{!-- <button type="submit" class="btn">Submit</button>
-                <button type="button" class="btn cancel" onclick="closeForm()">Close</button> --}}
             </form>
         </div>
     </div>
@@ -291,6 +283,8 @@
 {{/if}}
 
 <script>
+
+    
 function openForm() {
     document.getElementById("eventForm").style.display = "block";
 }
