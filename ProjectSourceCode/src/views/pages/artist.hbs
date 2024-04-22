@@ -55,7 +55,7 @@
     });
   </script>
 
-  <script>
+<script>
   document.addEventListener('DOMContentLoaded', () => {
     // Event delegation for clicks on dynamically added artist cards
     document.addEventListener('click', (event) => {
@@ -81,12 +81,14 @@
       } else {
         console.error('Container not found in the DOM.');
       }
+    });
 
     document.addEventListener('click', (event) => {
     if (event.target.matches('#follow_button')) {
       // Prevent the default button action
       if (event.target.matches('#follow_button, #unfollow_button')) {
         event.stopPropagation();
+      }
       event.preventDefault();
 
       // Get the artist ID from the artist object
@@ -109,7 +111,8 @@
         }
       });
     }
-    })
+    });
+      
 
     document.addEventListener('click', (events) =>{    
     if (event.target.matches('#unfollow_button')) {
@@ -138,5 +141,4 @@
     }
   });
 });
-  });
 </script>
