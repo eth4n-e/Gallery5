@@ -2,6 +2,10 @@
 // <!-- Section 1 : Import Dependencies -->
 // *****************************************************
 
+const { storage } = require('./storage/storage');
+const multer = require('multer');
+const upload = multer({ storage });
+
 
 const express = require('express'); // To build an application server or API
 const app = express();
@@ -15,7 +19,7 @@ const bcrypt = require('bcrypt'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const { start } = require('repl');
 const { get } = require('http');
-
+  
 //ask about how to get .env variables when in different directory
 
 app.use('/resources', express.static('resources'));
@@ -431,7 +435,10 @@ console.log("test");
   eventsArr.sort(function(a,b){
     return new Date(a.eventDate) - new Date(b.eventDate);
   });
-  console.log(eventsArr);
+
+  //now only send the first 4 events
+  eventsArr=eventsArr.slice(0, 4);
+  
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
   res.render('pages/discover', { /*events,*/ artworks, artists, eventsArr, username: req.session.user.username });
@@ -446,7 +453,6 @@ console.log("test");
 // <!               Events - Khizar                   >
 // *****************************************************
 app.get('/events', (req, res) => {
-  
   res.render('pages/events', {username: req.session.user.username});
 });
 
@@ -531,8 +537,9 @@ function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
   return d;
 }
 
-
+ 
 app.post('/events', async(req,res)=>{
+  
   const API_KEY = process.env.GOOGLE_MAPS_API_KEY;
   console.log(req.body)
   const lat =await req.body.latitude; //get user lat
@@ -547,7 +554,6 @@ app.post('/events', async(req,res)=>{
 
   //console.log(currentISODate, futureISODate);
 
-  console.log(':(');
   const results=await axios({ //get in the fine arts within one week of right now
     url: 'https://app.ticketmaster.com/discovery/v2/events.json',
     method: 'GET',
@@ -665,7 +671,7 @@ app.post('/events', async(req,res)=>{
   const events7= await db.manyOrNone('SELECT * FROM events WHERE event_date = $1', [datesForWeek[6]]);
 
   // console.log(datesForWeek[5]);
-  // console.log(events6);
+  console.log(events1);
   
   res.render('pages/events', {API_KEY, lat, long, eventsArr, userEvents, daysOfWeek, datesForWeek, events1, events2, events3, events4, events5, events6, events7, username: req.session.user.username});
   
@@ -683,7 +689,7 @@ app.post('/addEvent', async(req,res)=>{
   const eventName = req.body.eventName;
   const eventDescp = req.body.description;
   const eventDate = req.body.eventDate;
-  const streetAddy= req.body.streetAddress;
+  const streetAddy= req.body.streetAddress; // love the streetAddy -Amy
   const city = req.body.city;
   const state = req.body.state;
   const zip = req.body.postalCode;
@@ -704,9 +710,10 @@ app.post('/addEvent', async(req,res)=>{
 
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
-  res.redirect('/events', {username: req.session.user.username});
+  res.redirect('/events');
+  res.redirect('/events');
 
-
+ 
 }); //add event to user events
  
 
@@ -734,8 +741,14 @@ app.get('/profile', async (req, res) => {
       [user_id]
     );
 
+    //get all image  links and image ids from the users images
+    //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
+    
+    //console.log(userId2.user_id);
+    const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
+    console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents , username: req.session.user.username});
+    res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
@@ -977,4 +990,357 @@ console.log('Server is listening on port 3000');
   if (!onetimeuserExists) {
     await db.none('INSERT INTO users(username, password, email, firstname, lastname) VALUES($1, $2, $3, $4, $5)', [onetimeuser, onetimehash,'rehehe@gmail.com','Scooby','Doo']);
   }
+  const userId2= await db.one('SELECT user_id FROM users WHERE username = $1', ['abc']);
+  const userId= userId2.user_id;
+ //want to do the following insert into images DB: ('https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', (SELECT user_id FROM users WHERE username='abc'))
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713643643/CloudinaryDemo/doqm209ttr5m0zhgt4i2.png', 'Test-Image-1', userId]);
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', ['https://res.cloudinary.com/dimflwoci/image/upload/v1713382059/cld-sample-4.jpg', 'Test-Image-2', userId]);
+
 })();
+
+
+
+
+const CALENDAR_EVENTS = [
+    {
+      name: "Running",
+      day: "wednesday",
+      time: "09:00",
+      modality: "In-person",
+      location: "Boulder",
+      url: "",
+      attendees: "Alice, Jack, Ben",
+    },
+  ];
+  
+  const CALENDAR_DAYS = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  
+  let EVENT_MODAL;
+  
+  /* ********************** PART B: 6.2: CREATE MODAL ************************************** */
+  
+  function initializeEventModal() {
+      // @TODO: Create a modal using JS. The id will be `event-modal`:
+    // Reference: https://getbootstrap.com/docs/5.3/components/modal/#via-javascript
+    EVENT_MODAL = new bootstrap.Modal(document.getElementById('event-modal'));
+
+  }
+  
+  function openEventModal({ id, day }) {
+    // Since we will be reusing the same modal for both creating and updating events,
+    // we're creating variables to reference the title of the modal and the submit button
+    // in javascript so we can update the text suitably
+    const submit_button = document.querySelector("#submit_button");
+    const modal_title = document.querySelector(".modal-title");
+  
+    // Check if the event exists in the CALENDAR_EVENTS by using `id`
+    // Note that on the first try, when you attempt to access an event that does not exist
+    // an event will be added to the list. This is expected.
+    let event = CALENDAR_EVENTS[id];
+  
+    // If event is undefined, i.e it does not exist in the CALENDAR_EVENTS, then we create a new event.
+    // Else, we load the current event into the modal.
+    if (!event) {
+      event = {
+        name: "",
+        day: day,
+        time: "",
+        modality: "",
+        location: "",
+        url: "",
+        attendees: "",
+      };
+  
+      // @TODO: Update the innerHTML for modalTitle and submitButton
+      // Replace <> with the correct attribute
+      modal_title.innerHTML = "Create Event";
+      submit_button.innerHTML = "Create Event";
+      // Allocate a new event id. Note that nothing is inserted into the CALENDAR_EVENTS yet.
+      // @TODO: Set the id to be the length of the CALENDAR_EVENTS because we are adding a new element
+      id=Object.keys(CALENDAR_EVENTS).length;
+  
+    } else {
+      // We will default to "Update Event" as the text for the title and the submit button
+      modal_title.innerHTML = "Update Event";
+      submit_button.innerHTML = "Update Event";
+    }
+  
+    // Once the event is fetched/created, populate the modal.
+    // Use document.querySelector('<>').value to get the form elements. Replace <>
+    // Hint: If it is a new event, the fields in the modal will be empty.
+    document.querySelector("#event_name").value = event.name;
+    // @TODO: Update remaining form fields of the modal with suitable values from the event.
+    document.querySelector("#event_weekday").value = event.day;
+    document.querySelector("#event_time").value = event.time;
+    document.querySelector("#event_modality").value = event.modality;
+    document.querySelector("#event_location").value = event.location;
+    document.querySelector("#event_remote_url").value = event.url;
+    document.querySelector("#event_attendees").value = event.attendees;
+
+  
+  
+    // Location options depend on the event modality
+    // @TODO: pass event.modality as an argument to the updateLocationOptions() function. Replace <> with event.modality.
+    updateLocationOptions(event.modality);
+
+    // Set the "action" event for the form to call the updateEventFromModal
+    // when the form is submitted by clicking on the "Creat/Update Event" button
+    const form = document.querySelector("#event-modal form");
+    form.setAttribute("action", `javascript:updateEventFromModal(${id})`);
+  
+    EVENT_MODAL.show();
+  }
+
+  function updateEventFromModal(id) {
+    // @TODO: Pick the modal field values using document.querySelecter(<>).value,
+    // and assign it to each field in CALENDAR_EVENTS.
+    CALENDAR_EVENTS[id] = {
+      name: document.querySelector('#event_name').value,
+      day: document.querySelector('#event_weekday').value,
+      time: document.querySelector('#event_time').value,
+      modality: document.querySelector('#event_modality').value,
+      location: document.querySelector('#event_location').value,
+      url: document.querySelector('#event_remote_url').value,
+      attendees: document.querySelector('#event_attendees').value,
+    };
+    // Update the dom to display the newly created event and hide the event modal
+    updateDOM();
+    EVENT_MODAL.hide();
+  }
+
+
+  function updateLocationOptions(modality_value) {
+    // @TODO: get the "Location" and "Remote URL" HTML elements from the modal.
+    // Use document.querySelector() or document.getElementById().
+    const location =  document.getElementById('event_location')//get the "Location" field
+    const remoteUrl = document.getElementById('event_remote_url')// get the "Remote URL" field
+  
+    // @TODO: Depending on the "value" change the visibility style of these fields on the modal.
+    // Use conditional statements.
+    if (modality_value == "In-person") {
+      remoteUrl.style.visibility="hidden";
+      location.style.visibility="visible";
+    }
+    else if(modality_value == "Remote"){
+      location.style.visibility="hidden";
+      remoteUrl.style.visibility="visible";
+    }
+  }
+
+  /* ********************************************************************************** */
+  
+  /* ********************** PART B: 6.1: CREATE CALENDAR ************************************** */
+  
+  function createBootstrapCard(day) {  
+    // @TODO: Use `document.createElement()` function to create a `div`
+    var card = document.createElement('div');
+      // Let's add some bootstrap classes to the div to upgrade its appearance
+      // This is the equivalent of <div class="col-sm m-1 bg-white rounded px-1 px-md-2"> in HTML
+      (card.className = 'col-sm m-1 bg-white rounded px-1 px-md-2');
+    // This the equivalent of <div id="monday"> in HTML
+    card.id = day.toLowerCase();
+    return card;
+  }
+  
+  function createTitle(day) {
+  // Create weekday as the title.
+  // @TODO: Use `document.createElement()` function to create a `div` for title
+  const title = document.createElement('div');
+  title.className = 'h6 text-center position-relative py-2';
+  title.innerHTML = day;
+  return title;
+  }
+  
+  function createEventIcon(card) {
+      // @TODO: Use `document.createElement()` function to add a "create an event" icon button to the card
+    const icon = document.createElement("BUTTON");
+    icon.className =
+      'bi bi-calendar-plus btn position-absolute translate-middle start-100  rounded p-0 btn-link';
+    // adding an event listener to the click event of the icon to open the modal
+    // the below line of code would be the equivalent of:
+    // <i onclick="openEventModal({day: 'monday'})"> in HTML.
+    icon.setAttribute('onclick', `openEventModal({day: ${card.id}})`);
+    return icon;
+  }
+  
+  function createEventDiv() {
+      //  @TODO: Use `document.createElement()` function to add one more div to the weekday card, which will be populated with events later.
+    const eventsDiv = document.createElement('div');
+    // We are adding a class for this container to able to call it when we're populating the days
+    // with the events
+    eventsDiv.classList.add('event-container');
+    return eventsDiv;
+  }
+  
+  function initializeCalendar() {
+      // You will be implementing this function in section 2: Create Modal
+  initializeEventModal();
+  // @TODO: Get the div of the calendar which we created using its id. Either use document.getElementById() or document.querySelector()
+  const calendarElement = document.getElementById("calendar");
+    // Iterating over each CALENDAR_DAYS
+    CALENDAR_DAYS.forEach(day => {
+      // @TODO: Create a bootstrap card for each weekday. Uncomment the below line and call createBootstrapCard(day) function.
+      var card = createBootstrapCard(day);
+      // @TODO: Add card to the calendarElement. Use appendChild()
+      calendarElement.appendChild(card);
+      // @TODO: Uncomment the below line and call createTitle(day) function.
+      var title = createTitle(day);
+      // @TODO: Add title to the card. Use appendChild()
+      card.appendChild(title);
+      // @TODO: Uncomment the below line and call createEventIcon(card) function.
+      var icon = createEventIcon(card);
+      // @TODO: Add icon to the title. Use appendChild()
+      title.appendChild(icon);
+      // @TODO: Uncomment the below line and and call createEventDiv() function.
+      var eventsDiv = createEventDiv();
+      // @TODO: Add eventsDiv to the card. Use appendChild()
+      card.appendChild(eventsDiv);
+    });
+  // @TODO: Uncomment this after you implement the updateDOM() function
+  updateDOM()
+  } 
+  
+  /* *********************************************************************************** */
+  
+  /* ********************** PART B: 6.3: UPDATE DOM ************************************** */
+  
+  function createEventElement(id) {
+      // @TODO: create a new div element. Use document.createElement().
+      var eventElement = document.createElement('div');
+      // Adding classes to the <div> element.
+      eventElement.classList = "event row border rounded m-1 py-1";
+      // @TODO: Set the id attribute of the eventElement to be the same as the input id.
+      // Replace <> with the correct HTML attribute
+      eventElement.id = `event-${id}`;
+      return eventElement;
+  }
+  
+  function createTitleForEvent(event) {
+    var title = document.createElement('div');
+    title.classList.add('col', 'event-title');
+    title.innerHTML = event.name;
+    return title;
+  }
+  
+  function updateDOM() {
+    const events = CALENDAR_EVENTS;
+  
+    events.forEach((event, id) => {
+      // First, let's try to update the event if it already exists.
+  
+      // @TODO: Use the `id` parameter to fetch the object if it already exists.
+      // Replace <> with the appropriate variable name
+      // In templated strings, you can include variables as ${var_name}.
+      // For eg: let name = 'John';
+      // let msg = `Welcome ${name}`;
+      let eventElement = document.querySelector(`#event-${id}`);
+  
+      // if event is undefined, i.e. it doesn't exist in the CALENDAR_EVENTS array, make a new one.
+      if (eventElement === null) {
+        eventElement = createEventElement(id);
+        const title = createTitleForEvent(event);
+  
+        // @TODO: Append the title to the event element. Use .append() or .appendChild()
+        eventElement.appendChild(title);
+      } else {
+        // @TODO: Remove the old element while updating the event.
+        eventElement.remove();
+        // Use .remove() with the eventElement to remove the eventElement.
+      }
+  
+      // Add the event name
+      const title = eventElement.querySelector('div.event-title');
+      title.innerHTML = event.name;
+  
+      // Add a tooltip with more information on hover
+      // @TODO: you will add code here when you are working on for Part B.
+      
+      // const exampleEl = document.getElementById('event');
+      // const tooltip = new bootstrap.Tooltip(exampleEl, options);
+      eventElement.setAttribute('data-bs-title', `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
+      eventElement.setAttribute('data-bs-toggle', "tooltip", `Event: ${this.event_name} \n Description: ${this.eventDescp}`);
+
+      // @TODO: On clicking the event div, it should open the modal with the fields pre-populated.
+      // Replace "<>" with the triggering action.
+      eventElement.setAttribute('onclick', `openEventModal({id: ${id}})`);
+  
+      // console.log(event);
+      // Add the event div to the parent
+      document
+        .querySelector(`#${event.day} .event-container`)
+        .appendChild(eventElement);
+    });
+  
+    updateTooltips(); // Declare the function in the script.js. You will define this function in Part B.
+  }
+  
+  /* ******************************* PART C: 1. Display Tooltip ********************************************* */
+  
+  function updateTooltips() {
+    // @TODO: Display tooltip with the Name, Time and Location of the event.
+    // The formatting of the contents of the tooltip is up to your discretion.
+    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+  }
+  
+
+
+
+// *****************************************************
+// <!-- Section 12 : Multer->
+// *****************************************************
+
+app.post('/upload', upload.single('image'), async (req, res) => {
+  console.log(req.file);
+  //insert image into database
+  const imageLink = req.file.path;
+  const imageTitle = req.body.title;
+  const userId = req.session.user.user_id;
+  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', [imageLink, imageTitle, userId]);
+
+  res.redirect('/profile');
+});
+
+
+app.get('/userImages', async (req, res) => {
+  try {
+    const userImages = await db.any('SELECT * FROM images ORDER BY image_id DESC');
+    //console.log(userImages);
+
+    //now for any image, we want to get the username of the user who uploaded it
+    for(var i=0; i<userImages.length; i++){
+      const userId = userImages[i].user_id;
+      const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+      userImages[i].username = user.username;
+    }
+    //console.log(userImages);
+    res.render('pages/userImages', { userImages, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching user images.');
+  }
+});
+
+app.get('/userImages/:imageId', async (req, res) => {
+  try {
+    const imageId = req.params.imageId;
+    const image = await db.one('SELECT * FROM images WHERE image_id = $1', [imageId]);
+    const userId = image.user_id;
+    const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
+    image.username = user.username;
+    console.log(image);
+    res.render('pages/specificimage', { image, username: req.session.user.username });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('An error occurred while fetching the image.');
+  }
+});
+
