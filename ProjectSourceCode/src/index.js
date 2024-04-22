@@ -886,7 +886,7 @@ app.post('/follow', async (req, res) => {
     const userIdInt = parseInt(userId.user_id,10); 
     // Implement the logic to follow the artist\
     //console.log(userIdInt, artistId);
-    
+     
     // Check to see if artist is in db
     const artistInDB = await db.oneOrNone('SELECT * FROM artists WHERE artist_id = $1', [artistId]);
     if (!artistInDB) {
@@ -905,7 +905,6 @@ app.post('/follow', async (req, res) => {
       updateFollowedArtists();
     }
 
-    // Send a success response back to the client
     res.status(200).json({ message: 'Follow successful' });
   } catch (error) {
     console.error('Follow failed:', error);
