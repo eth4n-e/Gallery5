@@ -59,12 +59,11 @@
   document.addEventListener('DOMContentLoaded', () => {
     // Event delegation for clicks on dynamically added artist cards
     document.addEventListener('click', (event) => {
-      
       if (event.target.matches('.artist-card, .artist-card *')) {
-          const artistId = event.target.closest('.artist-card').dataset.artistId;
-          if (artistId) {
-              window.location.href = `/artist/${artistId}`; // Redirect to artist page
-          }
+        const artistId = event.target.closest('.artist-card').dataset.artistId;
+        if (artistId) {
+            window.location.href = `/artist/${artistId}`; // Redirect to artist page
+        }
       }
     });
 
@@ -110,11 +109,16 @@
           console.log('Follow failed:', error);
         }
       });
+
+
+    // TODO Disable follow_button
+    event.target.disabled = true;
+    event.target.classList.add('disabled');
+    event.target.innerHTML = 'Following!';
     }
     });
       
-
-    document.addEventListener('click', (events) =>{    
+    /*{{!-- document.addEventListener('click', (events) =>{    
     if (event.target.matches('#unfollow_button')) {
       // Prevent the default button action
       event.preventDefault();
@@ -139,6 +143,6 @@
         }
       });
     }
-  });
+  }); --}}*/
 });
 </script>
