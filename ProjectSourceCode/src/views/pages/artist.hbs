@@ -70,17 +70,19 @@
     }
   });
 
-    document.addEventListener('click', (event) => {
-      if(event.target.matches('.artwork-card, .artwork-card *')) {
-        console.log('Artwork card clicked!');
-        const artworkElement = $(event.target).closest('.artwork-card');
-        const artworkId = artworkElement.data('artworkid');
-        console.log('Artwork id: ' + artworkId);
-        if(artworkId){
-          window.location.href = `/artwork/${artworkId}`;
-        }
+    document.addEventListener('DOMContentLoaded', () => {
+      let container = document.querySelector('#artistContainer');
+      if (container) {
+        container.addEventListener('click', (event) => {
+          const artistID = event.target.closest('.artist-card').dataset.artistid;
+          console.log('Artist ID: ' + artistID);
+          if (artistID) {
+            window.location.href = `/artist/${artistID}`;
+          }
+        });
+      } else {
+        console.error('Container not found in the DOM.');
       }
-    });
 
     document.addEventListener('click', (event) => {
     if (event.target.matches('#follow_button')) {
