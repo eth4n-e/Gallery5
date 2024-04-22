@@ -695,7 +695,6 @@ app.post('/addEvent', async(req,res)=>{
   //now we can add the data to the events db:
   await db.none('INSERT INTO events(event_name, event_description, event_date, event_location, event_latitude, event_longitude) VALUES($1, $2, $3, $4, $5, $6)', [eventName, eventDescp, eventDate, eventLocation, location.data.results[0].geometry.location.lat, location.data.results[0].geometry.location.lng]);
   res.redirect('/events');
-  res.redirect('/events');
 
  
 }); //add event to user events
@@ -850,7 +849,7 @@ app.post('/follow', async (req, res) => {
     const userIdInt = parseInt(userId.user_id,10); 
     // Implement the logic to follow the artist\
     //console.log(userIdInt, artistId);
-    
+     
     // Check to see if artist is in db
     const artistInDB = await db.oneOrNone('SELECT * FROM artists WHERE artist_id = $1', [artistId]);
     if (!artistInDB) {
@@ -869,7 +868,7 @@ app.post('/follow', async (req, res) => {
     }
 
  
-    // Send a success response back to the client
+    // Send a success response back to the client 
 
     res.status(200).json({ message: 'Follow successful' });
   } catch (error) {
