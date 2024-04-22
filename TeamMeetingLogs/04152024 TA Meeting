@@ -1,0 +1,17 @@
+Before the meeting: 
+Implemented discover, logout, artwork page, Ticketmaster events, user events, all-artist page, singular artist page, login, registration.
+
+Discussion During Meeting:
+Right now only pulling Artsy API, some information not from Artsy, using Chicago Institute of Art
+User Profile still in progress
+UI Images, 
+Switched from Artsy to Ticketmaster
+Events, adding events to calendar
+Following and unfollowing, Ethan on individual artwork (leave review, add to collection). More user interaction, db for that.
+Cloudinary for image upload storage, one line: Upload file to link. Requires effort to understand and implement. Better for user interaction
+
+By Friday: See if we can finish all items and test code (see where things can break and fix it). 
+Begin presentations next Wednesday
+29th is project report submission deadline, presentations next Wednesday.
+Finish application, show to someone outside of group for feedback
+Meet with Varsha one last time before presentations begin.
