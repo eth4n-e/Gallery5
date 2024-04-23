@@ -475,7 +475,7 @@ try {
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { artworks, artists, eventsArr, username: req.session.user.username });
+  res.render('pages/discover', { userImages, artworks, artists, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
