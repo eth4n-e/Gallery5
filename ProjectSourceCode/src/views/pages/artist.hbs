@@ -11,10 +11,10 @@
         <!-- Artist Name and Details on Right 2/3 of screen-->
         <h2 class="text-centered" id="artistInfo" data-artist-name="{{artist.name}}">{{artist.name}}</h2>
         <div class="container-fluid" id="links_container">
-          {{#if (find followedArtists artist.id)}}
-            <button type="button" id="unfollow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Unfollow Artist</button>
+          {{#if isFollowed}}
+            <button type="button" class="btn btn-outline-danger follow-button" data-artist-id="{{artist.id}}" disabled>Already following!</button>
           {{else}}
-            <button type="button" id="follow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Follow Artist</button>
+            <button type="button" class="btn btn-outline-danger follow-button" data-artist-id="{{artist.id}}">Follow Artist</button>
           {{/if}}
           <a class="btn btn-outline-danger" href="/followedArtists">Your Follow List</a>
         </div>
@@ -56,19 +56,33 @@
   </script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Event delegation for clicks on dynamically added artist cards
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.artist-card, .artist-card *')) {
-        const artistId = event.target.closest('.artist-card').dataset.artistId;
-        if (artistId) {
-            window.location.href = `/artist/${artistId}`; // Redirect to artist page
-        }
-      }
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
-      let container = document.querySelector('#artistContainer');
+      const followButtons = document.querySelectorAll('.follow-button');
+      //console.log('Dom loaded!!');
+      followButtons.forEach(button => {
+        button.addEventListener('click', function(event) {
+          event.preventDefault();
+          const artistId = this.getAttribute('data-artist-id');
+          const artistName= document.querySelector('#artistInfo').getAttribute('data-artist-name');
+          console.log('Artist name: ' + artistName);
+          console.log('ArtistID: ' + artistId);
+          // Make the AJAX request here, similar to before.
+          $.ajax({
+            url: `/follow`,
+            type: 'POST',
+            data: { artistId, artistName },
+            success: function(response) {
+              button.disabled = true;
+              button.textContent = 'Following!';
+            },
+            error: function() {
+              console.error('Failed to follow the artist');
+            }
+          });
+        });
+      });
+
+      let container = document.querySelector('#similarArtistsContainer');
       if (container) {
         container.addEventListener('click', (event) => {
           const artistID = event.target.closest('.artist-card').dataset.artistid;
@@ -80,69 +94,18 @@
       } else {
         console.error('Container not found in the DOM.');
       }
-    });
 
-    document.addEventListener('click', (event) => {
-    if (event.target.matches('#follow_button')) {
-      // Prevent the default button action
-      if (event.target.matches('#follow_button, #unfollow_button')) {
-        event.stopPropagation();
+      let artworkcontainer = document.querySelector('#artworkContainer');
+      if (artworkcontainer) {
+        artworkcontainer.addEventListener('click', (event) => {
+          const artworkID = event.target.closest('.artwork-card').dataset.artworkid;
+          console.log('Artwork ID: ' + artworkID);
+          if (artworkID) {
+            window.location.href = `/artwork/${artworkID}`;
+          }
+        });
+      } else {
+        console.error('Artwork container not found in the DOM.');
       }
-      event.preventDefault();
-
-      // Get the artist ID from the artist object
-      const artistId = $('#follow_button').attr('data-artist-id');
-      console.log("artistID-client: " + artistId);
-      const artistName= $('#artistInfo').attr('data-artist-name');
-      // Make an AJAX POST request to the server
-      $.ajax({
-        url: '/follow', // Your server endpoint that handles the POST request
-        type: 'POST',
-        data: { artistId: artistId , artistName: artistName}, // Data you want to send to the server
-        success: function(response) {
-          // Handle success (e.g., update the button text to 'Following', display a message, etc.)
-          console.log('Follow successful:', response);
-          window.location.reload();
-        },
-        error: function(xhr, status, error) {
-          // Handle error
-          console.log('Follow failed:', error);
-        }
-      });
-
-
-    // TODO Disable follow_button
-    event.target.disabled = true;
-    event.target.classList.add('disabled');
-    event.target.innerHTML = 'Following!';
-    }
     });
-      
-    /*{{!-- document.addEventListener('click', (events) =>{    
-    if (event.target.matches('#unfollow_button')) {
-      // Prevent the default button action
-      event.preventDefault();
-
-      // Get the artist ID from the artist object
-      const artistId = $('#unfollow_button').attr('data-artist-id');
-      console.log("artistID-client: " + artistId);
-      const artistName= $('#artistInfo').attr('data-artist-name');
-      // Make an AJAX POST request to the server
-      $.ajax({
-        url: '/unfollow', // Your server endpoint that handles the POST request
-        type: 'POST',
-        data: { artistId: artistId , artistName: artistName}, // Data you want to send to the server
-        success: function(response) {
-          // Handle success (e.g., update the button text to 'Following', display a message, etc.)
-          console.log('Unfollow successful:', response);
-          window.location.reload();
-        },
-        error: function(xhr, status, error) {
-          // Handle error
-          console.log('Unfollow failed:', error);
-        }
-      });
-    }
-  }); --}}*/
-});
 </script>
