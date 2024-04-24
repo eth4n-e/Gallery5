@@ -93,42 +93,44 @@ async function fetchAndDisplayArtwork(artistname) {
   }
 }
 
-async function fetchMoreArtists() {
-  try {
-      page++; // Increment the global page variable
-      const artistData = await fetch(`https://api.artic.edu/api/v1/artists?limit=100&page=${page}`);
-      const json = await artistData.json();
+// Potential to add scrolling content: 
+// async function fetchMoreArtists() {
+//   try {
+//       page++; // Increment the global page variable
+//       const artistData = await fetch(`https://api.artic.edu/api/v1/artists?limit=100&page=${page}`);
+//       const json = await artistData.json();
 
-      const container = document.querySelector('#artistContainer');
-      container.innerHTML = ''; // Clear the container before adding new artists
+//       const container = document.querySelector('#artistContainer');
+//       container.innerHTML = ''; // Clear the container before adding new artists
 
-      for (const data of json.data) {
-          const artistThumb = await getArtistThumb(data.title);
-          if (artistThumb && artistThumb.thumbnail) {
-              const artistCard = document.createElement('div');
-              artistCard.classList.add('card', 'mb-3');
-
-              artistCard.innerHTML = `
-                <div class="col-md-3 mt-3 mb-4"> 
-                  <div class="artist-card mb-4 position-relative shadow-sm" data-artistID="${data.id}">
-                    <img src="${artistThumb.thumbnail}" class="bd-placeholder-img card-img-top fluid" alt="${artistThumb.name}">
-                      <div class="follow-button position-absolute bottom-0 end-0">
-                        <img src="../../../resources/images/follow_button.png" alt="Follow" class="img-fluid" style="height: 12px; width: auto;">
-                      </div>
-                      <div class="card-body">
-                        <h5 class="card-title">${data.title}</h5>
-                        <p class="card-text">Artist ID: ${data.id}</p>
-                      </div>
-                  </div>
-                </div>
-              `;
-              container.appendChild(artistCard);
-          }
-      }
-  } catch (error) {
-      console.error('Error fetching more artists:', error);
-  }
-}
+//       for (const data of json.data) {
+//         const artistThumb = await getArtistThumb(data.title);
+//         if (artistThumb && artistThumb.thumbnail) {
+//             const artistCard = document.createElement('div class="col-md-2 mb-4"');
+//             artistCard.classList.add('card', 'mb-3');
+    
+//             artistCard.innerHTML = `
+//               <div class="col-md-3 mt-3 mb-4"> 
+//                 <div class="artist-card mb-4 position-relative shadow-sm" data-artistID="${data.id}">
+//                   <img src="${artistThumb.thumbnail}" class="bd-placeholder-img card-img-top fluid" alt="${artistThumb.name}">
+//                     <div class="follow-button position-absolute bottom-0 end-0">
+//                       <img src="../../../resources/images/follow_button.png" alt="Follow" class="img-fluid" style="height: 12px; width: auto;">
+//                     </div>
+//                     <div class="card-body">
+//                       <h5 class="card-title">${data.title}</h5>
+//                       <p class="card-text">Artist ID: ${data.id}</p>
+//                     </div>
+//                 </div>
+//               </div>
+//             `;
+//             container.appendChild(artistCard);
+//         }
+//     }
+    
+//   } catch (error) {
+//       console.error('Error fetching more artists:', error);
+//   }
+// }
 
 // const followButton = document.querySelector('.add-to-list'); // Assuming a reference to the button
 
