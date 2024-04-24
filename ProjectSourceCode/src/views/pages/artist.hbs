@@ -10,7 +10,7 @@
       <div class="col-md-8">
         <!-- Artist Name and Details on Right 2/3 of screen-->
         <h2 class="text-centered" id="artistInfo" data-artist-name="{{artist.name}}">{{artist.name}}</h2>
-        <div class="container-fluid" id="links_container">
+        <div class="container-fluid " id="links_container">
           {{#if (find followedArtists artist.id)}}
             <button type="button" id="unfollow_button" class="btn btn-outline-danger" data-artist-id="{{artist.id}}">Unfollow Artist</button>
           {{else}}

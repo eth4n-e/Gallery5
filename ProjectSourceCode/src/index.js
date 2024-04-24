@@ -382,7 +382,7 @@ function getArtworks() {
 function getArtists() {
   const artist_offset = generateOffsets();
   
-  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
+  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=40`;
   //axios.get(url, config *e.g headers and such*)
 
   return axios.get(api_url)
@@ -409,9 +409,9 @@ try {
     //console.log(thumby);
     if(thumby.thumbnail)
       artists[i].thumbnail = thumby.thumbnail;
-    else
-      artists[i].thumbnail = "/resources/images/noimageavail.png";
   }
+  let artistsWithThumbnails = artists.filter(artist => artist.thumbnail).slice(0, 4);
+
 
 
   console.log("test");
@@ -483,7 +483,7 @@ try {
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { userImages, artworks, artists, eventsArr, username: req.session.user.username });
+  res.render('pages/discover', { userImages, artworks, artists: artistsWithThumbnails, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
