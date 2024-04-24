@@ -1441,7 +1441,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   const imageLink = req.file.path;
   const imageTitle = req.body.title;
   const userId = req.session.user.user_id;
-  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', [imageLink, imageTitle, userId]);
+  const descp= req.body.descp;
+  await db.none('INSERT INTO images(image_link, image_title, image_descp, user_id) VALUES($1, $2, $3, $4)', [imageLink, imageTitle, descp, userId]);
 
   res.redirect('/profile');
 });
