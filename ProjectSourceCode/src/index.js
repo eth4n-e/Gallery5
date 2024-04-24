@@ -24,6 +24,14 @@ const { get } = require('http');
 
 app.use('/resources', express.static('resources'));
 
+axios.interceptors.request.use(req => {
+  console.log(`${req.method} ${req.url}`);
+  //now log the paramaters
+  console.log(req.params);
+  // Important: request interceptors **must** return the request.
+  return req;
+});
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -374,7 +382,7 @@ function getArtworks() {
 function getArtists() {
   const artist_offset = generateOffsets();
   
-  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=4`;
+  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=40`;
   //axios.get(url, config *e.g headers and such*)
 
   return axios.get(api_url)
@@ -401,9 +409,9 @@ try {
     //console.log(thumby);
     if(thumby.thumbnail)
       artists[i].thumbnail = thumby.thumbnail;
-    else
-      artists[i].thumbnail = "/resources/images/noimageavail.png";
   }
+  let artistsWithThumbnails = artists.filter(artist => artist.thumbnail).slice(0, 4);
+
 
 
   console.log("test");
@@ -475,7 +483,7 @@ try {
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
-  res.render('pages/discover', { artworks, artists, eventsArr, username: req.session.user.username });
+  res.render('pages/discover', { userImages, artworks, artists: artistsWithThumbnails, eventsArr, username: req.session.user.username });
 } catch (error) {
   console.error(error);
 
@@ -783,7 +791,7 @@ app.post('/addEvent', async(req,res)=>{
     method: 'GET',
     params: {
       key: process.env.GOOGLE_MAPS_API_KEY,
-      address: eventLocation2
+      address: eventLocation
     }
   });
   //now check if the location is valid
@@ -828,6 +836,16 @@ app.get('/profile', async (req, res) => {
       [user_id]
     );
 
+    // Fetch artworks added to a users collection
+    // join artworks and user_to_artworks
+      // select image_links corresponding to artworks added by user
+    const userCollection = await db.any(
+      `SELECT image_link
+      FROM artworks
+      INNER JOIN user_to_artworks 
+      ON artworks.artwork_id = user_to_artworks.artwork_id
+      WHERE user_to_artworks.user_id = $1`, [user_id]
+    );
     //get all image  links and image ids from the users images
     //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
     
@@ -835,7 +853,7 @@ app.get('/profile', async (req, res) => {
     const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
     console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
+    res.render('pages/profile', { userCollection, followedArtists, userEvents , userImages, username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
@@ -1433,7 +1451,8 @@ app.post('/upload', upload.single('image'), async (req, res) => {
   const imageLink = req.file.path;
   const imageTitle = req.body.title;
   const userId = req.session.user.user_id;
-  await db.none('INSERT INTO images(image_link, image_title, user_id) VALUES($1, $2, $3)', [imageLink, imageTitle, userId]);
+  const descp= req.body.descp;
+  await db.none('INSERT INTO images(image_link, image_title, image_descp, user_id) VALUES($1, $2, $3, $4)', [imageLink, imageTitle, descp, userId]);
 
   res.redirect('/profile');
 });
