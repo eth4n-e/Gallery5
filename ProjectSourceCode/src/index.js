@@ -399,7 +399,7 @@ try {
 
   // const events = eventsRes.data._embedded.fairs;
   const artworks = artworksRes.data.data;
-  console.log(artworks); // this is an array of objects
+  //console.log(artworks); // this is an array of objects
   var artists = artistsRes.data.data;
   artists.thumbnail = [];
   // Call the getArtistThumb in a loop and append artist image
@@ -479,7 +479,7 @@ try {
 
   //call function to get userimages
   const userImages = await getUserImages(4); //get user images
-  console.log("Userimages obj: " + userImages);
+  //console.log("Userimages obj: " + userImages);
   
   // Give to discover.hbs
   // allow the discover page to access the returned events, artworks, artists
@@ -907,7 +907,7 @@ async function getArtistThumb_Bio(artistName) {
       extract: artistInfo.extract
     };
   } catch (error) {
-    console.error(`Error retrieving data from Wikipedia for: ${artistName}`, error);
+    //console.error(`Error retrieving data from Wikipedia for: ${artistName}`, error);
     return null; // or handle the error as you prefer
   }
 }
@@ -934,7 +934,7 @@ app.get('/artists', async (req, res) => {
         followedArtists: req.session.followArtistsList
       });
     } catch (error) {
-      console.error(error);
+      console.log(error);
       res.render('./pages/allArtists', { message: 'Error generating web page. Please try again. Dev note: Index-728.', username: req.session.user.username });
     }
   } else {
@@ -946,8 +946,8 @@ app.get('/artists', async (req, res) => {
 
 // Display a specific artist's page based on an artistID from Art Institute of Chicago API
 app.get('/artist/:artistID', async (req, res) => {
-  if(!followed_Artist_list)
-    updateFollowedArtists();
+  //if(!followed_Artist_list)
+  //  updateFollowedArtists();
   const artistId = req.params.artistID;
   const artistURL = `https://api.artic.edu/api/v1/artists/${artistId}`;
   try {
@@ -966,7 +966,13 @@ app.get('/artist/:artistID', async (req, res) => {
         // Add other properties as needed
       };
 
-      res.render('./pages/artist', { artist: artistInfo, username: req.session.user.username, followedArtists: followed_Artist_list });
+      // Check to see if artist is already followed:
+      const artistFollowed = await db.oneOrNone('SELECT * FROM user_artists WHERE user_id = $1 AND artist_id = $2', [req.session.user.user_id, artistId]);
+      let artistFollowedBool = false;
+      if (artistFollowed) {
+        artistFollowedBool = true;
+      }
+      res.render('./pages/artist', { artist: artistInfo, isFollowed: artistFollowedBool, username: req.session.user.username });
     } else {
       res.render('./pages/artist', { message: 'Error retrieving artist information.', username: req.session.user.username });
     }
@@ -981,11 +987,13 @@ module.exports = app;
 app.post('/follow', async (req, res) => {
   try {
     // Assuming 'username' is stored in the session or passed in some other way
+    console.log('following post');
     const username = req.session.user.username; // or however you have stored the username
     const artistId = req.body.artistId;   
     const artistName = req.body.artistName; // Added artistName
-    
-    // console.log('artistId' + artistId); 
+    console.log('artistName' + artistName);
+    console.log('artistId' + artistId); 
+
     // Retrieve the user_id for the logged-in user
     const userId = await db.one('SELECT * FROM users WHERE username = $1', [username]);
     if(!userId)
@@ -1009,7 +1017,7 @@ app.post('/follow', async (req, res) => {
     else{
       console.log("Artist not followed yet.");
       await db.none('INSERT INTO user_artists(user_id, artist_id) VALUES($1, $2)', [userIdInt, artistId]);
-      updateFollowedArtists();
+      //updateFollowedArtists();
     }
 
     res.status(200).json({ message: 'Follow successful' });
@@ -1039,7 +1047,7 @@ app.post('/unfollow', async (req, res) => {
     else{
       await db.oneOrNone('DELETE FROM user_artists WHERE user_id = $1 AND artist_id = $2', [userIdInt, artistId]);
       console.log("Artist unfollowed.");
-      updateFollowedArtists();
+      //updateFollowedArtists();
     }
   } catch (error) {
     console.error('Unfollow failed:', error);
@@ -1091,20 +1099,20 @@ app.get('/followedArtists', async (req, res) => {
   }
 });
 
-async function updateFollowedArtists(req, res) {
-  try {
-    followed_Artist_list = []; // Corrected assignment
-    const username = req.session.user.username;
-    const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
-    console.log("User ID retrieved:", userId.user_id);
-    var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE user_id = $1', [userId.user_id]);
-    console.log("followed_list: ", followed_list);
-    req.session.followedArtistsList = followed_Artist_list; // Corrected assignment
-  } catch (error) {
-    console.error('Error updating followed artists list:', error);
-    // Consider adding an error response or throwing the error depending on how you handle errors
-  }
-};
+// async function updateFollowedArtists(req, res) {
+//   try {
+//     followed_Artist_list = []; // Corrected assignment
+//     const username = req.session.user.username;
+//     const userId = await db.one('SELECT user_id FROM users WHERE username = $1', [username]);
+//     console.log("User ID retrieved:", userId.user_id);
+//     var followed_list = await db.any('SELECT artist_id FROM user_artists WHERE user_id = $1', [userId.user_id]);
+//     console.log("followed_list: ", followed_list);
+//     req.session.followedArtistsList = followed_Artist_list; // Corrected assignment
+//   } catch (error) {
+//     console.error('Error updating followed artists list:', error);
+//     // Consider adding an error response or throwing the error depending on how you handle errors
+//   }
+// };
 
 
 
