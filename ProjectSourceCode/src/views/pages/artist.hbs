@@ -56,19 +56,8 @@
   </script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    // Event delegation for clicks on dynamically added artist cards
-    document.addEventListener('click', (event) => {
-      if (event.target.matches('.artist-card, .artist-card *')) {
-        const artistId = event.target.closest('.artist-card').dataset.artistId;
-        if (artistId) {
-            window.location.href = `/artist/${artistId}`; // Redirect to artist page
-        }
-      }
-    });
-
     document.addEventListener('DOMContentLoaded', () => {
-      let container = document.querySelector('#artistContainer');
+      let container = document.querySelector('#similarArtistsContainer');
       if (container) {
         container.addEventListener('click', (event) => {
           const artistID = event.target.closest('.artist-card').dataset.artistid;
@@ -80,7 +69,21 @@
       } else {
         console.error('Container not found in the DOM.');
       }
-    });
+
+      let artworkcontainer = document.querySelector('#artworkContainer');
+      if (artworkcontainer) {
+        artworkcontainer.addEventListener('click', (event) => {
+          const artworkID = event.target.closest('.artwork-card').dataset.artworkid;
+          console.log('Artist ID: ' + artworkID);
+          if (artworkID) {
+            window.location.href = `/artwork/${artworkID}`;
+          }
+        });
+      } else {
+        console.error('Artwork container not found in the DOM.');
+      }
+
+
 
     document.addEventListener('click', (event) => {
     if (event.target.matches('#follow_button')) {
