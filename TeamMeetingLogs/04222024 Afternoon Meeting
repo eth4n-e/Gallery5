@@ -1,0 +1,44 @@
+Monday afternoon meeting 1pm
+Cory's Office Hours
+Attendees: ALL
+
+Questions raised:
+What did you do this week, what are you working on, what issues do you have, how are you going to follow up?
+
+Nate:
+  Implemented user-upload
+  Following up with user profile
+  Assisting user-comments
+  Morale improvement changes
+  Worked on test cases
+  
+Ethan: 
+  Finishing adding artwork to collection
+  Individual artwork page tweaks
+  Switched to Art Institute of Chicago API
+  Assisting user-comments
+  Assisting user-profile
+  Assisting discover-user features
+  
+Khizar:
+  Implemented a number of changes
+    - events
+    - user profile
+    - user-added events
+  Assited user-profile
+  Led user-upload through Multer
+
+Austin:
+  Switched artwork and artist pages to use Art Institute of Chicago API
+  Implemented user-feature in discover
+  Implemented follow-artist
+  Assisted teammembers in assorted data
+
+Amy:
+  Created cleaner version of add-events model
+  Lead for presentation / slide deck
+  Assisted event-changes in each webpage
+
+Catherine:
+  Created profile page
+  Learned how to utilize GitHub branching properly (not trying to branch main from main locally)
