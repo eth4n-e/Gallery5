@@ -11,4 +11,4 @@ TODO: Fill out readme with following pieces.
 4. Prerequisites to run the application - Any software that needs to be installed to run the application - No previous software is required. 
 5. Instructions on how to run the application locally. - Install docker and clone repository. CD into the project source code and run a "docker compose up" command. And then with your browser of choice go to "loaclhost3000:/login". From there you should be able to play around in the app. 
 6. How to run the tests - Tests can be found in the 'server.spec.js' and to run the tests, one can change the docker-compose.yaml file. In the file at the bottom there is a to-do comment and can change it based on that to run the tests. 
-7. Link to the deployed application - 
+7. Link to the deployed application - recitation-011-team-5.eastus.cloudapp.azure.com:3000/login
