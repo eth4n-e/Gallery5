@@ -379,10 +379,10 @@ function getArtworks() {
 }
 
 // handle artists api call
-function getArtists() {
+async function getArtists() {
   const artist_offset = generateOffsets();
   
-  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=40`;
+  const api_url = `https://api.artic.edu/api/v1/agents/search?query[term][is_artist]=true&fields=id,title,description,birth_date&from=${artist_offset}&size=50`;
   //axios.get(url, config *e.g headers and such*)
 
   return axios.get(api_url)
@@ -403,12 +403,16 @@ try {
   var artists = artistsRes.data.data;
   artists.thumbnail = [];
   // Call the getArtistThumb in a loop and append artist image
+  var count_four = 0; //count the number of artists with thumbnails
   for( var i = 0; i < artists.length; i++) {
     //console.log(artists[i]);
     const thumby = await getArtistThumb_Bio(artists[i].title);
     //console.log(thumby);
-    if(thumby.thumbnail)
+    if(thumby.thumbnail){
       artists[i].thumbnail = thumby.thumbnail;
+      count_four++; //count the number of artists with thumbnails
+    }
+    if(count_four == 4) break; //if we have 4 artists with thumbnails, break the loop
   }
   let artistsWithThumbnails = artists.filter(artist => artist.thumbnail).slice(0, 4);
 

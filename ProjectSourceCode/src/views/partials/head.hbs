@@ -17,8 +17,12 @@
             //
             //const longitudeInput = document.querySelector("#longitude");
             //console.log(position, latitudeInput)
+            if(position.coords.latitude){
             latitudeInput.value = position.coords.latitude;
+            }
+            if(position.coords.longitude){
             longitudeInput.value = position.coords.longitude;
+            }
 
             //console.log(latitudeInput)
 
