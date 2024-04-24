@@ -836,6 +836,16 @@ app.get('/profile', async (req, res) => {
       [user_id]
     );
 
+    // Fetch artworks added to a users collection
+    // join artworks and user_to_artworks
+      // select image_links corresponding to artworks added by user
+    const userCollection = await db.any(
+      `SELECT image_link
+      FROM artworks
+      INNER JOIN user_to_artworks 
+      ON artworks.artwork_id = user_to_artworks.artwork_id
+      WHERE user_to_artworks.user_id = $1`, [user_id]
+    );
     //get all image  links and image ids from the users images
     //const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
     
@@ -843,7 +853,7 @@ app.get('/profile', async (req, res) => {
     const userImages= await db.any( 'SELECT * FROM images WHERE user_id = $1', [user_id]);
     console.log(userImages);
     // Render the profile page and pass the followed artists and user's events data to it
-    res.render('pages/profile', { followedArtists, userEvents , userImages, username: req.session.user.username});
+    res.render('pages/profile', { userCollection, followedArtists, userEvents , userImages, username: req.session.user.username});
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching profile data.');
