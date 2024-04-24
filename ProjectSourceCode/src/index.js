@@ -1442,7 +1442,7 @@ const CALENDAR_EVENTS = [
   }
   
 // *****************************************************
-// <!-- Section 12 : Multer->
+// <!-- Section 12 : Multer-> Khizar
 // *****************************************************
 
 app.post('/upload', upload.single('image'), async (req, res) => {
@@ -1484,8 +1484,11 @@ app.get('/userImages/:imageId', async (req, res) => {
     const userId = image.user_id;
     const user = await db.one('SELECT username FROM users WHERE user_id = $1', [userId]);
     image.username = user.username;
+
+    const comments = await db.any('SELECT * FROM comments2 WHERE image_id = $1', [imageId]);
+    console.log(comments);
     console.log(image);
-    res.render('pages/specificimage', { image, username: req.session.user.username });
+    res.render('pages/specificimage', {comments, image, username: req.session.user.username });
   } catch (error) {
     console.error(error);
     res.status(500).send('An error occurred while fetching the image.');
@@ -1504,3 +1507,31 @@ async function getUserImages(numImages){ // returns userimages for a specified n
     return null;
   }
 }
+
+app.post('/addCommentUser/:id', async (req, res) => {
+  try {
+    // obtaining values needed for insert
+    const commentText = req.body.comment;
+    const artwork_id = parseInt(req.params.id);
+    console.log('artwork_id: ' + artwork_id);
+    const user_id = req.session.user.user_id;
+
+    // insert the comment into the database first
+    await db.none(`INSERT INTO comments2(comment_text, image_id, user_id) VALUES ($1, $2, $3)`, [commentText, artwork_id, user_id]);
+    
+    //testing
+    const entry = await db.any('SELECT * FROM comments WHERE comment_text = $1', [commentText]);
+
+    if(entry) {
+      res.redirect(`/userImages/${artwork_id}`);
+      //res.status(500).json({message: 'Success'});
+    } else {
+      res.status(200).json({message: 'Unsuccessful insert'});
+    }
+
+    
+
+  } catch(error) {
+    console.log(error);
+  }
+});

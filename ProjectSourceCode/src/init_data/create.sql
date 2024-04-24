@@ -76,3 +76,11 @@ CREATE TABLE IF NOT EXISTS images (
     user_id INT REFERENCES users(user_id)
 
 );
+
+--comments for user images, sicne atm different data bases, so artist id and image id might collide whatever
+CREATE TABLE IF NOT EXISTS comments2 (
+    comment_id SERIAL PRIMARY KEY,
+    comment_text TEXT,
+    user_id INT REFERENCES users(user_id),
+    image_id INT REFERENCES images(image_id)
+);

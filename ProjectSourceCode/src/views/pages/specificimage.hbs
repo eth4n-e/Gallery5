@@ -16,6 +16,9 @@
                 - maybe change button color if successful
             - button to search for more artworks by artist, maybe genre
         -->
+
+
+        
     <div class="row justify-center mt-4">
         <div class="col-4 p-2">
             <p class="fw-light mb-0">{{image.username}}</p>
@@ -37,3 +40,40 @@
     </div>
     <hr/>
 </div>
+
+
+<a class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            Add a Comment
+            </a>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title center" id="exampleModalLabel" align="center">Add a comment to {{image.image_title}}</h4>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="/addCommentUser/{{image.image_id}}" method="POST" class="form-container">
+                                    <div class="form-group">
+                                        <label for="comment" class="form-label mt-2">Add comment</label>
+                                        <input id = "comment" type="text" class="form-control" name="comment" required>
+                                    <button type="submit" class="btn btn-primary mt-4">Add Comment</button>
+                                    <button type="close" class="btn btn-primary mt-4">Close</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+<div class="row justify-center mt-4"> 
+        <div class="col-4 p-2">
+            <h4 class="text-start">Comments</h4>
+            <div class="d-flex flex-column">
+                {{#each comments}}
+                    <p class="bg-primary text-white shadow-lg rounded shadow p-2 my-2">{{comment_text}}</p>
+                {{/each}}
+            </div>
+        </div>
+
+    
