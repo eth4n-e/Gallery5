@@ -11,6 +11,32 @@
 <body>
     <h1>{{username}}'s Profile</h1>
 
+    
+    <h2>Your Artworks</h2>
+        {{#if userImages}}
+        <div class="container mt-3 mb-3" id="imageContainer">
+  <div class="row" id="imageRow">
+    {{#each userImages}}
+      <div class="col-md-4 mb-4">
+        <div class="card shadow-sm position-relative" data-imageID="{{image_id}}" data-title="{{image_title}}">
+          <img src="{{image_link}}" class="card-img-top" alt="Artwork by {{image_title}}">
+          <div class="card-body">
+            <h5 class="card-title">{{title}}</h5>
+            <div class="d-grid gap-2">
+                <button type="follow_button" class="btn btn-outline-danger" onclick="window.location.href='/userImages/{{this.image_id}}'">Learn More</button>
+
+            </div>
+            </div>
+        </div>
+        </div>
+    {{/each}}
+    </div>
+    </div>
+    {{else}}
+        <p>No original artwork!</p>
+    {{/if}}
+
+    {{!-- <br>
     <br>
     
     <h2>Followed Artists</h2>
