@@ -24,6 +24,14 @@ const { get } = require('http');
 
 app.use('/resources', express.static('resources'));
 
+axios.interceptors.request.use(req => {
+  console.log(`${req.method} ${req.url}`);
+  //now log the paramaters
+  console.log(req.params);
+  // Important: request interceptors **must** return the request.
+  return req;
+});
+
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
 // *****************************************************
@@ -783,7 +791,7 @@ app.post('/addEvent', async(req,res)=>{
     method: 'GET',
     params: {
       key: process.env.GOOGLE_MAPS_API_KEY,
-      address: eventLocation2
+      address: eventLocation
     }
   });
   //now check if the location is valid
