@@ -22,6 +22,9 @@
 {{!-- <script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script> --}}
 
 <style>
+.custom{
+    width: 175px;
+}
 
     .flip-card {
   background-color: transparent;
@@ -120,76 +123,163 @@
 
 <!--Calendar-->
 <table class="table">
-    <tr class="font-weight-bold col px-md-2" align="text-center">
-        {{#each daysOfWeek}}
-        <td class="col px-md-2"><h1>{{this}}</h1></td>
-        {{/each}}
-    </tr>
-    <tr>
-        {{#each datesForWeek}}
-        <td class="col px-md-2"><p2>{{this}}</p2></td>
-        {{/each}}
-    </tr>
-    <tr>
-        <td align="position" class="col px-md-2">
-            {{#each events1}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
+    <div class="row">
+        <tr class="font-weight-bold col px-md-2 custom" align="center">
+            {{#each daysOfWeek}}
+            <td class="col px-md-2 custom"><h1>{{this}}</h1></td>
             {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-            {{#each events2}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-        </td>
+        </tr>
+    </div>
+    <div class="row">
+        <tr>
+            {{#each datesForWeek}}
+            <td class="col px-md-2 custom" align="center"><p2>{{this}}</p2></td>
             {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-            {{#each events3}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-            {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-           {{#each events4}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-            {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-           {{#each events5}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-            {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-            {{#each events6}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-            {{/each}}
-        </td>
-        <td align="position" class="col px-md-2">
-            {{#each events7}}
-                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
-                    <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
-                    <p class="card-text">Description: {{this.eventDescp}}</p>
-                </button>
-            {{/each}}
-        </td>
-    </tr>
+        </tr>
+    </div>
+</table>
+<table>
+    <div class="row align-items-start">
+        <tr>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events1}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events1}}
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events2}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events2}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events3}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events3}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events4}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events4}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events5}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events5}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events6}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events6}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+            <div class="col-md-4 cell">
+            <td align="position" class="col px-md-2">
+                {{#if events7}}
+                <div class="btn-group-vertical col px-md-2 custom" role="group" aria-label="Vertical button group">
+                    {{#each events7}}
+                        <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                            <h5 class="card-title">{{this.eventName}}</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                            <p class="card-text">Description: {{this.eventDescp}}</p>
+                        </button>
+                    {{/each}}
+                </div>
+                {{else}}
+                    <button type="button" class="btn btn-outline-secondary custom" data-bs-toggle="tooltip" data-bs-placement="top" title="Location: {{this.eventLocation}}">
+                        <h5 class="card-title">No Events Today</h5> <!--Temporary set in place for OH for tooltips and where to put in index.js-->
+                        <p class="card-text"></p>
+                    </button>                   
+                {{/if}}
+            </td>
+            </div>
+        </tr>
+    </div>
 </table> 
+
+
+
 <!--Calendar Model-->
 <div class="container mx-auto text-center mt-4">
     <button type="button" class="btn btn-primary mx-auto text-center btn-lg" onclick="openForm()" data-bs-toggle="modal" data-bs-target="#calendarModal">
