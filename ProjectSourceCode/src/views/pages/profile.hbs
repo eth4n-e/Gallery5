@@ -58,6 +58,19 @@
 
     <br>
 
+    <h2>Art Collection</h2>
+    {{#if userCollection}}
+        <div class="container mb-4 d-flex flex-row align-items-center overflow-x-scroll">
+            {{#each userCollection}}
+                <div class="mx-2 my-2">
+                    <img src={{this.image_link}} class="shadow" style="max-height: 400px;">
+                </div>
+            {{/each}}
+        </div>
+    {{else}}
+        <p>No saved events!</p>
+    {{/if}}    
+
     <h2>Upload Artwork</h2>
 
 </body>
